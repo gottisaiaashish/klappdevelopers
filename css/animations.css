@@ -1,0 +1,78 @@
+/* ==========================================================================
+   KLAPP DEVELOPERS - ANIMATIONS & REVEALS
+   ========================================================================== */
+
+/* Intersection Observer Scroll Reveal Classes */
+.reveal-element {
+  opacity: 0;
+  transform: translateY(35px) scale(0.98);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.reveal-element.revealed {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* Stagger Delay Helpers */
+.delay-100 { transition-delay: 0.1s; }
+.delay-200 { transition-delay: 0.2s; }
+.delay-300 { transition-delay: 0.3s; }
+.delay-400 { transition-delay: 0.4s; }
+.delay-500 { transition-delay: 0.5s; }
+
+/* Shimmer Light Sweep on Cards */
+@keyframes shimmerBeam {
+  0% { transform: translateX(-100%) rotate(45deg); }
+  100% { transform: translateX(200%) rotate(45deg); }
+}
+
+.shimmer-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer-card::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    60deg,
+    transparent 40%,
+    rgba(255, 255, 255, 0.08) 50%,
+    transparent 60%
+  );
+  transform: rotate(45deg);
+  pointer-events: none;
+  animation: shimmerBeam 8s infinite linear;
+}
+
+/* Glowing Border Animation for Featured Items */
+@keyframes borderGlowPulse {
+  0%, 100% { border-color: rgba(59, 130, 246, 0.5); box-shadow: 0 0 25px rgba(59, 130, 246, 0.3); }
+  50% { border-color: rgba(139, 92, 246, 0.7); box-shadow: 0 0 40px rgba(139, 92, 246, 0.5); }
+}
+
+.glow-border-active {
+  animation: borderGlowPulse 4s infinite ease-in-out;
+}
+
+/* Floating animation for badge pills */
+@keyframes floatY {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0); }
+}
+
+.float-slow {
+  animation: floatY 6s ease-in-out infinite;
+}
+
+.float-delayed {
+  animation: floatY 7s ease-in-out infinite;
+  animation-delay: -3s;
+}

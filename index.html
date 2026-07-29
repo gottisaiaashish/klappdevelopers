@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KLAPP Developers | Knowledge Led Apps & Performance Partners</title>
+  <meta name="description" content="We build premium websites, AI automation, business software, mobile apps and scalable digital solutions for modern businesses. World-class software engineering.">
+  <meta name="keywords" content="KLAPP Developers, Software Agency, AI Automation, WhatsApp Automation, Web Development, Mobile Apps, Business Software">
+  <meta property="og:title" content="KLAPP Developers | Knowledge Led Apps & Performance Partners">
+  <meta property="og:description" content="Building Intelligent Websites & AI Powered Business Solutions.">
+  <meta property="og:type" content="website">
+
+  <!-- Remixicon CDN for Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet"/>
+  
+  <!-- CSS Style Files -->
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/animations.css">
+</head>
+<body>
+
+  <!-- Custom Glow Cursor -->
+  <div class="custom-cursor" id="customCursor"></div>
+  <div class="custom-cursor-follower" id="customFollower"></div>
+
+  <!-- Background Layer (HTML5 Canvas Particles & Mesh) -->
+  <canvas id="bgCanvas"></canvas>
+  <div class="ambient-glow glow-blob-1"></div>
+  <div class="ambient-glow glow-blob-2"></div>
+  <div class="ambient-glow glow-blob-3"></div>
+
+  <!-- ==========================================================================
+       HEADER & STICKY GLASS NAVBAR
+       ========================================================================== -->
+  <header class="navbar">
+    <div class="container navbar-container">
+      <a href="#home" class="logo">
+        <div class="logo-mark">K</div>
+        <div class="logo-text">
+          <span class="logo-name">KLAPP</span>
+          <span class="logo-tagline">Developers</span>
+        </div>
+      </a>
+
+      <nav>
+        <ul class="nav-menu" id="navMenu">
+          <li><a href="#home" class="nav-link active">Home</a></li>
+          <li><a href="#services" class="nav-link">Services</a></li>
+          <li><a href="#showcase" class="nav-link">Showcase</a></li>
+          <li><a href="#tech" class="nav-link">Technologies</a></li>
+          <li><a href="#process" class="nav-link">Process</a></li>
+          <li><a href="#portfolio" class="nav-link">Portfolio</a></li>
+          <li><a href="#pricing" class="nav-link">Pricing</a></li>
+          <li><a href="#contact" class="nav-link">Contact</a></li>
+        </ul>
+      </nav>
+
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <a href="#contact" class="btn btn-primary" style="padding: 12px 24px; font-size: 0.9rem;">
+          <i class="ri-phone-find-line"></i> Book a Call
+        </a>
+        <button class="mobile-nav-toggle" id="mobileNavToggle" aria-label="Toggle navigation menu">
+          <i class="ri-menu-line"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==========================================================================
+       1. HERO SECTION (FULL SCREEN + 3D LAPTOP & FLOATING CARDS)
+       ========================================================================== -->
+  <section id="home" class="hero">
+    <div class="container">
+      <div class="hero-grid">
+        
+        <!-- Hero Content Left -->
+        <div class="hero-content">
+          <div class="section-tag hero-badge">
+            <span class="section-tag-dot"></span> KNOWLEDGE LED APPS & PERFORMANCE PARTNERS
+          </div>
+
+          <h1 class="hero-title">
+            Building <span class="gradient-text">Intelligent Websites</span> & AI Powered Business Solutions.
+          </h1>
+
+          <p class="hero-subheading">
+            We build premium websites, AI automation, business software and scalable digital solutions for modern businesses seeking high performance and luxury design.
+          </p>
+
+          <div class="hero-actions">
+            <a href="#contact" class="btn btn-primary">
+              Get Started <i class="ri-arrow-right-line"></i>
+            </a>
+            <a href="#portfolio" class="btn btn-secondary">
+              <i class="ri-play-circle-line"></i> View Portfolio
+            </a>
+          </div>
+
+          <div class="hero-trust">
+            <div class="trust-avatars">
+              <div class="trust-avatar" style="background: #3b82f6;">K</div>
+              <div class="trust-avatar" style="background: #8b5cf6;">A</div>
+              <div class="trust-avatar" style="background: #06b6d4;">P</div>
+              <div class="trust-avatar" style="background: #10b981;">+</div>
+            </div>
+            <div class="trust-text">
+              Trusted by <strong>50+ Modern Enterprises</strong> & High-Growth Startups globally.
+            </div>
+          </div>
+        </div>
+
+        <!-- Hero Visual Right (3D Floating Laptop + Parallax Cards) -->
+        <div class="hero-visual-wrapper">
+          
+          <!-- Floating Parallax Badges -->
+          <div class="floating-card fc-1">
+            <div class="fc-icon" style="background: rgba(59,130,246,0.2); color: #60a5fa;"><i class="ri-robot-2-line"></i></div>
+            <div>
+              <div class="fc-title">AI Automation</div>
+              <div class="fc-sub">Autonomous Agents Active</div>
+            </div>
+          </div>
+
+          <div class="floating-card fc-2">
+            <div class="fc-icon" style="background: rgba(37,211,102,0.2); color: #25d366;"><i class="ri-whatsapp-line"></i></div>
+            <div>
+              <div class="fc-title">WhatsApp API</div>
+              <div class="fc-sub">Instant Conversion Bot</div>
+            </div>
+          </div>
+
+          <div class="floating-card fc-3">
+            <div class="fc-icon" style="background: rgba(139,92,246,0.2); color: #c084fc;"><i class="ri-flashlight-line"></i></div>
+            <div>
+              <div class="fc-title">99/100 Speed</div>
+              <div class="fc-sub">Sub-100ms Latency</div>
+            </div>
+          </div>
+
+          <!-- 3D Laptop Object -->
+          <div class="laptop-3d-scene" id="laptop3dScene">
+            <div class="laptop-body">
+              <div class="laptop-screen-header">
+                <div class="laptop-camera"></div>
+              </div>
+              <div class="laptop-screen">
+                
+                <!-- Animated Dashboard Content -->
+                <div class="screen-dashboard">
+                  <div class="dashboard-nav">
+                    <div class="dash-dots">
+                      <div class="dash-dot red"></div>
+                      <div class="dash-dot yellow"></div>
+                      <div class="dash-dot green"></div>
+                    </div>
+                    <div class="dash-status">
+                      <span class="section-tag-dot" style="background:#10b981;"></span> SYSTEM OPERATIONAL
+                    </div>
+                  </div>
+
+                  <div class="dash-metrics">
+                    <div class="metric-mini-card">
+                      <div class="metric-label">Active Users</div>
+                      <div class="metric-val">14,290</div>
+                      <div class="metric-chart"><div class="chart-bar"></div></div>
+                    </div>
+                    <div class="metric-mini-card">
+                      <div class="metric-label">AI Queries</div>
+                      <div class="metric-val">99.4%</div>
+                      <div class="metric-chart"><div class="chart-bar" style="width:88%;"></div></div>
+                    </div>
+                    <div class="metric-mini-card">
+                      <div class="metric-label">Revenue Growth</div>
+                      <div class="metric-val">+340%</div>
+                      <div class="metric-chart"><div class="chart-bar" style="width:95%;"></div></div>
+                    </div>
+                  </div>
+
+                  <div class="dash-main-preview">
+                    <div>
+                      <div class="code-line-sim short"></div>
+                      <div class="code-line-sim med"></div>
+                      <div class="code-line-sim long"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                      <span class="badge badge-purple">KLAPP ENGINE v3.4</span>
+                      <span style="font-size: 0.7rem; color: var(--accent-cyan); font-family: var(--font-mono);">DEPLOYED</span>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+            <div class="laptop-base">
+              <div class="laptop-notch"></div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       2. SERVICES SECTION (3D CARDS + GLOWING BORDERS)
+       ========================================================================== -->
+  <section id="services" class="section-spacing">
+    <div class="container">
+      <div class="section-header reveal-element">
+        <div class="section-tag"><span class="section-tag-dot"></span> WHAT WE BUILD</div>
+        <h2 class="section-title">Engineered For <span class="gradient-text">Maximum Performance</span></h2>
+        <p class="section-description">
+          Every service we provide is designed with extreme precision, high scalability, and luxury visual presentation.
+        </p>
+      </div>
+
+      <div class="services-grid">
+        
+        <!-- Service 1 -->
+        <div class="glass-card service-card reveal-element delay-100">
+          <div>
+            <div class="service-icon-wrapper">
+              <i class="ri-global-line"></i>
+            </div>
+            <h3 class="service-title">Website Development</h3>
+            <p class="service-desc">
+              High-converting, ultra-fast websites built with modern frameworks, dynamic 3D layouts, and sub-second loading speeds.
+            </p>
+            <ul class="service-features">
+              <li><i class="ri-check-double-line"></i> 99+ Lighthouse Performance</li>
+              <li><i class="ri-check-double-line"></i> Custom Dynamic CSS & Animations</li>
+              <li><i class="ri-check-double-line"></i> SEO Optimized Architecture</li>
+            </ul>
+          </div>
+          <a href="#contact" class="service-link">Explore Capabilities <i class="ri-arrow-right-line"></i></a>
+        </div>
+
+        <!-- Service 2 -->
+        <div class="glass-card service-card reveal-element delay-200">
+          <div>
+            <div class="service-icon-wrapper" style="background: rgba(139,92,246,0.1); color: var(--accent-purple);">
+              <i class="ri-brain-line"></i>
+            </div>
+            <h3 class="service-title">AI Automation</h3>
+            <p class="service-desc">
+              Custom autonomous AI agents, RAG vector pipelines, and document intelligence workflows that automate manual operations.
+            </p>
+            <ul class="service-features">
+              <li><i class="ri-check-double-line"></i> Custom OpenAI & Gemini Models</li>
+              <li><i class="ri-check-double-line"></i> Intelligent Document Parsing</li>
+              <li><i class="ri-check-double-line"></i> Enterprise Workflow Automation</li>
+            </ul>
+          </div>
+          <a href="#contact" class="service-link">Explore Capabilities <i class="ri-arrow-right-line"></i></a>
+        </div>
+
+        <!-- Service 3 -->
+        <div class="glass-card service-card reveal-element delay-300">
+          <div>
+            <div class="service-icon-wrapper" style="background: rgba(37,211,102,0.1); color: #25d366;">
+              <i class="ri-whatsapp-line"></i>
+            </div>
+            <h3 class="service-title">WhatsApp Automation</h3>
+            <p class="service-desc">
+              Official WhatsApp Cloud API bots, interactive lead generation funnels, automated booking alerts, and CRM integration.
+            </p>
+            <ul class="service-features">
+              <li><i class="ri-check-double-line"></i> Instant Multi-Choice Chatbots</li>
+              <li><i class="ri-check-double-line"></i> Automated Payment Link Generation</li>
+              <li><i class="ri-check-double-line"></i> Google Sheets & Database Sync</li>
+            </ul>
+          </div>
+          <a href="#contact" class="service-link">Explore Capabilities <i class="ri-arrow-right-line"></i></a>
+        </div>
+
+        <!-- Service 4 -->
+        <div class="glass-card service-card reveal-element delay-100">
+          <div>
+            <div class="service-icon-wrapper" style="background: rgba(6,182,212,0.1); color: var(--accent-cyan);">
+              <i class="ri-smartphone-line"></i>
+            </div>
+            <h3 class="service-title">Mobile Apps</h3>
+            <p class="service-desc">
+              Cross-platform iOS and Android applications crafted with smooth 60fps animations and offline-first data sync.
+            </p>
+            <ul class="service-features">
+              <li><i class="ri-check-double-line"></i> Flutter & React Native Architecture</li>
+              <li><i class="ri-check-double-line"></i> Biometric Auth & Push Alerts</li>
+              <li><i class="ri-check-double-line"></i> App Store & Play Store Deployment</li>
+            </ul>
+          </div>
+          <a href="#contact" class="service-link">Explore Capabilities <i class="ri-arrow-right-line"></i></a>
+        </div>
+
+        <!-- Service 5 -->
+        <div class="glass-card service-card reveal-element delay-200">
+          <div>
+            <div class="service-icon-wrapper" style="background: rgba(217,70,239,0.1); color: var(--accent-magenta);">
+              <i class="ri-dashboard-3-line"></i>
+            </div>
+            <h3 class="service-title">Business Software</h3>
+            <p class="service-desc">
+              Bespoke ERPs, inventory portals, channel managers, and executive analytics suites tailored to your workflow.
+            </p>
+            <ul class="service-features">
+              <li><i class="ri-check-double-line"></i> Role-Based Access Control</li>
+              <li><i class="ri-check-double-line"></i> Real-time Financial Reporting</li>
+              <li><i class="ri-check-double-line"></i> Custom Webhook Integrations</li>
+            </ul>
+          </div>
+          <a href="#contact" class="service-link">Explore Capabilities <i class="ri-arrow-right-line"></i></a>
+        </div>
+
+        <!-- Service 6 -->
+        <div class="glass-card service-card reveal-element delay-300">
+          <div>
+            <div class="service-icon-wrapper" style="background: rgba(59,130,246,0.1); color: var(--accent-blue);">
+              <i class="ri-cloud-windy-line"></i>
+            </div>
+            <h3 class="service-title">Cloud & Scalable Systems</h3>
+            <p class="service-desc">
+              High-availability AWS server infrastructure, automated CI/CD deployment pipelines, and zero-downtime microservices.
+            </p>
+            <ul class="service-features">
+              <li><i class="ri-check-double-line"></i> AWS & PostgreSQL Infrastructure</li>
+              <li><i class="ri-check-double-line"></i> Automated Load Balancing</li>
+              <li><i class="ri-check-double-line"></i> 99.99% Uptime Guarantee</li>
+            </ul>
+          </div>
+          <a href="#contact" class="service-link">Explore Capabilities <i class="ri-arrow-right-line"></i></a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       3. DEVICE SHOWCASES (DESKTOP MACBOOK & MOBILE IPHONE 16 PRO)
+       ========================================================================== -->
+  <section id="showcase" class="section-spacing">
+    <div class="container">
+      <div class="section-header reveal-element">
+        <div class="section-tag"><span class="section-tag-dot"></span> LIVE SHOWCASE</div>
+        <h2 class="section-title">See Our <span class="gradient-text">Craftsmanship In Action</span></h2>
+        <p class="section-description">
+          Experience how our desktop and mobile web experiences feel in real-time. Smooth scrolling, crisp details, and responsive layouts.
+        </p>
+      </div>
+
+      <div class="showcase-dual-container">
+        
+        <!-- Desktop Showcase -->
+        <div class="glass-card desktop-showcase-box reveal-element">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <span class="badge badge-blue">DESKTOP EXPERIENCE</span>
+              <h3 style="font-size: 1.3rem; margin-top: 6px;">Luxury Booking Engine Demo</h3>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <span class="badge badge-cyan">99 LIGHTHOUSE</span>
+              <span class="badge badge-purple">FAST API</span>
+            </div>
+          </div>
+
+          <div class="macbook-frame">
+            <div class="macbook-titlebar">
+              <div class="macbook-dot" style="background:#ef4444;"></div>
+              <div class="macbook-dot" style="background:#f59e0b;"></div>
+              <div class="macbook-dot" style="background:#10b981;"></div>
+              <span style="margin-left: 12px; font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-muted);">https://nandhakam.klappdevelopers.in</span>
+            </div>
+            <div class="macbook-screen-content" id="macbookScreenScroll">
+              <div style="background: linear-gradient(135deg, #090d16, #141b2d); padding: 20px; border-radius: 8px; margin-bottom: 12px; border: 1px solid rgba(255,255,255,0.08);">
+                <div style="font-family: var(--font-heading); font-size: 1.2rem; font-weight: 800; color: #fff;">Nandhakam Luxury Stays & Resort</div>
+                <div style="font-size: 0.8rem; color: var(--accent-cyan); margin-top: 4px;">Realtime Availability Matrix</div>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+                <div style="background: rgba(255,255,255,0.04); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.06);">
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">Executive Suites</div>
+                  <div style="font-size: 1rem; font-weight: 700; color: #34d399;">Available (8)</div>
+                </div>
+                <div style="background: rgba(255,255,255,0.04); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.06);">
+                  <div style="font-size: 0.75rem; color: var(--text-muted);">WhatsApp Webhook</div>
+                  <div style="font-size: 1rem; font-weight: 700; color: var(--accent-purple);">Connected</div>
+                </div>
+              </div>
+              <div style="background: rgba(255,255,255,0.02); height: 160px; border-radius: 8px; border: 1px dashed rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 0.85rem;">
+                [ Live Dynamic Calendar & Payment Verification Stream ]
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mobile Showcase (iPhone 16 Pro) -->
+        <div class="glass-card mobile-showcase-box reveal-element delay-200">
+          <div style="text-align: center; margin-bottom: 20px;">
+            <span class="badge badge-purple">MOBILE APP & WHATSAPP BOT</span>
+            <h3 style="font-size: 1.3rem; margin-top: 6px;">Instant Push Notifications</h3>
+          </div>
+
+          <div class="iphone-frame">
+            <div class="iphone-island"></div>
+            <div class="iphone-screen">
+              
+              <div class="notif-card" style="margin-top: 20px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                  <span style="font-size: 0.75rem; font-weight: 700; color: #25d366;"><i class="ri-whatsapp-fill"></i> WhatsApp Bot</span>
+                  <span style="font-size: 0.65rem; color: var(--text-muted);">Just now</span>
+                </div>
+                <div style="font-size: 0.8rem; color: #fff;">New Booking Enquiry received from Customer #98421</div>
+              </div>
+
+              <div class="notif-card" style="animation-delay: -2s;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                  <span style="font-size: 0.75rem; font-weight: 700; color: var(--accent-cyan);"><i class="ri-robot-line"></i> KLAPP AI Agent</span>
+                  <span style="font-size: 0.65rem; color: var(--text-muted);">2m ago</span>
+                </div>
+                <div style="font-size: 0.8rem; color: #fff;">Automated invoice parsed & synced to PostgreSQL.</div>
+              </div>
+
+              <div class="notif-card" style="animation-delay: -4s;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                  <span style="font-size: 0.75rem; font-weight: 700; color: var(--accent-blue);"><i class="ri-shield-check-line"></i> AWS Cloud Alert</span>
+                  <span style="font-size: 0.65rem; color: var(--text-muted);">15m ago</span>
+                </div>
+                <div style="font-size: 0.8rem; color: #fff;">System health 100%. Zero latency spikes.</div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ==========================================================================
+           INTERACTIVE AI / WHATSAPP CHATBOT SANDBOX WIDGET
+           ========================================================================== -->
+      <div class="ai-sandbox-wrapper reveal-element">
+        <div class="ai-sandbox-card">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 12px;">
+            <div>
+              <div class="section-tag" style="margin-bottom: 6px;"><span class="section-tag-dot"></span> LIVE DEMO PLAYGROUND</div>
+              <h3 style="font-size: 1.5rem;">Test KLAPP AI Assistant Live</h3>
+            </div>
+            <span class="badge badge-cyan" style="padding: 8px 16px;"><i class="ri-pulse-line"></i> AI AGENT ONLINE</span>
+          </div>
+
+          <div class="ai-chat-history" id="aiChatHistory">
+            <div class="chat-bubble bot">
+              👋 Hi! I am the KLAPP Developers AI Assistant. Type any question below (e.g. <i>"What are your prices?"</i>, <i>"Tell me about WhatsApp automation"</i>, or <i>"How long does a website take?"</i>) and see how fast I respond!
+            </div>
+          </div>
+
+          <div class="ai-input-bar">
+            <input type="text" class="ai-input" id="aiChatInput" placeholder="Type a message or question..." aria-label="Type message for AI simulator">
+            <button class="btn btn-primary" id="aiSendBtn" style="padding: 14px 28px;">
+              Send <i class="ri-send-plane-fill"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       4. WHY CHOOSE US
+       ========================================================================== -->
+  <section class="section-spacing">
+    <div class="container">
+      <div class="section-header reveal-element">
+        <div class="section-tag"><span class="section-tag-dot"></span> THE KLAPP ADVANTAGE</div>
+        <h2 class="section-title">Why Industry Leaders <span class="gradient-text">Trust Us</span></h2>
+        <p class="section-description">
+          We combine deep technical engineering with luxury visual design to deliver software that drives enterprise revenue.
+        </p>
+      </div>
+
+      <div class="why-us-grid">
+        <div class="glass-card why-card reveal-element delay-100">
+          <div class="why-icon"><i class="ri-rocket-2-line"></i></div>
+          <h3 style="font-size: 1.25rem; margin-bottom: 10px;">Fast Delivery</h3>
+          <p style="color: var(--text-secondary); font-size: 0.95rem;">Rapid 7 to 14-day turnaround times powered by our reusable component libraries and automated deployment pipelines.</p>
+        </div>
+
+        <div class="glass-card why-card reveal-element delay-200">
+          <div class="why-icon" style="color: var(--accent-purple);"><i class="ri-palette-line"></i></div>
+          <h3 style="font-size: 1.25rem; margin-bottom: 10px;">Modern Luxury Design</h3>
+          <p style="color: var(--text-secondary); font-size: 0.95rem;">Stripe & Apple-level dark aesthetics, glassmorphism, fluid typography, and bespoke micro-animations that stun visitors.</p>
+        </div>
+
+        <div class="glass-card why-card reveal-element delay-300">
+          <div class="why-icon" style="color: var(--accent-cyan);"><i class="ri-line-chart-line"></i></div>
+          <h3 style="font-size: 1.25rem; margin-bottom: 10px;">Scalable Architecture</h3>
+          <p style="color: var(--text-secondary); font-size: 0.95rem;">Clean modular codebase designed to effortlessly scale from hundreds of visitors to millions without performance degradation.</p>
+        </div>
+
+        <div class="glass-card why-card reveal-element delay-100">
+          <div class="why-icon" style="color: var(--accent-green);"><i class="ri-shield-keyhole-line"></i></div>
+          <h3 style="font-size: 1.25rem; margin-bottom: 10px;">Bank-Grade Security</h3>
+          <p style="color: var(--text-secondary); font-size: 0.95rem;">Encrypted API keys, strict CORS policies, token authentication, and compliance with modern web data protection standards.</p>
+        </div>
+
+        <div class="glass-card why-card reveal-element delay-200">
+          <div class="why-icon" style="color: var(--accent-magenta);"><i class="ri-cpu-line"></i></div>
+          <h3 style="font-size: 1.25rem; margin-bottom: 10px;">AI Native Integration</h3>
+          <p style="color: var(--text-secondary); font-size: 0.95rem;">Built-in AI capabilities in every product—from intelligent chatbots to automated content optimization and customer analytics.</p>
+        </div>
+
+        <div class="glass-card why-card reveal-element delay-300">
+          <div class="why-icon" style="color: var(--accent-blue);"><i class="ri-customer-service-2-line"></i></div>
+          <h3 style="font-size: 1.25rem; margin-bottom: 10px;">24/7 Dedicated Support</h3>
+          <p style="color: var(--text-secondary); font-size: 0.95rem;">Direct access to our senior engineering team via WhatsApp and dedicated Slack channels with immediate resolution SLA.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       5. TECHNOLOGIES STACK GRID
+       ========================================================================== -->
+  <section id="tech" class="section-spacing">
+    <div class="container">
+      <div class="section-header reveal-element">
+        <div class="section-tag"><span class="section-tag-dot"></span> TECH STACK</div>
+        <h2 class="section-title">Powered By <span class="gradient-text">Next-Gen Tech</span></h2>
+        <p class="section-description">
+          We use industry-standard languages, frameworks, AI models, and cloud databases to construct world-class software.
+        </p>
+      </div>
+
+      <div class="tech-grid reveal-element">
+        <div class="glass-card tech-card">
+          <i class="ri-html5-fill" style="color: #e34f26;"></i>
+          <span class="tech-name">HTML5</span>
+        </div>
+        <div class="glass-card tech-card">
+          <i class="ri-css3-fill" style="color: #1572b6;"></i>
+          <span class="tech-name">CSS3 / Vanilla</span>
+        </div>
+        <div class="glass-card tech-card">
+          <i class="ri-javascript-fill" style="color: #f7df1e;"></i>
+          <span class="tech-name">JavaScript</span>
+        </div>
+        <div class="glass-card tech-card">
+          <i class="ri-node-tree" style="color: #339933;"></i>
+          <span class="tech-name">Node.js</span>
+        </div>
+        <div class="glass-card tech-card">
+          <i class="ri-reactjs-line" style="color: #61dafb;"></i>
+          <span class="tech-name">Next.js / React</span>
+        </div>
+        <div class="glass-card tech-card">
+          <i class="ri-firebase-fill" style="color: #ffca28;"></i>
+          <span class="tech-name">Firebase</span>
+        </div>
+        <div class="glass-card tech-card">
+          <i class="ri-database-2-line" style="color: #47a248;"></i>
+          <span class="tech-name">MongoDB</span>
+        </div>
+        <div class="glass-card tech-card">
+          <i class="ri-database-fill" style="color: #4169e1;"></i>
+          <span class="tech-name">PostgreSQL</span>
+        </div>
+        <div class="glass-card tech-card">
+          <i class="ri-amazon-fill" style="color: #ff9900;"></i>
+          <span class="tech-name">AWS</span>
+        </div>
+        <div class="glass-card tech-card">
+          <i class="ri-server-line" style="color: #46e3b7;"></i>
+          <span class="tech-name">Render</span>
+        </div>
+        <div class="glass-card tech-card">
+          <i class="ri-openai-fill" style="color: #10a37f;"></i>
+          <span class="tech-name">OpenAI</span>
+        </div>
+        <div class="glass-card tech-card">
+          <i class="ri-sparkling-fill" style="color: #8e75ff;"></i>
+          <span class="tech-name">Gemini AI</span>
+        </div>
+        <div class="glass-card tech-card">
+          <i class="ri-whatsapp-fill" style="color: #25d366;"></i>
+          <span class="tech-name">WhatsApp API</span>
+        </div>
+        <div class="glass-card tech-card">
+          <i class="ri-git-branch-line" style="color: #f05032;"></i>
+          <span class="tech-name">Git / CI-CD</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       6. PROCESS TIMELINE ROADMAP
+       ========================================================================== -->
+  <section id="process" class="section-spacing">
+    <div class="container">
+      <div class="section-header reveal-element">
+        <div class="section-tag"><span class="section-tag-dot"></span> OUR METHODOLOGY</div>
+        <h2 class="section-title">The <span class="gradient-text">6-Step Execution</span> Process</h2>
+        <p class="section-description">
+          A seamless transparent roadmap from initial idea to live production deployment.
+        </p>
+      </div>
+
+      <div class="process-timeline reveal-element">
+        <div class="process-line"></div>
+        <div class="process-progress-line"></div>
+
+        <div class="process-steps-grid">
+          <div class="process-step-node">
+            <div class="step-circle">01</div>
+            <div class="step-title">Discovery</div>
+            <div class="step-desc">Scope & requirements analysis</div>
+          </div>
+          <div class="process-step-node">
+            <div class="step-circle">02</div>
+            <div class="step-title">Design</div>
+            <div class="step-desc">Luxury Figma UI/UX mockups</div>
+          </div>
+          <div class="process-step-node">
+            <div class="step-circle">03</div>
+            <div class="step-title">Development</div>
+            <div class="step-desc">Agile full-stack engineering</div>
+          </div>
+          <div class="process-step-node">
+            <div class="step-circle">04</div>
+            <div class="step-title">Testing</div>
+            <div class="step-desc">QA & Lighthouse optimization</div>
+          </div>
+          <div class="process-step-node">
+            <div class="step-circle">05</div>
+            <div class="step-title">Deployment</div>
+            <div class="step-desc">AWS / Cloud production release</div>
+          </div>
+          <div class="process-step-node">
+            <div class="step-circle">06</div>
+            <div class="step-title">Support</div>
+            <div class="step-desc">24/7 Monitoring & maintenance</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       7. PORTFOLIO SHOWCASE & CASE STUDIES
+       ========================================================================== -->
+  <section id="portfolio" class="section-spacing">
+    <div class="container">
+      <div class="section-header reveal-element">
+        <div class="section-tag"><span class="section-tag-dot"></span> SELECTED WORK</div>
+        <h2 class="section-title">Engineered <span class="gradient-text">Case Studies</span></h2>
+        <p class="section-description">
+          Explore real software solutions we have engineered for resorts, enterprises, and high-growth brands.
+        </p>
+      </div>
+
+      <div class="portfolio-filters reveal-element">
+        <button class="filter-btn active" data-filter="all">All Projects</button>
+        <button class="filter-btn" data-filter="web">Web Development</button>
+        <button class="filter-btn" data-filter="ai">AI Automation</button>
+        <button class="filter-btn" data-filter="whatsapp">WhatsApp API</button>
+      </div>
+
+      <div class="portfolio-grid">
+        
+        <!-- Project 1 -->
+        <div class="portfolio-card-wrapper reveal-element delay-100" data-category="web">
+          <div class="glass-card portfolio-card" style="background-image: linear-gradient(180deg, rgba(5,5,5,0.3), rgba(5,5,5,0.95)), url('https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80');">
+            <div class="portfolio-card-overlay"></div>
+            <div class="portfolio-content">
+              <span class="badge badge-cyan" style="margin-bottom: 12px;">LUXURY RESORT & BOOKING</span>
+              <h3 class="portfolio-title">Nandhakam Luxury Stays</h3>
+              <p class="portfolio-desc">High-converting online booking platform with WhatsApp instant confirmation & channel manager.</p>
+              <button class="btn btn-secondary open-case-study-btn" data-project="nandhakam" style="padding: 10px 20px; font-size: 0.85rem;">
+                View Case Study <i class="ri-external-link-line"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Project 2 -->
+        <div class="portfolio-card-wrapper reveal-element delay-200" data-category="ai">
+          <div class="glass-card portfolio-card" style="background-image: linear-gradient(180deg, rgba(5,5,5,0.3), rgba(5,5,5,0.95)), url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80');">
+            <div class="portfolio-card-overlay"></div>
+            <div class="portfolio-content">
+              <span class="badge badge-purple" style="margin-bottom: 12px;">ENTERPRISE AI AGENT</span>
+              <h3 class="portfolio-title">FinTech AI Support Agent</h3>
+              <p class="portfolio-desc">Autonomous LLM customer agent reducing support ticket load by 68% with sub-second response times.</p>
+              <button class="btn btn-secondary open-case-study-btn" data-project="aiagent" style="padding: 10px 20px; font-size: 0.85rem;">
+                View Case Study <i class="ri-external-link-line"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Project 3 -->
+        <div class="portfolio-card-wrapper reveal-element delay-300" data-category="whatsapp">
+          <div class="glass-card portfolio-card" style="background-image: linear-gradient(180deg, rgba(5,5,5,0.3), rgba(5,5,5,0.95)), url('https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80');">
+            <div class="portfolio-card-overlay"></div>
+            <div class="portfolio-content">
+              <span class="badge badge-blue" style="margin-bottom: 12px;">WHATSAPP CRM SUITE</span>
+              <h3 class="portfolio-title">KLAPP Automated WhatsApp Sales Bot</h3>
+              <p class="portfolio-desc">Multi-choice automated lead qualification and payment link generator processing 250k+ messages.</p>
+              <button class="btn btn-secondary open-case-study-btn" data-project="whatsappcrm" style="padding: 10px 20px; font-size: 0.85rem;">
+                View Case Study <i class="ri-external-link-line"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       8. STATISTICS COUNTERS & TESTIMONIALS
+       ========================================================================== -->
+  <section class="section-spacing">
+    <div class="container">
+      
+      <!-- Counter Stats Grid -->
+      <div class="stats-grid">
+        <div class="glass-card stat-card reveal-element delay-100">
+          <div class="stat-number" data-target="150" data-suffix="+">0</div>
+          <div class="stat-label">Projects Delivered</div>
+        </div>
+        <div class="glass-card stat-card reveal-element delay-200">
+          <div class="stat-number" data-target="50" data-suffix="+">0</div>
+          <div class="stat-label">Global Clients</div>
+        </div>
+        <div class="glass-card stat-card reveal-element delay-300">
+          <div class="stat-number" data-target="25" data-suffix="k+">0</div>
+          <div class="stat-label">Automation Hours Saved</div>
+        </div>
+        <div class="glass-card stat-card reveal-element delay-400">
+          <div class="stat-number" data-target="99.8" data-suffix="%">0</div>
+          <div class="stat-label">Client Satisfaction Rate</div>
+        </div>
+      </div>
+
+      <!-- Client Testimonials Header -->
+      <div class="section-header reveal-element">
+        <div class="section-tag"><span class="section-tag-dot"></span> CLIENT FEEDBACK</div>
+        <h2 class="section-title">What Our <span class="gradient-text">Partners Say</span></h2>
+        <p class="section-description">
+          Read genuine feedback from executives and founders who transformed their operations with KLAPP Developers.
+        </p>
+      </div>
+
+      <div class="testimonials-grid">
+        <div class="glass-card testimonial-card reveal-element delay-100">
+          <div class="testimonial-stars">
+            <i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i>
+          </div>
+          <p class="testimonial-quote">
+            "KLAPP Developers completely overhauled our resort booking system. The WhatsApp integration and lightning-fast web speed boosted direct bookings by over 180% in the first 60 days."
+          </p>
+          <div class="testimonial-user">
+            <div class="user-avatar">NG</div>
+            <div>
+              <div class="user-name">Nandhakam Group</div>
+              <div class="user-role">Hospitality & Resorts</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-card testimonial-card reveal-element delay-200">
+          <div class="testimonial-stars">
+            <i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i>
+          </div>
+          <p class="testimonial-quote">
+            "The AI Chatbot built by KLAPP handles thousands of customer inquiries automatically. Their engineering standards match Silicon Valley agencies."
+          </p>
+          <div class="testimonial-user">
+            <div class="user-avatar">RK</div>
+            <div>
+              <div class="user-name">Rajesh K.</div>
+              <div class="user-role">CTO, FinTech Solutions</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-card testimonial-card reveal-element delay-300">
+          <div class="testimonial-stars">
+            <i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i><i class="ri-star-fill"></i>
+          </div>
+          <p class="testimonial-quote">
+            "If you want your website to look like Apple or Stripe while having powerful back-end WhatsApp automations, KLAPP Developers is the best partner in the business."
+          </p>
+          <div class="testimonial-user">
+            <div class="user-avatar">AM</div>
+            <div>
+              <div class="user-name">Ananya M.</div>
+              <div class="user-role">Founder, E-Com Brand</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       9. PRICING PLANS
+       ========================================================================== -->
+  <section id="pricing" class="section-spacing">
+    <div class="container">
+      <div class="section-header reveal-element">
+        <div class="section-tag"><span class="section-tag-dot"></span> TRANSPARENT INVESTMENTS</div>
+        <h2 class="section-title">Simple & <span class="gradient-text">Predictable Pricing</span></h2>
+        <p class="section-description">
+          Choose a plan that fits your business scale or contact us for bespoke enterprise solutions.
+        </p>
+      </div>
+
+      <div class="pricing-toggle-container reveal-element">
+        <span style="font-weight: 600; color: var(--text-secondary);">One-Time Project</span>
+        <div class="toggle-switch" id="pricingToggle">
+          <div class="toggle-slider"></div>
+        </div>
+        <span style="font-weight: 600; color: #ffffff;">Annual retainer <span class="badge badge-purple" style="margin-left:6px;">Save 20%</span></span>
+      </div>
+
+      <div class="pricing-grid">
+        
+        <!-- Basic Plan -->
+        <div class="glass-card pricing-card reveal-element delay-100">
+          <div>
+            <span class="badge badge-blue">STARTUP EDITION</span>
+            <h3 style="font-size: 1.5rem; margin-top: 12px;">Basic Web</h3>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">Ideal for new businesses looking for a high-converting website.</p>
+            <div class="price-val" id="priceBasic">₹29,999</div>
+            
+            <ul class="pricing-list">
+              <li><i class="ri-checkbox-circle-fill"></i> Custom High-Performance Website</li>
+              <li><i class="ri-checkbox-circle-fill"></i> Mobile & Tablet Responsive</li>
+              <li><i class="ri-checkbox-circle-fill"></i> 99+ Lighthouse Speed Optimization</li>
+              <li><i class="ri-checkbox-circle-fill"></i> Basic WhatsApp Contact Integration</li>
+              <li><i class="ri-checkbox-circle-fill"></i> SEO Ready & SSL Configuration</li>
+            </ul>
+          </div>
+          <a href="#contact" class="btn btn-secondary" style="width: 100%;">Select Basic</a>
+        </div>
+
+        <!-- Featured Plan -->
+        <div class="glass-card pricing-card featured reveal-element delay-200">
+          <div>
+            <span class="badge badge-purple" style="background: var(--gradient-primary); color: #fff;">MOST POPULAR</span>
+            <h3 style="font-size: 1.5rem; margin-top: 12px;">Professional Suite</h3>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">For growing companies needing AI automation & WhatsApp CRM.</p>
+            <div class="price-val gradient-text" id="priceProf">₹59,999</div>
+
+            <ul class="pricing-list">
+              <li><i class="ri-checkbox-circle-fill"></i> Everything in Basic Web</li>
+              <li><i class="ri-checkbox-circle-fill"></i> Official WhatsApp Cloud API Bot</li>
+              <li><i class="ri-checkbox-circle-fill"></i> Custom AI Chatbot / Agent</li>
+              <li><i class="ri-checkbox-circle-fill"></i> Google Sheets & Database Integration</li>
+              <li><i class="ri-checkbox-circle-fill"></i> 3D CSS Animations & Luxury Layout</li>
+              <li><i class="ri-checkbox-circle-fill"></i> 3 Months Priority Technical Support</li>
+            </ul>
+          </div>
+          <a href="#contact" class="btn btn-primary" style="width: 100%;">Get Professional</a>
+        </div>
+
+        <!-- Enterprise Plan -->
+        <div class="glass-card pricing-card reveal-element delay-300">
+          <div>
+            <span class="badge badge-cyan">ENTERPRISE EDITION</span>
+            <h3 style="font-size: 1.5rem; margin-top: 12px;">Custom Enterprise</h3>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">Complete digital transformation, bespoke ERP & Cloud infra.</p>
+            <div class="price-val" id="priceEnterprise">₹1,19,999</div>
+
+            <ul class="pricing-list">
+              <li><i class="ri-checkbox-circle-fill"></i> Full Business ERP / Custom Software</li>
+              <li><i class="ri-checkbox-circle-fill"></i> Multi-Agent Autonomous AI Pipeline</li>
+              <li><i class="ri-checkbox-circle-fill"></i> High-Availability AWS Cloud Deploy</li>
+              <li><i class="ri-checkbox-circle-fill"></i> Android & iOS Mobile Applications</li>
+              <li><i class="ri-checkbox-circle-fill"></i> Dedicated Engineer & 24/7 SLA</li>
+            </ul>
+          </div>
+          <a href="#contact" class="btn btn-secondary" style="width: 100%;">Contact Enterprise</a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       10. FAQ ACCORDION
+       ========================================================================== -->
+  <section class="section-spacing">
+    <div class="container">
+      <div class="section-header reveal-element">
+        <div class="section-tag"><span class="section-tag-dot"></span> FREQUENTLY ASKED</div>
+        <h2 class="section-title">Got <span class="gradient-text">Questions?</span> We Have Answers.</h2>
+      </div>
+
+      <div class="faq-list reveal-element">
+        <div class="glass-card faq-item active">
+          <div class="faq-question">
+            <span>How fast can KLAPP Developers launch my project?</span>
+            <i class="ri-arrow-down-s-line faq-icon"></i>
+          </div>
+          <div class="faq-answer">
+            Standard websites and WhatsApp automation tools are completed in 7 to 14 business days. Complex custom enterprise software or full AI agent integrations take between 2 to 4 weeks with daily staging updates.
+          </div>
+        </div>
+
+        <div class="glass-card faq-item">
+          <div class="faq-question">
+            <span>Do I need prior technical knowledge to manage my website or bot?</span>
+            <i class="ri-arrow-down-s-line faq-icon"></i>
+          </div>
+          <div class="faq-answer">
+            Not at all! We build intuitive admin dashboards and provide complete walkthrough documentation and video guides. Additionally, our 24/7 team handles maintenance for you.
+          </div>
+        </div>
+
+        <div class="glass-card faq-item">
+          <div class="faq-question">
+            <span>How does the WhatsApp Cloud API integration work?</span>
+            <i class="ri-arrow-down-s-line faq-icon"></i>
+          </div>
+          <div class="faq-answer">
+            We connect directly to Meta's official WhatsApp Cloud API, allowing your business phone number to send automated instant replies, booking confirmations, payment links, and multi-step interactive menus directly inside WhatsApp.
+          </div>
+        </div>
+
+        <div class="glass-card faq-item">
+          <div class="faq-question">
+            <span>Is my business data secure when using your AI agents?</span>
+            <i class="ri-arrow-down-s-line faq-icon"></i>
+          </div>
+          <div class="faq-answer">
+            Yes, 100%. We utilize private enterprise API keys with strict data retention rules. Your private company documents and customer information are never used to train public LLM models.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       11. CONTACT & BOOKING SECTION
+       ========================================================================== -->
+  <section id="contact" class="section-spacing">
+    <div class="container">
+      <div class="section-header reveal-element">
+        <div class="section-tag"><span class="section-tag-dot"></span> LET'S TALK</div>
+        <h2 class="section-title">Start Building <span class="gradient-text">Your Vision Today</span></h2>
+        <p class="section-description">
+          Ready to elevate your business with luxury software, AI automation, or a high-converting website? Get in touch with our founders.
+        </p>
+      </div>
+
+      <div class="contact-grid">
+        
+        <!-- Contact Info & Quick WhatsApp CTA -->
+        <div class="contact-info-box reveal-element">
+          
+          <div class="glass-card contact-card-item">
+            <div class="contact-icon"><i class="ri-mail-send-line"></i></div>
+            <div>
+              <div style="font-size: 0.8rem; color: var(--text-muted);">Email Us Directly</div>
+              <a href="mailto:contact@klappdevelopers.in" style="font-size: 1.1rem; font-weight: 700; color: #fff; text-decoration: none;">contact@klappdevelopers.in</a>
+            </div>
+          </div>
+
+          <div class="glass-card contact-card-item">
+            <div class="contact-icon" style="background: rgba(37,211,102,0.15); color: #25d366;"><i class="ri-whatsapp-line"></i></div>
+            <div>
+              <div style="font-size: 0.8rem; color: var(--text-muted);">Instant WhatsApp Chat</div>
+              <div style="font-size: 1.1rem; font-weight: 700; color: #fff;">+91 98765 43210</div>
+            </div>
+          </div>
+
+          <a href="https://wa.me/919876543210?text=Hi%20KLAPP%20Developers,%20I%20would%20like%20to%20discuss%20a%20project!" target="_blank" class="btn whatsapp-direct-btn" style="width: 100%; font-size: 1.05rem; padding: 18px;">
+            <i class="ri-whatsapp-fill" style="font-size: 1.3rem;"></i> Chat Directly on WhatsApp
+          </a>
+
+          <!-- Dark Map Placeholder Box -->
+          <div class="glass-card" style="height: 180px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px;">
+            <i class="ri-map-pin-2-line" style="font-size: 2.2rem; color: var(--accent-cyan); margin-bottom: 8px;"></i>
+            <div style="font-weight: 700;">KLAPP Group HQ</div>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">Tech Hub, Hyderabad & Global Operations</div>
+          </div>
+
+        </div>
+
+        <!-- Contact Form -->
+        <div class="glass-card contact-form-card reveal-element delay-200">
+          <h3 style="font-size: 1.5rem; margin-bottom: 24px;">Send Us a Message</h3>
+
+          <form id="agencyContactForm">
+            <div class="form-group">
+              <label class="form-label" for="contactName">Your Name</label>
+              <input type="text" id="contactName" class="form-input" placeholder="e.g. Rahul Sharma" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="contactEmail">Work Email</label>
+              <input type="email" id="contactEmail" class="form-input" placeholder="e.g. rahul@company.com" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="contactService">Service Required</label>
+              <select id="contactService" class="form-input" style="background:#090d16; color:#fff;" required>
+                <option value="Website Development">Website Development</option>
+                <option value="AI Automation">AI Automation & Agents</option>
+                <option value="WhatsApp Automation">WhatsApp API Automation</option>
+                <option value="Mobile App">Mobile App (iOS / Android)</option>
+                <option value="Business Software">Business Software / ERP</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="contactMessage">Project Scope / Details</label>
+              <textarea id="contactMessage" class="form-textarea" rows="4" placeholder="Tell us about your project goals, features needed, and target timeline..." required></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 16px;">
+              Submit Inquiry <i class="ri-send-plane-fill"></i>
+            </button>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       12. FOOTER & SYSTEM STATUS TICKER
+       ========================================================================== -->
+  <footer class="footer">
+    <div class="container">
+      
+      <div class="footer-grid">
+        <div>
+          <a href="#home" class="logo">
+            <div class="logo-mark">K</div>
+            <div class="logo-text">
+              <span class="logo-name">KLAPP</span>
+              <span class="logo-tagline">Developers</span>
+            </div>
+          </a>
+          <p class="footer-col-desc">
+            Knowledge Led Apps & Performance Partners. Building world-class intelligent websites, AI automation, and enterprise business software.
+          </p>
+          <div class="system-status-badge">
+            <span class="section-tag-dot" style="background:#34d399;"></span> ALL SYSTEMS OPERATIONAL - 99.99%
+          </div>
+        </div>
+
+        <div>
+          <h4 class="footer-title">Navigation</h4>
+          <ul class="footer-links">
+            <li><a href="#home">Home</a></li>
+            <li><a href="#services">Services</a></li>
+            <li><a href="#showcase">Live Showcase</a></li>
+            <li><a href="#portfolio">Portfolio</a></li>
+            <li><a href="#pricing">Pricing</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer-title">Services</h4>
+          <ul class="footer-links">
+            <li><a href="#services">Website Development</a></li>
+            <li><a href="#services">AI Automation</a></li>
+            <li><a href="#services">WhatsApp Automation</a></li>
+            <li><a href="#services">Mobile Applications</a></li>
+            <li><a href="#services">Business Software</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer-title">Contact & Socials</h4>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 16px;">
+            Get in touch for bespoke software consultation.
+          </p>
+          <div style="display: flex; gap: 12px; font-size: 1.4rem;">
+            <a href="#" style="color: var(--text-secondary);"><i class="ri-linkedin-box-fill"></i></a>
+            <a href="#" style="color: var(--text-secondary);"><i class="ri-twitter-x-fill"></i></a>
+            <a href="#" style="color: var(--text-secondary);"><i class="ri-github-fill"></i></a>
+            <a href="https://wa.me/919876543210" style="color: #25d366;"><i class="ri-whatsapp-fill"></i></a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>© 2026 KLAPP Developers. All rights reserved. Knowledge Led Apps & Performance Partners.</div>
+        <div style="display: flex; gap: 20px;">
+          <a href="#" style="color: var(--text-muted); text-decoration: none;">Privacy Policy</a>
+          <a href="#" style="color: var(--text-muted); text-decoration: none;">Terms of Service</a>
+          <a href="#home" style="color: var(--accent-cyan); text-decoration: none;"><i class="ri-arrow-up-line"></i> Back to Top</a>
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- ==========================================================================
+       CASE STUDY MODAL DIALOG
+       ========================================================================== -->
+  <div class="modal-backdrop" id="caseStudyModal">
+    <div class="modal-box">
+      <button class="modal-close-btn" id="modalCloseBtn" aria-label="Close modal"><i class="ri-close-line"></i></button>
+      <h3 id="modalTitle" style="font-size: 1.6rem; margin-bottom: 8px;">Case Study Title</h3>
+      <div id="modalClient" style="color: var(--accent-cyan); font-weight: 600; font-size: 0.9rem; margin-bottom: 4px;">Client: -</div>
+      <div id="modalTech" style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px; font-family: var(--font-mono);">Tech Stack: -</div>
+      
+      <p id="modalDesc" style="color: var(--text-secondary); line-height: 1.6; margin-bottom: 24px;">Project description...</p>
+      
+      <div id="modalMetrics" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px;">
+        <!-- Dynamic metrics populated via JS -->
+      </div>
+
+      <a href="#contact" class="btn btn-primary" onclick="document.getElementById('caseStudyModal').classList.remove('active');" style="width: 100%;">
+        Request Similar Solution <i class="ri-arrow-right-line"></i>
+      </a>
+    </div>
+  </div>
+
+  <!-- JavaScript Files -->
+  <script src="js/main.js"></script>
+  <script src="js/mockups.js"></script>
+  <script src="js/components.js"></script>
+  <script src="js/ai-simulator.js"></script>
+</body>
+</html>
