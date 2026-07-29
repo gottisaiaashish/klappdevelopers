@@ -1,57 +1,52 @@
 import React, { useState } from 'react';
 
-const projectsList = [
+const realProjects = [
   {
     id: 'nandhakam',
-    category: 'resort',
-    title: 'Nandhakam Luxury Stays & Banquet Hall',
-    badge: '2 PORTALS: ADMIN & RECEPTION',
-    url: 'https://nandakam.vercel.app',
-    secondaryUrl: 'https://nandakambanquethall.com',
-    shortDesc: 'Dual-portal resort & banquet management platform with real-time WhatsApp guest confirmations and owner revenue analytics.',
-    image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80',
+    category: 'booking',
+    title: 'Nandhakam Luxury Rooms & Banquet Hall',
+    url: 'https://nandakambanquethall.com',
+    shortDesc: 'Dual-portal luxury rooms & banquet hall management platform with automated WhatsApp guest confirmations and owner revenue analytics.',
     client: 'Nandhakam Hospitality Group',
     tech: 'React, Vite, WhatsApp Cloud API, PostgreSQL, Node.js',
-    story: `Nandhakam was built to eliminate manual register bookings and phone call back-and-forth for a premier luxury resort and banquet hall. We engineered a complete digital hospitality platform split into two dedicated portals: a Guest Booking Engine and an Owner/Reception Command Center.
+    overview: `Nandhakam was engineered to replace manual registers and phone booking confusion for a luxury rooms & banquet hall venue. We built a complete digital hospitality platform split into two dedicated applications: a Guest Booking Engine and an Owner/Reception Command Center.
 
-When guests browse rooms or banquet dates online, they can instantly verify real-time availability, select check-in/out dates, and complete their booking online. The moment a booking is confirmed, an automated WhatsApp webhook triggers: sending an instant confirmation ticket to the guest with room details, while simultaneously firing an instant WhatsApp alert to the resort owner's phone.
+On the Customer Side: Guests can explore available luxury rooms and banquet slots, verify live availability in real-time, select check-in/out dates, and complete bookings online. The moment a booking is confirmed, an automated WhatsApp Cloud API webhook triggers: sending an instant booking confirmation pass to the guest while simultaneously firing an instant WhatsApp notification to the owner's phone.
 
-On the backend, the Owner Command Dashboard provides complete operational control: live room matrix, daily/upcoming/cancelled bookings, monthly & yearly revenue analytics, occupancy reports, staff management, and automated receipt generation.`,
+On the Owner & Reception Dashboard: The management team has complete operational control with a live room matrix, daily/upcoming/cancelled booking tracking, monthly & yearly revenue analytics, occupancy reports, staff scheduling, and instant bill generation.`,
     highlights: [
-      'Customer Web App: Live room availability, instant date picker & direct booking engine',
-      'Dual WhatsApp Automation: Simultaneous instant guest tickets & owner push notifications',
-      'Owner Command Dashboard: Real-time revenue analytics, room occupancy, & staff management',
-      'Banquet Hall Management: Event slot reservation & advance payment tracking'
+      'Customer Booking Engine: Live room availability matrix, date picker & online checkout',
+      'Instant Dual WhatsApp Webhooks: Simultaneous guest digital tickets & instant owner phone alerts',
+      'Owner Command Dashboard: Revenue analytics (monthly/yearly), occupancy reports & staff manager',
+      'Banquet Hall Management: Dedicated portal for event slot reservations & advance payment tracking'
     ],
     metrics: [
-      { label: 'Portals Delivered', val: '2 Active' },
+      { label: 'Portals Delivered', val: '2 Portals' },
       { label: 'Direct Bookings', val: '+180%' },
-      { label: 'Response Speed', val: '< 50ms' }
+      { label: 'System Latency', val: '< 50ms' }
     ]
   },
   {
     id: 'admyra',
     category: 'edtech',
     title: 'Admyra EAPCET & College Predictor',
-    badge: 'EDTECH & ADMISSION ANALYTICS',
     url: 'https://www.admyra.in',
     shortDesc: 'Data-driven EAPCET engineering college predictor platform helping students calculate rank odds, cutoff history, and placement stats.',
-    image: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80',
     client: 'Admyra Student Network',
     tech: 'React, Vite, EAPCET Analytics Engine, Node.js',
-    story: `Choosing the right engineering college after EAPCET exams is often stressful and based on guesswork. We built Admyra as an all-in-one data-driven admission guide for engineering aspirants in Telangana and Andhra Pradesh.
+    overview: `Choosing the right engineering college after EAPCET exams is often stressful and based on guesswork. We built Admyra as an all-in-one data-driven admission guide for engineering aspirants in Telangana and Andhra Pradesh.
 
 Using expected marks, Admyra predicts student rank probabilities and correlates them against historical category, gender, local area reservation, and cutoff trends. Students gain instant access to an exhaustive college directory with detailed profiles, fee structures, branch availability, historical closing ranks, average placement packages, and authentic campus reviews.
 
-Additionally, Admyra guides students step-by-step through counselling certificate verification, web options strategies, and seat allotment procedures—empowering thousands of students to secure their ideal college branch without anxiety.`,
+Additionally, Admyra guides students step-by-step through counselling certificate verification, web options strategies, and seat allotment procedures—empowering thousands of students to make informed admission decisions instead of guessing.`,
     highlights: [
-      'EAPCET Rank Predictor: Real-time rank estimation based on expected marks',
-      'Smart College Predictor: Filtered by category, gender, local area, & cutoff history',
-      'Exhaustive College DB: Placements data, average package, fees, & branch availability',
-      'Counselling Walkthrough: Step-by-step web options guidance & verification steps'
+      'EAPCET Rank Predictor: Real-time rank estimation derived from expected student marks',
+      'Smart College Predictor: Filtered by category, gender, local area, & historical closing ranks',
+      'Complete College DB: Placement stats, average salary packages, fees, & branch availability',
+      'Counselling Guidance: Step-by-step web options walkthrough & certificate verification steps'
     ],
     metrics: [
-      { label: 'Students Helped', val: '50k+' },
+      { label: 'Students Guided', val: '50,000+' },
       { label: 'Prediction Precision', val: '96.4%' },
       { label: 'Lighthouse Score', val: '99/100' }
     ]
@@ -60,22 +55,20 @@ Additionally, Admyra guides students step-by-step through counselling certificat
     id: 'motionbook',
     category: 'creative',
     title: 'MotionBook Interactive QR Albums',
-    badge: 'DIGITAL MEMORY PLATFORM',
     url: 'https://motionbook.vercel.app',
     shortDesc: 'QR-coded interactive digital album experience bridging physical wedding albums with dynamic high-resolution photo & video galleries.',
-    image: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80',
     client: 'MotionBook Studios',
     tech: 'React, Motion Engines, WebGL, Cloud Storage',
-    story: `Physical wedding and event photo albums are cherished, but they cannot play videos or capture the full motion of special moments. We created MotionBook to revolutionize event photography by bridging physical print with rich digital experiences.
+    overview: `Physical wedding and event photo albums are traditional keepsakes, but they are static and unable to play videos or capture the true motion of special moments. We created MotionBook to modernize event memory preservation by combining physical print albums with immersive digital experiences.
 
-Each physical album features an elegantly embedded QR code. When scanned by couples or family members, a custom digital portal opens instantly—displaying high-definition photo galleries, cinematic highlight reels, drone videos, and interactive page flip memories.
+Each physical photo album features a beautifully printed QR code on its cover. When scanned by couples or guests using any smartphone camera, a dedicated web experience launches instantly—displaying high-definition photo galleries, video highlight reels, and interactive flip memories.
 
-MotionBook allows families to relive their wedding and celebration memories anytime, anywhere, on any smartphone or tablet.`,
+MotionBook enables families to relive their celebration memories anytime, anywhere, on any modern device.`,
     highlights: [
-      'Physical QR Code Integration: Printed inside physical wedding albums for instant mobile scan',
-      'Hybrid Media Player: Smooth high-definition video playback & photo carousel',
-      'Cloud Archive: Secure cloud storage accessible anytime globally',
-      'Interactive Flip Engine: Ultra-smooth 60fps gesture animations'
+      'Physical QR Code Integration: Printed inside physical wedding albums for instant mobile scanning',
+      'Hybrid Photo & Video Player: High-definition video highlight reels & photo carousels',
+      'Cloud Memory Archive: Secure digital storage accessible globally without app installs',
+      'Interactive Flip Engine: Ultra-smooth 60fps touch gesture animations'
     ],
     metrics: [
       { label: 'Frame Rate', val: '60 FPS' },
@@ -87,72 +80,66 @@ MotionBook allows families to relive their wedding and celebration memories anyt
     id: 'amanviai',
     category: 'ai',
     title: 'Amanvi AI Call & Task Automation',
-    badge: 'CONVERSATIONAL AI AGENT',
     url: 'https://amanvi-ai.vercel.app',
     shortDesc: 'Autonomous conversational AI assistant capable of scheduling calls, answering inquiries, and connecting A to Z business workflows.',
-    image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
     client: 'Amanvi AI Labs',
     tech: 'OpenAI GPT-4o, LLM Orchestration, Python, Webhooks',
-    story: `Amanvi AI was engineered to handle complex business communication and administrative tasks autonomously. Rather than relying on rigid, pre-scripted bots, Amanvi uses Large Language Models and custom call/schedule integrations to understand natural human conversations.
+    overview: `Amanvi AI was engineered to automate complex customer inquiries, call scheduling, and operational tasks autonomously using Large Language Models.
 
-Amanvi AI handles customer inquiries, schedules phone calls, collects prospect data, routes priority messages, and connects A to Z operational software seamlessly. Businesses reduce human support overhead while delivering 24/7 instant responses to their clients.`,
+Unlike basic rigid chatbots, Amanvi AI understands natural conversational context. It assists prospective clients by answering detailed questions, scheduling discovery calls, gathering lead specifications, and executing automated follow-ups. Furthermore, Amanvi connects A to Z business software—syncing customer interaction data directly with CRM databases, WhatsApp API webhooks, and team calendars.`,
     highlights: [
-      'Call & Schedule Automation: Book discovery calls & set automated reminders',
-      'Natural Conversation: Powered by fine-tuned LLMs for human-like interaction',
-      'A to Z Workflow Sync: Automatically routes leads into CRM, WhatsApp, & email',
-      'Enterprise Guardrails: Bank-grade data encryption and strict privacy protocols'
+      'Call & Schedule Automation: Automated discovery call booking & calendar notifications',
+      'Conversational AI Intelligence: Fine-tuned LLM engine providing natural human-like responses',
+      'A to Z Workflow Integration: Syncs lead data automatically to CRM, email, & WhatsApp',
+      'Enterprise Guardrails: Strict data encryption ensuring corporate privacy'
     ],
     metrics: [
       { label: 'Inquiries Automated', val: '85%' },
       { label: 'Call Schedule Rate', val: '3.4x' },
-      { label: 'Response Latency', val: '< 1.1s' }
+      { label: 'Response Speed', val: '< 1.1s' }
     ]
   },
   {
     id: 'seek',
     category: 'ai',
     title: 'Seek - AI Study Hub & Drowsiness Siren App',
-    badge: 'HACKATHON WINNER · GOKARAJU RANGARAJU',
     url: 'https://seek-lac.vercel.app',
     shortDesc: 'Award-winning student portal for Gokaraju Rangaraju College featuring study materials, earning tools, and a computer vision Drowsiness Siren Alarm.',
-    image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800&q=80',
     client: 'Gokaraju Rangaraju Institute of Engineering & Technology',
     tech: 'React, Computer Vision (face-api.js), Eye Aspect Ratio (EAR), AI Search',
-    story: `Built specifically for Gokaraju Rangaraju College students during their Hackathon, Seek is an all-in-one study platform designed for late-night exam preparation and academic productivity.
+    overview: `Engineered specifically for Gokaraju Rangaraju College students during their Hackathon, Seek is an innovative academic productivity hub tailored for late-night exam preparation.
 
-The highlight feature of Seek is its AI-powered Computer Vision Drowsiness Siren. When students study late into the night with their webcam enabled, the system calculates their Eye Aspect Ratio (EAR) in real-time. If a student begins nodding off or closing their eyes for prolonged intervals, Seek triggers a loud warning siren alarm—alerting them to take a short break, refresh, and resume studying safely!
+The standout feature of Seek is its AI Computer Vision Drowsiness Warning Siren. When a student is studying late at night with their webcam active, the application tracks facial landmarks and calculates their Eye Aspect Ratio (EAR) in real-time. If the student nods off or closes their eyes for a prolonged duration due to fatigue, Seek triggers a loud warning siren alarm—reminding the student to take a short rest break, refresh, and resume studying safely!
 
-Additionally, Seek provides a centralized repository for semester study materials, notes, previous year question papers, and student micro-earning opportunities.`,
+Additionally, Seek acts as a centralized repository for semester study materials, lecture notes, previous year question papers, and student micro-earning tools.`,
     highlights: [
-      'AI Drowsiness Siren Alarm: Computer vision eye tracking triggers loud alert when student falls asleep',
+      'AI Drowsiness Warning Siren: Computer vision eye tracking triggers loud alert when student falls asleep',
       'Semester Study Hub: Access notes, textbooks, & previous exam question papers',
       'Student Micro-Earning: Platform tools enabling students to earn while learning',
-      'Hackathon Award Winner: Custom built for Gokaraju Rangaraju college hackathon'
+      'Hackathon Winner: Custom built for Gokaraju Rangaraju college hackathon competition'
     ],
     metrics: [
-      { label: 'Hackathon Status', val: 'Winner' },
-      { label: 'Eye Tracking FPS', val: '30 FPS' },
-      { label: 'College Adoption', val: '1,500+ Users' }
+      { label: 'Hackathon Award', val: '1st Place' },
+      { label: 'Eye Tracking Speed', val: '30 FPS' },
+      { label: 'College Users', val: '1,500+' }
     ]
   },
   {
     id: 'chanakyahighschool',
     category: 'edtech',
     title: 'Chanakya High School Portal',
-    badge: 'SCHOOL ERP & DIGITAL INFO',
     url: 'https://chanakyahighschool.vercel.app',
     shortDesc: 'Complete school website and parent communication portal featuring academic programs, faculty profiles, and online admissions.',
-    image: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&w=800&q=80',
     client: 'Chanakya Educational Society',
     tech: 'React, Node.js, Express, MongoDB',
-    story: `Chanakya High School needed a modern digital home to communicate transparently with prospective parents and current students. We designed a clean, structured school management website that showcases academic excellence and simplifies school administration.
+    overview: `Chanakya High School needed a modern digital platform to present school information online and streamline parent communication.
 
-Parents can explore academic programs, faculty credentials, campus facilities, photo galleries, and official announcements online. The built-in digital enquiry module streamlines new student admissions without requiring parents to stand in physical queues.`,
+We designed a comprehensive school management website featuring detailed insights into academic programs, faculty qualifications, campus facilities, photo galleries, and official announcements. The online enquiry portal allows prospective parents to apply for admissions digitally without waiting in campus queues.`,
     highlights: [
-      'Digital Admission Enquiry: Streamlined online application submission',
-      'Parent Communication: Live digital noticeboard & academic announcements',
-      'Faculty & Campus Showcase: Detailed profiles of teachers, labs, & facilities',
-      'Mobile Optimized: Instant loading across all smartphone browsers'
+      'Online Admission Enquiry: Streamlined digital application submission',
+      'Parent Communication: Live announcement board & academic updates',
+      'Campus Showcase: Highlighting labs, library, sports, & faculty credentials',
+      'Mobile Optimized: Sub-100ms loading on mobile browsers'
     ],
     metrics: [
       { label: 'Admissions Processed', val: '1,200+' },
@@ -164,75 +151,23 @@ Parents can explore academic programs, faculty credentials, campus facilities, p
     id: 'balajikishoremedical',
     category: 'enterprise',
     title: 'Balaji Kishore Medical Platform',
-    badge: 'HEALTHCARE & PHARMACY PORTAL',
     url: 'https://balajikishoremedical.vercel.app',
     shortDesc: 'Professional digital catalog and customer enquiry platform for medical business and pharmacy operations.',
-    image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=800&q=80',
     client: 'Balaji Kishore Medicals',
     tech: 'React, Node.js, PostgreSQL',
-    story: `Balaji Kishore Medicals required a trustworthy web presence to showcase their extensive pharmaceutical catalog and facilitate B2B/B2C healthcare inquiries.
+    overview: `Balaji Kishore Medicals required a clean, professional web portal to display their medical product categories and facilitate customer enquiries.
 
-We engineered a structured web platform categorized by medicine types, healthcare equipment, supplier details, and location maps. Customers can submit product inquiries directly online, accelerating order placement and customer service.`,
+We engineered a structured healthcare catalog featuring clear medicine categories, product descriptions, business credentials, and direct enquiry forms. Customers and healthcare partners can quickly request product availability and connect directly with the medical team.`,
     highlights: [
-      'Medicine Catalog: Clear categorization of pharmaceuticals & medical supplies',
-      'Direct Enquiry Engine: Fast product availability request form',
-      'Business Location & Contact: Integrated map navigation & direct phone line',
-      'High Security: SSL encrypted data handling'
+      'Medicine Catalog: Organized healthcare products & pharmaceutical categories',
+      'Direct Product Enquiry: Quick availability request form for customers',
+      'Business Location & Info: Direct phone line & map navigation',
+      'Data Security: Encrypted enquiry transmission'
     ],
     metrics: [
       { label: 'Catalog Items', val: '2,500+' },
       { label: 'Inquiry Speed', val: 'Instant' },
-      { label: 'Client Satisfaction', val: '100%' }
-    ]
-  },
-  {
-    id: 'sleepdetector',
-    category: 'ai',
-    title: 'React Sleep & Drowsiness Detector',
-    badge: 'AI COMPUTER VISION COMPONENT',
-    url: 'https://github.com/gottisaiaashish/react-sleep-detector',
-    shortDesc: 'Open-source React component leveraging computer vision (face-api.js) to monitor Eye Aspect Ratio (EAR) and detect fatigue in real-time.',
-    image: 'https://images.unsplash.com/photo-1507413245164-6160d8298b31?auto=format&fit=crop&w=800&q=80',
-    client: 'Open Source Community / KLAPP R&D',
-    tech: 'React, face-api.js, Computer Vision, Canvas API',
-    story: `Driver fatigue and student burnout are severe safety concerns. We engineered an advanced open-source AI React component that performs real-time facial landmark tracking directly inside the web browser using webcam feed.
-
-By measuring the Eye Aspect Ratio (EAR) continuously, the component detects when eyes remain closed beyond safety thresholds—firing immediate audio alerts and callback events to prevent accidents.`,
-    highlights: [
-      'Real-Time Landmark Tracking: Uses face-api.js for sub-30ms facial landmark detection',
-      'Eye Aspect Ratio Math: Calculates precise EAR ratios to distinguish blinking from sleeping',
-      'Zero Server Dependency: Runs 100% locally inside client browser without sending video data',
-      'Developer Friendly: Easy npm/component wrapper integration for React & Capacitor apps'
-    ],
-    metrics: [
-      { label: 'Detection Speed', val: '30 FPS' },
-      { label: 'Privacy', val: '100% On-Device' },
-      { label: 'Accuracy', val: '95.8%' }
-    ]
-  },
-  {
-    id: 'videosplash',
-    category: 'creative',
-    title: 'React Capacitor Video Splash',
-    badge: 'MOBILE UI & ANIMATION COMPONENT',
-    url: 'https://github.com/gottisaiaashish/react-capacitor-video-splash',
-    shortDesc: 'Mobile application component for React + Capacitor creating smooth 60fps animated video splash screens during app startup.',
-    image: 'https://images.unsplash.com/photo-1551650975-87deedd944c3?auto=format&fit=crop&w=800&q=80',
-    client: 'Open Source Community / Mobile Apps',
-    tech: 'React, Capacitor, iOS/Android Native Bridge',
-    story: `First impressions dictate mobile app retention. Standard static splash screens feel outdated. We developed a specialized React + Capacitor component that renders seamless high-definition video splash screen animations during mobile app startup.
-
-While the app initializes native plugins and fetches initial API data in the background, users experience a luxury branded video splash, elevating mobile app perceived quality.`,
-    highlights: [
-      'Native Bridge: Seamless integration with Capacitor on iOS & Android',
-      'Seamless Transition: Smooth fade-out into the main application UI',
-      'Background Preload: Allows initial data hydration while video plays',
-      'Lightweight Asset: Optimized video player with zero frame drops'
-    ],
-    metrics: [
-      { label: 'Frame Rate', val: '60 FPS' },
-      { label: 'Load Delay', val: '0ms' },
-      { label: 'App Retention', val: '+22%' }
+      { label: 'Client Rating', val: '5.0 / 5' }
     ]
   }
 ];
@@ -242,8 +177,8 @@ export default function Portfolio() {
   const [selectedProject, setSelectedProject] = useState(null);
 
   const filteredProjects = filter === 'all' 
-    ? projectsList 
-    : projectsList.filter(p => p.category === filter);
+    ? realProjects 
+    : realProjects.filter(p => p.category === filter);
 
   return (
     <section id="portfolio" className="section-padding" style={{ background: 'var(--bg-secondary)' }}>
@@ -257,7 +192,7 @@ export default function Portfolio() {
             Engineered <span className="serif-italic">real-world software.</span>
           </h2>
           <p className="section-subtitle">
-            Explore live production systems built for hospitality, education, AI automation, creative media, and enterprise operations.
+            Explore production applications built for luxury hospitality, educational platforms, AI automation, creative media, and enterprise healthcare.
           </p>
         </div>
 
@@ -265,7 +200,7 @@ export default function Portfolio() {
         <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginBottom: '36px', flexWrap: 'wrap' }}>
           {[
             { key: 'all', label: 'All Work' },
-            { key: 'resort', label: 'Resorts & Booking' },
+            { key: 'booking', label: 'Rooms & Booking' },
             { key: 'edtech', label: 'EdTech & Admissions' },
             { key: 'ai', label: 'AI & Automation' },
             { key: 'creative', label: 'Creative & Media' },
@@ -282,150 +217,124 @@ export default function Portfolio() {
           ))}
         </div>
 
-        {/* Project Cards Grid */}
+        {/* Project Cards Grid - Single Clean Action Button */}
         <div className="portfolio-grid">
           <style>{`
             .portfolio-grid {
               display: grid;
-              grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+              grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
               gap: 24px;
             }
-            .p-card {
-              min-height: 380px;
+            .editorial-p-card {
+              background: var(--bg-card);
+              border: 1px solid var(--border-color);
               border-radius: 16px;
-              background-size: cover;
-              background-position: center;
-              position: relative;
-              overflow: hidden;
+              padding: 28px;
               display: flex;
               flex-direction: column;
-              justify-content: flex-end;
-              padding: 24px;
-              border: 1px solid var(--border-color);
-              box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-              transition: all 0.3s ease;
+              justify-content: space-between;
+              box-shadow: var(--shadow-soft);
+              transition: all 0.25s ease;
             }
-            .p-card:hover {
-              transform: translateY(-4px);
-              box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+            .editorial-p-card:hover {
+              border-color: var(--border-highlight);
+              background: var(--bg-card-hover);
+              transform: translateY(-2px);
+              box-shadow: 0 16px 36px rgba(0, 0, 0, 0.08);
             }
-            .p-overlay {
-              position: absolute;
-              inset: 0;
-              background: linear-gradient(180deg, rgba(24,24,27,0.15) 0%, rgba(24,24,27,0.94) 80%);
+            .p-card-title {
+              font-family: var(--font-serif);
+              font-weight: 400;
+              font-size: 1.6rem;
+              color: var(--text-primary);
+              margin-bottom: 12px;
+              line-height: 1.15;
             }
-            .p-content {
-              position: relative;
-              z-index: 2;
-              color: #ffffff;
-            }
-            .portal-badge-pill {
-              display: inline-block;
-              background: rgba(255, 255, 255, 0.18);
-              backdrop-filter: blur(8px);
-              border: 1px solid rgba(255, 255, 255, 0.3);
-              color: #ffffff;
-              font-family: var(--font-mono);
-              font-size: 0.68rem;
-              font-weight: 600;
-              padding: 4px 10px;
-              border-radius: 9999px;
-              margin-bottom: 10px;
-              letter-spacing: 0.06em;
+            .p-card-desc {
+              color: var(--text-secondary);
+              font-size: 0.9rem;
+              line-height: 1.6;
+              margin-bottom: 24px;
             }
           `}</style>
 
           {filteredProjects.map(p => (
-            <div 
-              key={p.id} 
-              className="p-card"
-              style={{ backgroundImage: `url(${p.image})` }}
-            >
-              <div className="p-overlay"></div>
-              <div className="p-content">
-                <span className="portal-badge-pill">{p.badge}</span>
-                <h3 style={{ fontSize: '1.45rem', fontWeight: '400', fontFamily: 'var(--font-serif)', color: '#fff', marginBottom: '6px' }}>{p.title}</h3>
-                <p style={{ color: '#d4d4d8', fontSize: '0.85rem', marginBottom: '16px', lineHeight: '1.5' }}>{p.shortDesc}</p>
-                
-                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                  <button 
-                    onClick={() => setSelectedProject(p)} 
-                    className="btn"
-                    style={{ background: '#ffffff', color: '#000000', padding: '8px 16px', fontSize: '0.82rem', fontWeight: '600' }}
-                  >
-                    Read Full Story & Case Study <i className="ri-article-line"></i>
-                  </button>
-                  <a 
-                    href={p.url} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="btn"
-                    style={{ background: 'rgba(255,255,255,0.15)', color: '#ffffff', padding: '8px 14px', fontSize: '0.82rem', border: '1px solid rgba(255,255,255,0.3)' }}
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    Live Site <i className="ri-external-link-line"></i>
-                  </a>
-                </div>
+            <div key={p.id} className="editorial-p-card">
+              <div>
+                <h3 className="p-card-title">{p.title}</h3>
+                <p className="p-card-desc">{p.shortDesc}</p>
+              </div>
+
+              <div style={{ paddingTop: '16px', borderTop: '1px solid var(--border-color)' }}>
+                <button 
+                  onClick={() => setSelectedProject(p)} 
+                  className="btn btn-primary"
+                  style={{ width: '100%', padding: '10px 16px', fontSize: '0.85rem', justifyContent: 'center' }}
+                >
+                  More <i className="ri-arrow-right-line"></i>
+                </button>
               </div>
             </div>
           ))}
         </div>
 
-        {/* FULL PAGE / LARGE EDITORIAL CASE STUDY DRAWER */}
+        {/* SLEEK SEAMLESS EDITORIAL CASE STUDY VIEW WITH DIRECT LINKS INSIDE */}
         {selectedProject && (
-          <div style={{ position: 'fixed', inset: 0, zIndex: 2500, background: 'rgba(244, 241, 234, 0.96)', backdropFilter: 'blur(16px)', overflowY: 'auto', padding: '40px 16px' }}>
-            <div className="container" style={{ maxWidth: '860px', margin: '0 auto', position: 'relative' }}>
+          <div style={{ position: 'fixed', inset: 0, zIndex: 2500, background: '#f4f1ea', overflowY: 'auto', padding: '40px 20px' }}>
+            <div style={{ maxWidth: '820px', margin: '0 auto' }}>
               
-              {/* Close Bar */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', borderBottom: '1px solid var(--border-color)', paddingBottom: '16px' }}>
-                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.78rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
-                  CASE STUDY ARCHIVE // {selectedProject.id.toUpperCase()}
-                </div>
+              {/* Back Bar */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '36px', borderBottom: '1px solid rgba(0,0,0,0.1)', paddingBottom: '16px' }}>
                 <button 
                   onClick={() => setSelectedProject(null)}
-                  style={{ background: '#18181b', color: '#ffffff', border: 'none', borderRadius: '9999px', padding: '8px 18px', fontSize: '0.82rem', fontWeight: '600', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                  style={{ background: 'none', border: 'none', color: 'var(--text-primary)', fontSize: '0.92rem', fontWeight: '600', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
                 >
-                  Close Story <i className="ri-close-line"></i>
+                  <i className="ri-arrow-left-line" style={{ fontSize: '1.2rem' }}></i> Back to All Projects
                 </button>
+
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                  CASE STUDY // {selectedProject.id.toUpperCase()}
+                </span>
               </div>
 
-              {/* Header Info */}
-              <div className="glass-card" style={{ padding: '36px', marginBottom: '28px', background: '#ffffff' }}>
-                <span className="badge badge-cyan" style={{ marginBottom: '14px' }}>{selectedProject.badge}</span>
-                <h1 style={{ fontSize: '2.8rem', fontFamily: 'var(--font-serif)', lineHeight: '1.1', color: 'var(--text-primary)', marginBottom: '12px' }}>
+              {/* Title Section */}
+              <div style={{ marginBottom: '32px' }}>
+                <h1 style={{ fontSize: '3.2rem', fontFamily: 'var(--font-serif)', fontWeight: '400', lineHeight: '1.08', color: 'var(--text-primary)', marginBottom: '20px' }}>
                   {selectedProject.title}
                 </h1>
-                
-                <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', borderTop: '1px solid var(--border-color)', paddingTop: '16px', marginTop: '16px' }}>
+
+                {/* Metadata Row */}
+                <div style={{ display: 'flex', gap: '32px', flexWrap: 'wrap', borderTop: '1px solid rgba(0,0,0,0.08)', borderBottom: '1px solid rgba(0,0,0,0.08)', padding: '16px 0' }}>
                   <div>
-                    <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', textTransform: 'uppercase' }}>CLIENT / INSTITUTION</div>
-                    <div style={{ fontSize: '0.95rem', fontWeight: '600', color: 'var(--text-primary)' }}>{selectedProject.client}</div>
+                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>CLIENT / ENTITY</div>
+                    <div style={{ fontSize: '0.95rem', fontWeight: '600', color: 'var(--text-primary)', marginTop: '2px' }}>{selectedProject.client}</div>
                   </div>
                   <div>
-                    <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', textTransform: 'uppercase' }}>TECHNOLOGY STACK</div>
-                    <div style={{ fontSize: '0.95rem', fontWeight: '600', color: 'var(--text-primary)' }}>{selectedProject.tech}</div>
+                    <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>STACK USED</div>
+                    <div style={{ fontSize: '0.95rem', fontWeight: '600', color: 'var(--text-primary)', marginTop: '2px' }}>{selectedProject.tech}</div>
                   </div>
                 </div>
               </div>
 
-              {/* Story Narrative Box */}
-              <div className="glass-card" style={{ padding: '36px', marginBottom: '28px', background: '#ffffff' }}>
-                <h3 style={{ fontSize: '1.5rem', fontFamily: 'var(--font-serif)', color: 'var(--text-primary)', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <i className="ri-book-open-line" style={{ color: 'var(--accent-dot)' }}></i> Engineering Story & Overview
+              {/* Overview & Highlights */}
+              <div style={{ marginBottom: '40px' }}>
+                <h3 style={{ fontSize: '1.6rem', fontFamily: 'var(--font-serif)', fontWeight: '400', color: 'var(--text-primary)', marginBottom: '16px' }}>
+                  Project Overview
                 </h3>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '1.02rem', lineHeight: '1.8', whiteSpace: 'pre-line', marginBottom: '28px' }}>
-                  {selectedProject.story}
+                
+                <p style={{ color: 'var(--text-secondary)', fontSize: '1.05rem', lineHeight: '1.8', marginBottom: '32px', whiteSpace: 'pre-line' }}>
+                  {selectedProject.overview}
                 </p>
 
-                {/* Highlights List */}
-                <div style={{ background: '#f9f7f2', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '24px', marginBottom: '24px' }}>
-                  <h4 style={{ fontSize: '0.82rem', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)', marginBottom: '14px' }}>
-                    ⚡ KEY TECHNICAL HIGHLIGHTS & ARCHITECTURE:
-                  </h4>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {/* Technical Highlights */}
+                <div style={{ background: '#eae6dd', border: '1px solid rgba(0,0,0,0.08)', borderRadius: '12px', padding: '24px', marginBottom: '32px' }}>
+                  <div style={{ fontSize: '0.75rem', fontFamily: 'var(--font-mono)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)', marginBottom: '16px' }}>
+                    ⚡ KEY FEATURES DELIVERED:
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                     {selectedProject.highlights.map((h, i) => (
-                      <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', fontSize: '0.92rem', color: 'var(--text-primary)', lineHeight: '1.5' }}>
-                        <i className="ri-checkbox-circle-fill" style={{ color: '#22c55e', fontSize: '1.1rem', marginTop: '2px' }}></i>
+                      <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', fontSize: '0.95rem', color: 'var(--text-primary)', lineHeight: '1.5' }}>
+                        <i className="ri-checkbox-circle-fill" style={{ color: '#15803d', fontSize: '1.1rem', marginTop: '2px' }}></i>
                         <span>{h}</span>
                       </div>
                     ))}
@@ -433,49 +342,35 @@ export default function Portfolio() {
                 </div>
 
                 {/* Metrics */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '40px' }}>
                   {selectedProject.metrics.map((m, i) => (
-                    <div key={i} style={{ background: '#f4f1ea', padding: '16px', borderRadius: '10px', textAlign: 'center', border: '1px solid var(--border-color)' }}>
-                      <div style={{ fontSize: '1.3rem', fontWeight: '800', color: 'var(--text-primary)', fontFamily: 'var(--font-sans)' }}>{m.val}</div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', marginTop: '2px' }}>{m.label}</div>
+                    <div key={i} style={{ background: '#ffffff', padding: '20px 16px', borderRadius: '12px', textAlign: 'center', border: '1px solid rgba(0,0,0,0.08)' }}>
+                      <div style={{ fontSize: '1.5rem', fontWeight: '800', color: 'var(--text-primary)', fontFamily: 'var(--font-sans)' }}>{m.val}</div>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', marginTop: '4px' }}>{m.label}</div>
                     </div>
                   ))}
                 </div>
-
               </div>
 
-              {/* Action Buttons Footer */}
-              <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap', marginBottom: '40px' }}>
+              {/* Action Bar - Clean 2 Pill Buttons Only */}
+              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center', borderTop: '1px solid rgba(0,0,0,0.1)', paddingTop: '28px', marginBottom: '40px' }}>
                 <a 
                   href={selectedProject.url} 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="btn btn-primary" 
-                  style={{ flex: 1, padding: '16px', fontSize: '0.95rem', justifyContent: 'center' }}
+                  style={{ padding: '12px 24px', fontSize: '0.88rem', fontWeight: '600', whiteSpace: 'nowrap' }}
                 >
-                  Launch Production App ({selectedProject.url.replace('https://', '')}) <i className="ri-external-link-line"></i>
+                  Visit Website <i className="ri-external-link-line"></i>
                 </a>
-                
-                {selectedProject.secondaryUrl && (
-                  <a 
-                    href={selectedProject.secondaryUrl} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="btn btn-secondary" 
-                    style={{ padding: '16px 24px', fontSize: '0.95rem' }}
-                  >
-                    Open Banquet Portal <i className="ri-external-link-line"></i>
-                  </a>
-                )}
 
-                <a 
-                  href="#contact" 
+                <button 
                   onClick={() => setSelectedProject(null)}
                   className="btn btn-secondary" 
-                  style={{ padding: '16px 24px', fontSize: '0.95rem' }}
+                  style={{ padding: '12px 24px', fontSize: '0.88rem', fontWeight: '600', whiteSpace: 'nowrap' }}
                 >
-                  Build Similar Software
-                </a>
+                  Close <i className="ri-close-line"></i>
+                </button>
               </div>
 
             </div>
