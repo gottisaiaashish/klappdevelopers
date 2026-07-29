@@ -87,7 +87,7 @@ export default function Contact() {
             }
           `}</style>
 
-          {/* Left Info with Professional Monospace Phone Card */}
+          {/* Left Info */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             
             <div className="phone-professional-card">
@@ -128,12 +128,6 @@ export default function Contact() {
             >
               <i className="ri-whatsapp-fill" style={{ color: '#22c55e', fontSize: '1.25rem' }}></i> Chat Directly on +91 79890 33580
             </a>
-
-            <div className="glass-card" style={{ textAlign: 'center', padding: '20px' }}>
-              <i className="ri-map-pin-2-line" style={{ fontSize: '1.8rem', color: 'var(--accent-dot)', marginBottom: '6px' }}></i>
-              <div style={{ fontWeight: '600', color: 'var(--text-primary)', fontFamily: 'var(--font-serif)', fontSize: '1.1rem' }}>KLAPP Group HQ</div>
-              <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Tech Hub, Hyderabad & Global Operations</div>
-            </div>
 
           </div>
 
