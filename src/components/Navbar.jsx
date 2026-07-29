@@ -67,6 +67,12 @@ export default function Navbar() {
         .nav-link:hover {
           color: var(--text-primary);
         }
+
+        /* Hide mobile-only CTA from desktop navbar links */
+        .mobile-cta-wrapper {
+          display: none;
+        }
+
         .nav-cta-btn {
           display: inline-flex;
         }
@@ -87,7 +93,12 @@ export default function Navbar() {
             letter-spacing: 0.08em;
           }
           .nav-cta-btn {
-            display: none; /* Hide top bar call button on mobile to avoid crowding */
+            display: none; /* Hide desktop button on mobile bar */
+          }
+          .mobile-cta-wrapper {
+            display: block; /* Show CTA inside mobile drawer menu */
+            margin-top: 10px;
+            width: 100%;
           }
           .nav-links {
             display: ${mobileMenuOpen ? 'flex' : 'none'};
@@ -101,11 +112,6 @@ export default function Navbar() {
             border-bottom: 1px solid var(--border-color);
             gap: 20px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-          }
-          .mobile-cta-wrapper {
-            display: block;
-            margin-top: 10px;
-            width: 100%;
           }
           .mobile-toggle {
             display: block;
