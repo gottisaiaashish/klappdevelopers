@@ -21,14 +21,14 @@ export default function Navbar() {
           left: 0;
           right: 0;
           z-index: 1000;
-          padding: 24px 0;
+          padding: 20px 0;
           transition: all 0.3s ease;
         }
         .navbar.scrolled {
-          padding: 16px 0;
-          background: rgba(244, 241, 234, 0.92);
+          padding: 12px 0;
+          background: rgba(244, 241, 234, 0.94);
           backdrop-filter: blur(16px);
-          border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+          border-bottom: 1px solid rgba(0, 0, 0, 0.08);
           box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
         }
         .navbar-content {
@@ -40,15 +40,16 @@ export default function Navbar() {
           text-decoration: none;
           display: flex;
           align-items: center;
-          gap: 6px;
+          white-space: nowrap;
         }
         .logo-title {
           font-family: var(--font-sans);
           font-weight: 800;
           font-size: 1.15rem;
           color: var(--text-primary);
-          letter-spacing: 0.15em;
+          letter-spacing: 0.12em;
           text-transform: uppercase;
+          white-space: nowrap;
         }
         .nav-links {
           display: flex;
@@ -66,15 +67,28 @@ export default function Navbar() {
         .nav-link:hover {
           color: var(--text-primary);
         }
+        .nav-cta-btn {
+          display: inline-flex;
+        }
         .mobile-toggle {
           display: none;
           background: none;
           border: none;
           color: var(--text-primary);
-          font-size: 1.5rem;
+          font-size: 1.6rem;
           cursor: pointer;
+          padding: 4px;
         }
-        @media (max-width: 900px) {
+
+        /* Mobile Viewport Fixes */
+        @media (max-width: 768px) {
+          .logo-title {
+            font-size: 0.95rem;
+            letter-spacing: 0.08em;
+          }
+          .nav-cta-btn {
+            display: none; /* Hide top bar call button on mobile to avoid crowding */
+          }
           .nav-links {
             display: ${mobileMenuOpen ? 'flex' : 'none'};
             position: absolute;
@@ -83,15 +97,22 @@ export default function Navbar() {
             right: 0;
             flex-direction: column;
             background: #f4f1ea;
-            padding: 24px;
+            padding: 28px 24px;
             border-bottom: 1px solid var(--border-color);
-            gap: 16px;
+            gap: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+          }
+          .mobile-cta-wrapper {
+            display: block;
+            margin-top: 10px;
+            width: 100%;
           }
           .mobile-toggle {
             display: block;
           }
         }
       `}</style>
+
       <div className="container">
         <div className="navbar-content">
           <a href="#home" className="logo">
@@ -106,22 +127,27 @@ export default function Navbar() {
               <li><a href="#portfolio" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Portfolio</a></li>
               <li><a href="#pricing" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Pricing</a></li>
               <li><a href="#faq" className="nav-link" onClick={() => setMobileMenuOpen(false)}>FAQ</a></li>
+              <li className="mobile-cta-wrapper">
+                <a href="#contact" className="btn btn-primary" onClick={() => setMobileMenuOpen(false)} style={{ width: '100%', padding: '12px' }}>
+                  Book a Call <i className="ri-arrow-right-line"></i>
+                </a>
+              </li>
             </ul>
           </nav>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <a href="#contact" className="btn btn-primary" style={{ padding: '10px 22px', fontSize: '0.85rem' }}>
+          <div className="nav-cta-btn">
+            <a href="#contact" className="btn btn-primary" style={{ padding: '10px 22px', fontSize: '0.85rem', whiteSpace: 'nowrap' }}>
               Book a Call <i className="ri-arrow-right-line"></i>
             </a>
-
-            <button 
-              className="mobile-toggle" 
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label="Toggle menu"
-            >
-              <i className={mobileMenuOpen ? 'ri-close-line' : 'ri-menu-line'}></i>
-            </button>
           </div>
+
+          <button 
+            className="mobile-toggle" 
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle menu"
+          >
+            <i className={mobileMenuOpen ? 'ri-close-line' : 'ri-menu-line'}></i>
+          </button>
         </div>
       </div>
     </header>
