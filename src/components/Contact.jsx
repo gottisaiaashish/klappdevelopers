@@ -66,29 +66,47 @@ export default function Contact() {
               font-weight: 600;
               color: var(--text-secondary);
             }
-            .phone-highlight-box {
+            .phone-professional-card {
               background: #ffffff;
-              border: 1px solid rgba(34, 197, 94, 0.3);
+              border: 1px solid var(--border-color);
               border-radius: 14px;
-              padding: 22px;
-              box-shadow: 0 4px 16px rgba(34, 197, 94, 0.08);
+              padding: 24px;
+              box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
               display: flex;
               align-items: center;
+              justify-content: space-between;
+              flex-wrap: wrap;
               gap: 16px;
+            }
+            .phone-mono-number {
+              font-family: var(--font-mono);
+              font-weight: 700;
+              font-size: 1.35rem;
+              color: #18181b;
+              letter-spacing: 0.06em;
             }
           `}</style>
 
-          {/* Left Info with Highlighted Phone Number */}
+          {/* Left Info with Professional Monospace Phone Card */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             
-            <div className="phone-highlight-box">
-              <div style={{ width: '46px', height: '46px', borderRadius: '12px', background: '#e6f4ea', color: '#15803d', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.4rem' }}>
-                <i className="ri-whatsapp-line"></i>
-              </div>
+            <div className="phone-professional-card">
               <div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>OFFICIAL KLAPP HOTLINE</div>
-                <div style={{ fontSize: '1.25rem', fontWeight: '800', color: '#18181b', fontFamily: 'var(--font-mono)', letterSpacing: '0.04em' }}>+91 79890 33580</div>
+                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '4px' }}>
+                  <span className="section-tag-dot" style={{ background: '#22c55e', display: 'inline-block', marginRight: '6px' }}></span>
+                  DIRECT FOUNDER LINE
+                </div>
+                <div className="phone-mono-number">+91 79890 33580</div>
               </div>
+              <a 
+                href="https://wa.me/917989033580?text=Hi%20KLAPP%20Developers,%20I%20would%20like%20to%20discuss%20a%20project!" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="btn btn-primary"
+                style={{ padding: '8px 18px', fontSize: '0.82rem', background: '#18181b', color: '#fff' }}
+              >
+                <i className="ri-whatsapp-line" style={{ color: '#22c55e', fontSize: '1rem' }}></i> WhatsApp
+              </a>
             </div>
 
             <div className="glass-card" style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '20px' }}>
@@ -106,9 +124,9 @@ export default function Contact() {
               target="_blank" 
               rel="noopener noreferrer" 
               className="btn" 
-              style={{ background: '#25d366', color: '#000000', padding: '16px', fontSize: '0.95rem', fontWeight: '700' }}
+              style={{ background: '#18181b', color: '#ffffff', padding: '16px', fontSize: '0.95rem', fontWeight: '600' }}
             >
-              <i className="ri-whatsapp-fill" style={{ fontSize: '1.25rem' }}></i> Chat Directly on +91 79890 33580
+              <i className="ri-whatsapp-fill" style={{ color: '#22c55e', fontSize: '1.25rem' }}></i> Chat Directly on +91 79890 33580
             </a>
 
             <div className="glass-card" style={{ textAlign: 'center', padding: '20px' }}>
@@ -149,7 +167,7 @@ export default function Contact() {
                     type="text" 
                     required 
                     className="c-input" 
-                    placeholder="e.g. rahul@company.com or +91 98765 43210"
+                    placeholder="e.g. rahul@company.com or +91 79890 33580"
                     value={form.email}
                     onChange={(e) => setForm({ ...form, email: e.target.value })}
                   />
