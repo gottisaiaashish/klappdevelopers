@@ -172,8 +172,7 @@ const AI_ROTATING_PROMPTS = [
   'Ask KLAPP AI about Web Applications...',
   'Ask about Meta WhatsApp API & Automations...',
   'Ask about Google Ads & Meta Digital Marketing...',
-  'Ask about Enterprise ERP Software...',
-  'Ask about Founder Gotti Aashish & KLAPP Group...'
+  'Ask about Enterprise ERP Software...'
 ];
 
 export default function KlappAiModal({ isOpen, onClose, initialPrompt = '' }) {

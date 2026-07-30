@@ -5,7 +5,6 @@ const ROTATING_PROMPTS = [
   'Ask about custom React Web Applications...',
   'Ask about AI Automations & Meta WhatsApp Bots...',
   'Ask about Enterprise ERP & Business Software...',
-  'Ask about Founder Gotti Aashish & KLAPP Group...',
   'Ask about Pricing, Timelines & MVP Packages...'
 ];
 
