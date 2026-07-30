@@ -94,12 +94,14 @@ export default function Footer() {
             <p style={{ color: 'var(--text-muted)', fontSize: '0.82rem', marginBottom: '14px' }}>
               Direct line available 24/7 on WhatsApp & Call.
             </p>
-            <div style={{ display: 'flex', gap: '14px', fontSize: '1.3rem' }}>
+            <div style={{ display: 'flex', gap: '14px', fontSize: '1.3rem', alignItems: 'center' }}>
+              <a href="https://www.instagram.com/klapp.in" target="_blank" rel="noopener noreferrer" style={{ color: '#18181b' }} title="KLAPP Instagram (@klapp.in)"><i className="ri-instagram-fill"></i></a>
               <a href="#" style={{ color: 'var(--text-secondary)' }}><i className="ri-linkedin-box-fill"></i></a>
               <a href="#" style={{ color: 'var(--text-secondary)' }}><i className="ri-twitter-x-fill"></i></a>
               <a href="#" style={{ color: 'var(--text-secondary)' }}><i className="ri-github-fill"></i></a>
-              <a href="https://wa.me/917989033580" target="_blank" rel="noopener noreferrer" style={{ color: '#15803d' }}><i className="ri-whatsapp-fill"></i></a>
+              <a href="https://wa.me/917989033580" target="_blank" rel="noopener noreferrer" style={{ color: '#15803d' }} title="WhatsApp"><i className="ri-whatsapp-fill"></i></a>
             </div>
+
           </div>
 
         </div>

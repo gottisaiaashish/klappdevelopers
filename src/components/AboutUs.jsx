@@ -595,17 +595,29 @@ export default function AboutUs({ isOpen, onClose }) {
                 <h3 className="founder-name-text">Gotti Aashish</h3>
                 <div className="social-buttons">
                   <a 
+                    href="https://www.instagram.com/klapp.in" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="btn-insta"
+                    title="KLAPP Official Instagram"
+                  >
+                    <i className="ri-instagram-line"></i> @klapp.in <i className="ri-external-link-line"></i>
+                  </a>
+                  <a 
                     href="https://www.instagram.com/_nanisagar_" 
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="btn-insta"
+                    style={{ background: 'rgba(0, 0, 0, 0.06)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
+                    title="Founder Personal Instagram"
                   >
-                    <i className="ri-instagram-line"></i> @_nanisagar_ <i className="ri-external-link-line"></i>
+                    <i className="ri-user-3-line"></i> @_nanisagar_ <i className="ri-external-link-line"></i>
                   </a>
-                  <button className="btn-copy" onClick={copyInsta} title="Copy handle">
+                  <button className="btn-copy" onClick={copyInsta} title="Copy handle @_nanisagar_">
                     <i className={copied ? 'ri-check-line' : 'ri-file-copy-line'}></i>
                   </button>
                 </div>
+
               </div>
 
               <div className="founder-role-tag">
