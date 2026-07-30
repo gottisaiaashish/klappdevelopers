@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-export default function Navbar({ onOpenAi }) {
+export default function Navbar({ onOpenAi, onOpenPricing, onOpenShowcase }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -129,8 +129,21 @@ export default function Navbar({ onOpenAi }) {
             <ul className="nav-links">
               <li><a href="#services" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Services</a></li>
 
-
-              <li><a href="#showcase" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Showcase</a></li>
+              <li>
+                <a 
+                  href="#showcase" 
+                  className="nav-link" 
+                  onClick={(e) => {
+                    setMobileMenuOpen(false);
+                    if (onOpenShowcase) {
+                      e.preventDefault();
+                      onOpenShowcase();
+                    }
+                  }}
+                >
+                  Showcase
+                </a>
+              </li>
               <li>
                 <a 
                   href="#simulator" 
@@ -148,7 +161,21 @@ export default function Navbar({ onOpenAi }) {
               </li>
 
               <li><a href="#portfolio" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Portfolio</a></li>
-              <li><a href="#pricing" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Pricing</a></li>
+              <li>
+                <a 
+                  href="#pricing" 
+                  className="nav-link" 
+                  onClick={(e) => {
+                    setMobileMenuOpen(false);
+                    if (onOpenPricing) {
+                      e.preventDefault();
+                      onOpenPricing();
+                    }
+                  }}
+                >
+                  Pricing
+                </a>
+              </li>
               <li><a href="#faq" className="nav-link" onClick={() => setMobileMenuOpen(false)}>FAQ</a></li>
               <li className="mobile-cta-wrapper">
                 <a href="#contact" className="btn btn-primary" onClick={() => setMobileMenuOpen(false)} style={{ width: '100%', padding: '12px' }}>

@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function Footer() {
+export default function Footer({ onOpenPricing, onOpenShowcase }) {
   return (
     <footer style={{ background: '#eae6dd', borderTop: '1px solid var(--border-color)', padding: '60px 0 36px 0' }}>
       <div className="container">
@@ -59,16 +59,39 @@ export default function Footer() {
             </p>
           </div>
 
-
           <div>
             <h4 className="footer-title">Navigation</h4>
             <ul className="footer-links">
               <li><a href="#home">Home</a></li>
               <li><a href="#about">About Us</a></li>
               <li><a href="#services">Services</a></li>
-              <li><a href="#showcase">Live Showcase</a></li>
+              <li>
+                <a 
+                  href="#showcase"
+                  onClick={(e) => {
+                    if (onOpenShowcase) {
+                      e.preventDefault();
+                      onOpenShowcase();
+                    }
+                  }}
+                >
+                  Live Showcase
+                </a>
+              </li>
               <li><a href="#portfolio">Portfolio</a></li>
-              <li><a href="#pricing">Pricing</a></li>
+              <li>
+                <a 
+                  href="#pricing" 
+                  onClick={(e) => {
+                    if (onOpenPricing) {
+                      e.preventDefault();
+                      onOpenPricing();
+                    }
+                  }}
+                >
+                  Pricing
+                </a>
+              </li>
             </ul>
           </div>
 

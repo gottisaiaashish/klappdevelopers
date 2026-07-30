@@ -19,6 +19,8 @@ import KlappAiModal from './components/KlappAiModal';
 export default function App() {
   const [aiModalOpen, setAiModalOpen] = useState(false);
   const [aiPrompt, setAiPrompt] = useState('');
+  const [pricingOpen, setPricingOpen] = useState(false);
+  const [showcaseOpen, setShowcaseOpen] = useState(false);
 
   const handleOpenAi = (prompt = '') => {
     setAiPrompt(prompt);
@@ -27,23 +29,38 @@ export default function App() {
 
   return (
     <div className="app-root">
-      <Navbar onOpenAi={handleOpenAi} />
+      <Navbar 
+        onOpenAi={handleOpenAi} 
+        onOpenPricing={() => setPricingOpen(true)} 
+        onOpenShowcase={() => setShowcaseOpen(true)} 
+      />
       <main>
         <Hero onOpenAi={handleOpenAi} />
         <Services />
 
-        <DeviceShowcase />
         <WhyUs />
         <TechStack />
         <Process />
         <Portfolio />
-        <Pricing />
         <FAQ />
         <AboutUs />
         <Contact />
       </main>
 
-      <Footer />
+      <Footer 
+        onOpenPricing={() => setPricingOpen(true)} 
+        onOpenShowcase={() => setShowcaseOpen(true)} 
+      />
+
+      {/* Dedicated Separate Showcase Page Overlay */}
+      {showcaseOpen && (
+        <DeviceShowcase isOpen={true} onClose={() => setShowcaseOpen(false)} />
+      )}
+
+      {/* Dedicated Separate Pricing Page Overlay */}
+      {pricingOpen && (
+        <Pricing isOpen={true} onClose={() => setPricingOpen(false)} />
+      )}
 
       {/* KLAPP AI Full-Screen Interactive Assistant */}
       <KlappAiModal 
