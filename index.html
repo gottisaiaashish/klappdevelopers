@@ -5,7 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>KLAPP Developers | Knowledge Led Apps & Performance Partners</title>
   <meta name="description" content="We build premium websites, AI automation, business software, mobile apps and scalable digital solutions for modern businesses." />
+  <link rel="canonical" href="https://klappdevelopers.in/" />
   
+  <!-- Open Graph / Social Meta Tags -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://klappdevelopers.in/" />
+  <meta property="og:title" content="KLAPP Developers | Web Development & AI Solutions" />
+  <meta property="og:description" content="Premium websites, AI automation, business software, and digital solutions." />
+  <meta property="twitter:card" content="summary_large_image" />
+  <meta property="twitter:title" content="KLAPP Developers" />
+  <meta property="twitter:description" content="Knowledge Led Apps & Performance Partners" />
+
   <!-- Google Fonts: Newsreader, Cormorant Garamond, Plus Jakarta Sans, JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,9 +23,45 @@
   
   <!-- Remixicon CDN for Icons -->
   <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet"/>
+
+  <!-- JSON-LD Structured Data for Search Engine Sitelinks & Organization -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://klappdevelopers.in/#organization",
+        "name": "KLAPP Developers",
+        "url": "https://klappdevelopers.in/",
+        "logo": "https://klappdevelopers.in/logo.png",
+        "description": "Knowledge Led Apps & Performance Partners building websites, AI systems, and enterprise software."
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://klappdevelopers.in/#website",
+        "url": "https://klappdevelopers.in/",
+        "name": "KLAPP Developers",
+        "publisher": { "@id": "https://klappdevelopers.in/#organization" }
+      },
+      {
+        "@type": "SiteNavigationElement",
+        "name": ["Services", "Portfolio", "Pricing", "Process", "Contact Us"],
+        "url": [
+          "https://klappdevelopers.in/#services",
+          "https://klappdevelopers.in/#portfolio",
+          "https://klappdevelopers.in/#pricing",
+          "https://klappdevelopers.in/#process",
+          "https://klappdevelopers.in/#contact"
+        ]
+      }
+    ]
+  }
+  </script>
 </head>
 <body>
   <div id="root"></div>
   <script type="module" src="/src/main.jsx"></script>
 </body>
 </html>
+
