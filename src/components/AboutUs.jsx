@@ -109,20 +109,27 @@ export default function AboutUs({ isOpen, onClose }) {
 
         .about-header {
           text-align: center;
-          max-width: 820px;
+          max-width: 840px;
           margin: 0 auto 52px auto;
         }
 
-        .about-header .section-title {
-          font-family: var(--font-serif);
-          font-size: 3.5rem;
-          font-weight: 400;
-          line-height: 1.08;
+        .about-hero-title {
+          font-family: var(--font-sans);
+          font-weight: 800;
+          font-size: 3.4rem;
+          letter-spacing: -0.03em;
           color: var(--text-primary);
           margin-bottom: 16px;
+          line-height: 1.1;
+        }
+        .about-hero-title .serif-italic-accent {
+          font-family: var(--font-serif);
+          font-style: italic;
+          font-weight: 400;
+          color: var(--text-primary);
         }
 
-        /* Metric Cards Bar */
+        /* Metrics Grid */
         .metrics-grid {
           display: grid;
           grid-template-columns: repeat(4, 1fr);
@@ -147,9 +154,10 @@ export default function AboutUs({ isOpen, onClose }) {
         }
 
         .metric-num {
-          font-family: var(--font-serif);
-          font-size: 2.2rem;
-          font-weight: 400;
+          font-family: var(--font-sans);
+          font-weight: 800;
+          font-size: 2.1rem;
+          letter-spacing: -0.02em;
           color: var(--text-primary);
           line-height: 1;
           margin-bottom: 6px;
@@ -193,9 +201,10 @@ export default function AboutUs({ isOpen, onClose }) {
         }
 
         .card-heading {
-          font-family: var(--font-serif);
-          font-size: 1.8rem;
-          font-weight: 400;
+          font-family: var(--font-sans);
+          font-weight: 700;
+          font-size: 1.65rem;
+          letter-spacing: -0.02em;
           color: var(--text-primary);
           margin-bottom: 12px;
         }
@@ -239,8 +248,8 @@ export default function AboutUs({ isOpen, onClose }) {
           display: flex;
           align-items: center;
           justify-content: center;
-          font-family: var(--font-mono);
-          font-weight: 700;
+          font-family: var(--font-sans);
+          font-weight: 800;
           font-size: 2rem;
           overflow: hidden;
           box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
@@ -281,9 +290,10 @@ export default function AboutUs({ isOpen, onClose }) {
         }
 
         .founder-name-text {
-          font-family: var(--font-serif);
-          font-size: 2.4rem;
-          font-weight: 400;
+          font-family: var(--font-sans);
+          font-weight: 800;
+          font-size: 2.2rem;
+          letter-spacing: -0.02em;
           color: var(--text-primary);
           line-height: 1.1;
         }
@@ -357,9 +367,10 @@ export default function AboutUs({ isOpen, onClose }) {
         }
 
         .journey-title {
-          font-family: var(--font-serif);
-          font-size: 1.6rem;
-          font-weight: 400;
+          font-family: var(--font-sans);
+          font-weight: 700;
+          font-size: 1.5rem;
+          letter-spacing: -0.02em;
           color: var(--text-primary);
           margin-bottom: 24px;
         }
@@ -444,8 +455,8 @@ export default function AboutUs({ isOpen, onClose }) {
         }
 
         @media (max-width: 768px) {
-          .about-header .section-title {
-            font-size: 2.4rem;
+          .about-hero-title {
+            font-size: 2.3rem;
           }
           .cards-grid {
             grid-template-columns: 1fr;
@@ -483,7 +494,9 @@ export default function AboutUs({ isOpen, onClose }) {
           <div className="section-tag">
             <span className="section-tag-dot"></span> ABOUT & FOUNDER
           </div>
-          <h1 className="section-title">About KLAPP Developers</h1>
+          <h1 className="about-hero-title">
+            About <span className="serif-italic-accent">KLAPP Developers</span>
+          </h1>
           <p className="section-subtitle">
             Transforming digital architectures through transparency, data-driven predictions, and genuine performance engineering.
           </p>
@@ -543,7 +556,9 @@ export default function AboutUs({ isOpen, onClose }) {
           <div className="section-tag" style={{ justifyContent: 'center' }}>
             <span className="section-tag-dot"></span> LEADERSHIP & VISION
           </div>
-          <h2 className="section-title" style={{ fontSize: '2.6rem' }}>Meet The Founder</h2>
+          <h2 className="about-hero-title" style={{ fontSize: '2.8rem' }}>
+            Meet The <span className="serif-italic-accent">Founder</span>
+          </h2>
         </div>
 
         <div className="founder-card-box">
@@ -603,7 +618,9 @@ export default function AboutUs({ isOpen, onClose }) {
 
           {/* Journey Timeline Grid */}
           <div className="journey-block">
-            <h3 className="journey-title">The Evolution Timeline</h3>
+            <h3 className="journey-title">
+              The Evolution <span className="serif-italic-accent" style={{ fontFamily: 'var(--font-serif)' }}>Timeline</span>
+            </h3>
 
             <div className="timeline-grid">
               <div className="timeline-card">
