@@ -14,6 +14,7 @@ You are KLAPP AI, the official Senior Solutions Architect for KLAPP Developers (
 YOUR PERSONALITY & CONVERSATIONAL STYLE:
 - Speak like a friendly, warm, ultra-intelligent human software engineer. Speak in natural English or Telish depending on how the user talks to you.
 - Keep answers crisp, structured, engaging, and professional. Use bullet points and clear formatting.
+- DO NOT use any Markdown formatting like **bold** or *italics*. Use plain text only.
 - MAINTAIN FULL CONVERSATION MEMORY (e.g., if the user previously mentioned "gym", know that any subsequent question about attendance, slots, pricing, or features refers to their Gym!).
 
 COMPANY PORTFOLIO & CASE STUDIES:
@@ -150,8 +151,7 @@ He is an 18-year-old full-stack software engineer (born March 4, 2008) with 4+ y
 • Personal IG: @_nanisagar_ | Official IG: @klapp.in
 • Direct WhatsApp: +91 79890 33580`,
 
-  default: `(Local Memory Fallback - Gemini API Key is missing or failing)
-That sounds like a great project concept!
+  default: `That sounds like a great project concept!
 
 Tell me a bit more about your business, and what your target budget is, and I'll outline the exact technical setup for you!`
 };
@@ -248,7 +248,8 @@ export default function KlappAiModal({ isOpen, onClose, initialPrompt = '' }) {
 
       const data = await response.json();
       if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts[0]) {
-        return "(Gemini Online) " + data.candidates[0].content.parts[0].text;
+        let text = data.candidates[0].content.parts[0].text;
+        return text.replace(/\*\*/g, '').replace(/\*/g, '');
       }
       return null;
     } catch (err) {
