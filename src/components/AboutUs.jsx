@@ -1,130 +1,273 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-export default function AboutUs() {
+export default function AboutUs({ isOpen, onClose }) {
   const [imgError, setImgError] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    const handleHash = () => {
+      if (window.location.hash === '#about') {
+        setModalOpen(true);
+      }
+    };
+
+    handleHash();
+    window.addEventListener('hashchange', handleHash);
+    return () => window.removeEventListener('hashchange', handleHash);
+  }, []);
+
+  useEffect(() => {
+    if (isOpen !== undefined) {
+      setModalOpen(isOpen);
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (modalOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [modalOpen]);
+
+  const handleClose = () => {
+    setModalOpen(false);
+    if (window.location.hash === '#about') {
+      history.pushState("", document.title, window.location.pathname + window.location.search);
+    }
+    if (onClose) onClose();
+  };
+
+  const copyInsta = (e) => {
+    e.stopPropagation();
+    navigator.clipboard.writeText('@_nanisagar_');
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  if (!modalOpen) return null;
 
   return (
-    <section id="about" className="section" style={{ background: '#FAF8F5', position: 'relative' }}>
+    <div className="about-klapp-page">
       <style>{`
-        .about-header {
-          text-align: center;
-          max-width: 800px;
-          margin: 0 auto 60px auto;
-        }
-        .about-title {
-          font-family: var(--font-serif);
-          font-size: 3rem;
-          font-weight: 500;
+        .about-klapp-page {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100vw;
+          height: 100vh;
+          z-index: 999999;
+          background-color: var(--bg-primary);
+          background-image: 
+            radial-gradient(#d5d0c4 0.75px, transparent 0.75px),
+            radial-gradient(#d5d0c4 0.75px, #f4f1ea 0.75px);
+          background-size: 30px 30px;
+          background-position: 0 0, 15px 15px;
+          overflow-y: auto;
+          animation: slideUpFull 0.3s cubic-bezier(0.16, 1, 0.3, 1);
           color: var(--text-primary);
-          letter-spacing: -0.02em;
-          margin-bottom: 16px;
-        }
-        .about-subtitle {
-          font-size: 1.15rem;
-          color: var(--text-secondary);
-          line-height: 1.6;
-          font-family: var(--font-sans);
         }
 
+        /* Editorial Top Bar */
+        .about-top-bar {
+          position: sticky;
+          top: 0;
+          z-index: 100;
+          background: rgba(244, 241, 234, 0.94);
+          backdrop-filter: blur(16px);
+          -webkit-backdrop-filter: blur(16px);
+          border-bottom: 1px solid var(--border-color);
+          padding: 16px 0;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+        }
+
+        .about-top-flex {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+
+        .klapp-brand-title {
+          font-family: var(--font-sans);
+          font-weight: 800;
+          font-size: 1.12rem;
+          color: var(--text-primary);
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+        }
+
+        /* Main Page Container */
+        .about-container {
+          max-width: 1140px;
+          margin: 0 auto;
+          padding: 60px 24px 100px 24px;
+        }
+
+        .about-header {
+          text-align: center;
+          max-width: 820px;
+          margin: 0 auto 52px auto;
+        }
+
+        .about-header .section-title {
+          font-family: var(--font-serif);
+          font-size: 3.5rem;
+          font-weight: 400;
+          line-height: 1.08;
+          color: var(--text-primary);
+          margin-bottom: 16px;
+        }
+
+        /* Metric Cards Bar */
+        .metrics-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 20px;
+          margin-bottom: 56px;
+        }
+
+        .metric-item {
+          background: var(--bg-card);
+          border: 1px solid var(--border-color);
+          border-radius: 16px;
+          padding: 24px 20px;
+          text-align: center;
+          box-shadow: var(--shadow-soft);
+          transition: all 0.25s ease;
+        }
+        .metric-item:hover {
+          background: var(--bg-card-hover);
+          border-color: var(--border-highlight);
+          transform: translateY(-2px);
+          box-shadow: 0 12px 28px rgba(0, 0, 0, 0.06);
+        }
+
+        .metric-num {
+          font-family: var(--font-serif);
+          font-size: 2.2rem;
+          font-weight: 400;
+          color: var(--text-primary);
+          line-height: 1;
+          margin-bottom: 6px;
+        }
+
+        .metric-lbl {
+          font-family: var(--font-mono);
+          font-size: 0.72rem;
+          text-transform: uppercase;
+          letter-spacing: 0.1em;
+          color: var(--text-muted);
+        }
+
+        /* Goal & Theme Cards */
         .cards-grid {
           display: grid;
           grid-template-columns: 1fr 1fr;
           gap: 28px;
-          margin-bottom: 72px;
+          margin-bottom: 64px;
         }
 
-        .goal-card {
-          background: #ffffff;
-          border: 1px solid rgba(0, 0, 0, 0.08);
-          border-radius: 20px;
+        .klapp-editorial-card {
+          background: var(--bg-card);
+          border: 1px solid var(--border-color);
+          border-radius: 18px;
           padding: 36px;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
-          transition: transform 0.3s ease, box-shadow 0.3s ease;
+          box-shadow: var(--shadow-soft);
+          transition: all 0.25s ease;
         }
-        .goal-card:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 12px 32px rgba(0, 0, 0, 0.06);
+        .klapp-editorial-card:hover {
+          border-color: var(--border-highlight);
+          background: var(--bg-card-hover);
+          box-shadow: 0 16px 36px rgba(0, 0, 0, 0.07);
+          transform: translateY(-2px);
         }
 
-        .card-icon {
-          width: 48px;
-          height: 48px;
-          border-radius: 14px;
-          background: rgba(99, 102, 241, 0.08);
-          color: #4f46e5;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 1.5rem;
-          margin-bottom: 20px;
+        .klapp-icon-standalone {
+          font-size: 1.8rem;
+          color: var(--text-primary);
+          margin-bottom: 16px;
         }
 
         .card-heading {
-          font-family: var(--font-sans);
-          font-size: 1.4rem;
-          font-weight: 700;
+          font-family: var(--font-serif);
+          font-size: 1.8rem;
+          font-weight: 400;
           color: var(--text-primary);
-          margin-bottom: 14px;
+          margin-bottom: 12px;
         }
 
-        .card-text {
+        .card-desc {
           font-size: 0.95rem;
           color: var(--text-secondary);
           line-height: 1.7;
-        }
-
-        /* Founder Card */
-        .founder-section-title {
-          text-align: center;
           font-family: var(--font-sans);
-          font-weight: 700;
-          font-size: 2.2rem;
-          color: var(--text-primary);
-          margin-bottom: 40px;
         }
 
-        .founder-card {
-          background: #ffffff;
-          border: 1px solid rgba(0, 0, 0, 0.08);
-          border-radius: 24px;
-          padding: 44px;
-          box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
-          max-width: 920px;
-          margin: 0 auto;
+        /* Founder Section */
+        .founder-card-box {
+          background: var(--bg-card);
+          border: 1px solid var(--border-color);
+          border-radius: 20px;
+          padding: 48px;
+          box-shadow: var(--shadow-soft);
         }
 
-        .founder-header-flex {
+        .founder-top-row {
           display: flex;
           gap: 28px;
           align-items: flex-start;
-          margin-bottom: 28px;
+          margin-bottom: 32px;
         }
 
-        .founder-avatar {
-          width: 110px;
-          height: 110px;
-          border-radius: 24px;
-          object-fit: cover;
-          background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+        .founder-avatar-wrap {
+          position: relative;
+          width: 108px;
+          height: 108px;
+          flex-shrink: 0;
+        }
+
+        .founder-avatar-box {
+          width: 100%;
+          height: 100%;
+          border-radius: 22px;
+          background: #18181b;
+          color: #ffffff;
           display: flex;
           align-items: center;
           justify-content: center;
-          color: #ffffff;
-          font-family: var(--font-sans);
-          font-weight: 800;
+          font-family: var(--font-mono);
+          font-weight: 700;
           font-size: 2rem;
-          flex-shrink: 0;
-          box-shadow: 0 8px 24px rgba(79, 70, 229, 0.25);
           overflow: hidden;
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
         }
-
-        .founder-avatar img {
+        .founder-avatar-box img {
           width: 100%;
           height: 100%;
           object-fit: cover;
         }
 
-        .founder-meta {
+        .verified-badge {
+          position: absolute;
+          bottom: -4px;
+          right: -4px;
+          background: #18181b;
+          color: #ffffff;
+          width: 28px;
+          height: 28px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 0.85rem;
+          border: 2px solid var(--bg-card);
+        }
+
+        .founder-details {
           flex: 1;
         }
 
@@ -133,151 +276,184 @@ export default function AboutUs() {
           align-items: center;
           justify-content: space-between;
           flex-wrap: wrap;
-          gap: 12px;
-          margin-bottom: 8px;
+          gap: 16px;
+          margin-bottom: 6px;
         }
 
-        .founder-name {
-          font-family: var(--font-sans);
-          font-weight: 800;
-          font-size: 1.85rem;
+        .founder-name-text {
+          font-family: var(--font-serif);
+          font-size: 2.4rem;
+          font-weight: 400;
           color: var(--text-primary);
+          line-height: 1.1;
         }
 
-        .founder-links {
+        .social-buttons {
           display: flex;
           align-items: center;
-          gap: 16px;
+          gap: 8px;
         }
 
-        .insta-badge {
+        .btn-insta {
           display: inline-flex;
           align-items: center;
-          gap: 6px;
-          background: rgba(225, 48, 108, 0.08);
-          color: #e1306c;
-          padding: 6px 14px;
-          border-radius: 30px;
+          gap: 8px;
+          background: #18181b;
+          color: #ffffff;
+          padding: 8px 18px;
+          border-radius: 9999px;
           font-size: 0.85rem;
-          font-weight: 600;
+          font-weight: 500;
           text-decoration: none;
           transition: all 0.2s ease;
         }
-        .insta-badge:hover {
-          background: #e1306c;
-          color: #ffffff;
-          transform: translateY(-2px);
+        .btn-insta:hover {
+          background: #27272a;
+          transform: translateY(-1px);
         }
 
-        .founder-role {
-          font-size: 1.05rem;
-          font-weight: 600;
-          color: #4f46e5;
+        .btn-copy {
+          background: rgba(0, 0, 0, 0.05);
+          border: 1px solid var(--border-color);
+          color: var(--text-primary);
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        .btn-copy:hover {
+          background: var(--border-highlight);
+        }
+
+        .founder-role-tag {
+          font-family: var(--font-mono);
+          font-size: 0.78rem;
+          letter-spacing: 0.08em;
+          color: var(--text-muted);
+          text-transform: uppercase;
           margin-bottom: 16px;
         }
 
-        .founder-bio p {
-          color: var(--text-secondary);
+        .founder-bio-body p {
           font-size: 0.96rem;
+          color: var(--text-secondary);
           line-height: 1.75;
           margin-bottom: 18px;
         }
-
-        .founder-bio strong {
+        .founder-bio-body strong {
           color: var(--text-primary);
           font-weight: 600;
         }
 
-        /* Journey Timeline */
-        .journey-wrapper {
-          margin-top: 36px;
-          padding-top: 32px;
-          border-top: 1px solid rgba(0, 0, 0, 0.08);
+        /* Journey Timeline Grid */
+        .journey-block {
+          margin-top: 40px;
+          padding-top: 36px;
+          border-top: 1px solid var(--border-color);
         }
 
-        .journey-heading {
-          font-family: var(--font-sans);
-          font-size: 1.25rem;
-          font-weight: 700;
+        .journey-title {
+          font-family: var(--font-serif);
+          font-size: 1.6rem;
+          font-weight: 400;
           color: var(--text-primary);
           margin-bottom: 24px;
         }
 
-        .timeline {
-          position: relative;
-          padding-left: 28px;
-          display: flex;
-          flex-direction: column;
-          gap: 24px;
-        }
-        .timeline::before {
-          content: '';
-          position: absolute;
-          left: 7px;
-          top: 8px;
-          bottom: 8px;
-          width: 2px;
-          background: rgba(0, 0, 0, 0.1);
+        .timeline-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 20px;
         }
 
-        .timeline-item {
-          position: relative;
+        .timeline-card {
+          background: var(--bg-primary);
+          border: 1px solid var(--border-color);
+          border-radius: 16px;
+          padding: 24px 20px;
+          transition: all 0.25s ease;
         }
-        .timeline-dot {
-          position: absolute;
-          left: -28px;
-          top: 6px;
-          width: 16px;
-          height: 16px;
-          border-radius: 50%;
+        .timeline-card:hover {
           background: #ffffff;
-          border: 4px solid #4f46e5;
+          border-color: var(--border-highlight);
+          transform: translateY(-2px);
         }
 
-        .item-title {
+        .node-name {
+          font-family: var(--font-sans);
           font-weight: 700;
-          font-size: 1rem;
+          font-size: 1.05rem;
           color: var(--text-primary);
-          margin-bottom: 4px;
+          margin-bottom: 6px;
         }
 
-        .item-desc {
-          font-size: 0.9rem;
+        .node-desc {
+          font-size: 0.88rem;
           color: var(--text-secondary);
           line-height: 1.6;
         }
 
-        .pills-row {
+        /* Skill Pills */
+        .pills-group {
           display: flex;
           flex-wrap: wrap;
-          gap: 12px;
-          margin-top: 32px;
+          gap: 10px;
+          margin-top: 36px;
         }
 
-        .skill-pill {
+        .klapp-pill {
           display: inline-flex;
           align-items: center;
           gap: 8px;
           padding: 8px 16px;
-          background: rgba(0, 0, 0, 0.03);
-          border: 1px solid rgba(0, 0, 0, 0.08);
-          border-radius: 30px;
-          font-size: 0.88rem;
+          background: rgba(24, 24, 27, 0.05);
+          border: 1px solid var(--border-color);
+          border-radius: 9999px;
+          font-family: var(--font-mono);
+          font-size: 0.78rem;
           font-weight: 500;
           color: var(--text-primary);
+          transition: all 0.2s ease;
+        }
+        .klapp-pill:hover {
+          background: rgba(24, 24, 27, 0.09);
+          border-color: var(--border-highlight);
+        }
+
+        .bottom-nav-center {
+          text-align: center;
+          margin-top: 60px;
+        }
+
+        @keyframes slideUpFull {
+          from { transform: translateY(100%); }
+          to { transform: translateY(0); }
+        }
+
+        @media (max-width: 900px) {
+          .metrics-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+          .timeline-grid {
+            grid-template-columns: 1fr;
+          }
         }
 
         @media (max-width: 768px) {
+          .about-header .section-title {
+            font-size: 2.4rem;
+          }
           .cards-grid {
             grid-template-columns: 1fr;
           }
-          .about-title {
-            font-size: 2.2rem;
-          }
-          .founder-card {
+          .founder-card-box {
             padding: 28px 20px;
           }
-          .founder-header-flex {
+          .founder-top-row {
             flex-direction: column;
             align-items: center;
             text-align: center;
@@ -288,77 +464,132 @@ export default function AboutUs() {
         }
       `}</style>
 
-      <div className="container">
-        {/* About Header */}
+      {/* Editorial Top Bar */}
+      <header className="about-top-bar">
+        <div className="container">
+          <div className="about-top-flex">
+            <span className="klapp-brand-title">KLAPP DEVELOPERS</span>
+            <button className="btn btn-primary" onClick={handleClose}>
+              <i className="ri-arrow-left-line"></i> Back to Home
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Page Container */}
+      <main className="about-container">
+        {/* Header Section */}
         <div className="about-header">
-          <h2 className="about-title">About KLAPP Developers</h2>
-          <p className="about-subtitle">
+          <div className="section-tag">
+            <span className="section-tag-dot"></span> ABOUT & FOUNDER
+          </div>
+          <h1 className="section-title">About KLAPP Developers</h1>
+          <p className="section-subtitle">
             Transforming digital architectures through transparency, data-driven predictions, and genuine performance engineering.
           </p>
         </div>
 
+        {/* Metrics Grid */}
+        <div className="metrics-grid">
+          <div className="metric-item">
+            <div className="metric-num">4+ Yrs</div>
+            <div className="metric-lbl">Digital Engineering</div>
+          </div>
+          <div className="metric-item">
+            <div className="metric-num">18 Yo</div>
+            <div className="metric-lbl">Founder & Architect</div>
+          </div>
+          <div className="metric-item">
+            <div className="metric-num">99.9%</div>
+            <div className="metric-lbl">System Uptime</div>
+          </div>
+          <div className="metric-item">
+            <div className="metric-num">KLAPP AI</div>
+            <div className="metric-lbl">Intelligent Engine</div>
+          </div>
+        </div>
+
         {/* Goal & Theme Cards */}
         <div className="cards-grid">
-          <div className="goal-card">
-            <div className="card-icon">
+          <div className="klapp-editorial-card">
+            <div className="klapp-icon-standalone">
               <i className="ri-target-line"></i>
             </div>
-            <h3 className="card-heading">Our Goal</h3>
-            <p className="card-text">
+            <div className="section-tag" style={{ marginBottom: '12px' }}>
+              <span className="section-tag-dot"></span> OUR MISSION
+            </div>
+            <h2 className="card-heading">Our Goal</h2>
+            <p className="card-desc">
               KLAPP Developers was built with a single mission: to demystify complex software & web applications. We aim to provide comprehensive, high-performance digital solutions, AI automation predictors, and scalable infrastructure that brings transparency and growth directly to modern businesses.
             </p>
           </div>
 
-          <div className="goal-card">
-            <div className="card-icon">
+          <div className="klapp-editorial-card">
+            <div className="klapp-icon-standalone">
               <i className="ri-shield-check-line"></i>
             </div>
-            <h3 className="card-heading">Our Theme</h3>
-            <p className="card-text">
+            <div className="section-tag" style={{ marginBottom: '12px' }}>
+              <span className="section-tag-dot"></span> DESIGN SYSTEM
+            </div>
+            <h2 className="card-heading">Our Theme</h2>
+            <p className="card-desc">
               Rooted in modern digital architecture and a seamless user experience, our theme revolves around empowerment through technical clarity. We believe that scaling your digital presence shouldn't be a puzzle—it should be a guided, beautiful, and high-converting experience.
             </p>
           </div>
         </div>
 
-        {/* Meet The Founder */}
-        <h2 className="founder-section-title">Meet The Founder</h2>
+        {/* Founder Section */}
+        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+          <div className="section-tag" style={{ justifyContent: 'center' }}>
+            <span className="section-tag-dot"></span> LEADERSHIP & VISION
+          </div>
+          <h2 className="section-title" style={{ fontSize: '2.6rem' }}>Meet The Founder</h2>
+        </div>
 
-        <div className="founder-card">
-          <div className="founder-header-flex">
-            <div className="founder-avatar">
-              {!imgError ? (
-                <img 
-                  src="/aashish.jpg" 
-                  alt="Gotti Aashish - Founder of KLAPP Group & KLAPP Developers"
-                  onError={() => setImgError(true)} 
-                />
-              ) : (
-                'GA'
-              )}
+        <div className="founder-card-box">
+          <div className="founder-top-row">
+            <div className="founder-avatar-wrap">
+              <div className="founder-avatar-box">
+                {!imgError ? (
+                  <img 
+                    src="/aashish.jpg" 
+                    alt="Gotti Aashish - Founder of KLAPP Group & KLAPP Developers"
+                    onError={() => setImgError(true)} 
+                  />
+                ) : (
+                  'GA'
+                )}
+              </div>
+              <div className="verified-badge" title="Verified Founder">
+                <i className="ri-check-line"></i>
+              </div>
             </div>
 
-            <div className="founder-meta">
+            <div className="founder-details">
               <div className="founder-name-row">
-                <h3 className="founder-name">Gotti Aashish</h3>
-                <div className="founder-links">
+                <h3 className="founder-name-text">Gotti Aashish</h3>
+                <div className="social-buttons">
                   <a 
                     href="https://www.instagram.com/_nanisagar_" 
                     target="_blank" 
                     rel="noopener noreferrer" 
-                    className="insta-badge"
+                    className="btn-insta"
                   >
                     <i className="ri-instagram-line"></i> @_nanisagar_ <i className="ri-external-link-line"></i>
                   </a>
+                  <button className="btn-copy" onClick={copyInsta} title="Copy handle">
+                    <i className={copied ? 'ri-check-line' : 'ri-file-copy-line'}></i>
+                  </button>
                 </div>
               </div>
 
-              <div className="founder-role">
-                Founder, Full-Stack Developer, Social Media Strategist & Digital Architect
+              <div className="founder-role-tag">
+                FOUNDER, FULL-STACK DEVELOPER, SOCIAL MEDIA STRATEGIST & DIGITAL ARCHITECT
               </div>
             </div>
           </div>
 
-          <div className="founder-bio">
+          <div className="founder-bio-body">
             <p>
               At just 18 years old (born March 4, 2008), Aashish has already evolved into a digital architect with over 4 years of experience. He is the visionary <strong>Founder of the Klapp Group</strong> and the driving force behind his current startup, <strong>Klappdevelopers</strong>. Driven by a passion for building, he has developed numerous successful projects and continues to innovate with many more in the pipeline.
             </p>
@@ -370,45 +601,67 @@ export default function AboutUs() {
             </p>
           </div>
 
-          {/* The Journey */}
-          <div className="journey-wrapper">
-            <h4 className="journey-heading">The Journey</h4>
-            <div className="timeline">
-              <div className="timeline-item">
-                <div className="timeline-dot"></div>
-                <div className="item-title">Alpha Phase</div>
-                <div className="item-desc">
+          {/* Journey Timeline Grid */}
+          <div className="journey-block">
+            <h3 className="journey-title">The Evolution Timeline</h3>
+
+            <div className="timeline-grid">
+              <div className="timeline-card">
+                <div className="section-tag" style={{ marginBottom: '10px' }}>
+                  <span className="section-tag-dot"></span> PHASE 01
+                </div>
+                <h4 className="node-name">Alpha Phase</h4>
+                <p className="node-desc">
                   Immersed in gaming environments and community servers, learning the foundations of digital behavior and mass coordination.
-                </div>
+                </p>
               </div>
 
-              <div className="timeline-item">
-                <div className="timeline-dot"></div>
-                <div className="item-title">Creative Ignition</div>
-                <div className="item-desc">
+              <div className="timeline-card">
+                <div className="section-tag" style={{ marginBottom: '10px' }}>
+                  <span className="section-tag-dot"></span> PHASE 02
+                </div>
+                <h4 className="node-name">Creative Ignition</h4>
+                <p className="node-desc">
                   Pivoted to content creation, exploring cinematic editing, and learning exactly how visual retention algorithms operate across platforms.
-                </div>
+                </p>
               </div>
 
-              <div className="timeline-item">
-                <div className="timeline-dot"></div>
-                <div className="item-title">Strategic Architecture</div>
-                <div className="item-desc">
-                  Applying mass-scale methodologies—developing analytical processes for growth via Social Media analysis and building digital experiences.
+              <div className="timeline-card">
+                <div className="section-tag" style={{ marginBottom: '10px' }}>
+                  <span className="section-tag-dot"></span> PHASE 03
                 </div>
+                <h4 className="node-name">Strategic Architecture</h4>
+                <p className="node-desc">
+                  Applying mass-scale methodologies—developing analytical processes for growth via Social Media analysis and building digital experiences.
+                </p>
               </div>
             </div>
           </div>
 
           {/* Skill Pills */}
-          <div className="pills-row">
-            <div className="skill-pill"><i className="ri-code-s-slash-line"></i> Full-Stack Development</div>
-            <div className="skill-pill"><i className="ri-cpu-line"></i> AI Automations (KLAPP AI)</div>
-            <div className="skill-pill"><i className="ri-group-line"></i> Community Architecture</div>
-            <div className="skill-pill"><i className="ri-bar-chart-box-line"></i> Content Strategy</div>
+          <div className="pills-group">
+            <div className="klapp-pill">
+              <i className="ri-code-s-slash-line"></i> Full-Stack Development
+            </div>
+            <div className="klapp-pill">
+              <i className="ri-cpu-line"></i> AI Automations (KLAPP AI)
+            </div>
+            <div className="klapp-pill">
+              <i className="ri-group-line"></i> Community Architecture
+            </div>
+            <div className="klapp-pill">
+              <i className="ri-bar-chart-box-line"></i> Content Strategy
+            </div>
           </div>
         </div>
-      </div>
-    </section>
+
+        {/* Bottom Back Button */}
+        <div className="bottom-nav-center">
+          <button className="btn btn-primary" onClick={handleClose} style={{ padding: '14px 36px', fontSize: '0.94rem' }}>
+            <i className="ri-arrow-left-line"></i> Back to KLAPP Developers
+          </button>
+        </div>
+      </main>
+    </div>
   );
 }

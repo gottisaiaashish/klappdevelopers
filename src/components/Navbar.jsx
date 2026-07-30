@@ -121,16 +121,14 @@ export default function Navbar() {
 
       <div className="container">
         <div className="navbar-content">
-          <a href="#home" className="logo" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <img src="/logo.png" alt="KLAPP Logo" style={{ height: '32px', width: '32px', borderRadius: '7px', objectFit: 'cover' }} />
+          <a href="#home" className="logo">
             <span className="logo-title">KLAPP DEVELOPERS</span>
           </a>
 
-
           <nav>
             <ul className="nav-links">
-              <li><a href="#about" className="nav-link" onClick={() => setMobileMenuOpen(false)}>About Us</a></li>
               <li><a href="#services" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Services</a></li>
+
 
               <li><a href="#showcase" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Showcase</a></li>
               <li><a href="#simulator" className="nav-link" onClick={() => setMobileMenuOpen(false)}>AI Simulator</a></li>

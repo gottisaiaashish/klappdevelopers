@@ -50,8 +50,7 @@ export default function Footer() {
           `}</style>
 
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontFamily: 'var(--font-sans)', fontWeight: '800', fontSize: '1.1rem', letterSpacing: '0.12em', color: 'var(--text-primary)', marginBottom: '12px' }}>
-              <img src="/logo.png" alt="KLAPP Logo" style={{ height: '32px', width: '32px', borderRadius: '7px', objectFit: 'cover' }} />
+            <div style={{ fontFamily: 'var(--font-sans)', fontWeight: '800', fontSize: '1.1rem', letterSpacing: '0.12em', color: 'var(--text-primary)', marginBottom: '12px' }}>
               KLAPP DEVELOPERS
             </div>
 
@@ -67,12 +66,14 @@ export default function Footer() {
             <h4 className="footer-title">Navigation</h4>
             <ul className="footer-links">
               <li><a href="#home">Home</a></li>
+              <li><a href="#about">About Us</a></li>
               <li><a href="#services">Services</a></li>
               <li><a href="#showcase">Live Showcase</a></li>
               <li><a href="#portfolio">Portfolio</a></li>
               <li><a href="#pricing">Pricing</a></li>
             </ul>
           </div>
+
 
           <div>
             <h4 className="footer-title">Services</h4>
