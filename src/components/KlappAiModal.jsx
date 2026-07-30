@@ -542,7 +542,7 @@ What is your budget for AI automation? Tell me your target budget, and I'll outl
           top: 0;
           left: 0;
           width: 100vw;
-          height: 100vh;
+          height: 100dvh;
           z-index: 999999;
           background-color: var(--bg-primary);
           background-image: 
