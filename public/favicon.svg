@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F172A" />
+      <stop offset="100%" stop-color="#020617" />
+    </linearGradient>
+    <linearGradient id="brandGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366F1" />
+      <stop offset="50%" stop-color="#8B5CF6" />
+      <stop offset="100%" stop-color="#EC4899" />
+    </linearGradient>
+    <linearGradient id="cyanGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="100%" stop-color="#818CF8" />
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="12" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Background Card -->
+  <rect width="512" height="512" rx="128" fill="url(#bgGrad)" />
+  <rect width="504" height="504" x="4" y="4" rx="124" fill="none" stroke="url(#brandGrad)" stroke-width="4" opacity="0.4" />
+
+  <!-- Abstract K / Layers Symbol -->
+  <g filter="url(#glow)">
+    <!-- Vertical Pillar -->
+    <rect x="128" y="112" width="64" height="288" rx="20" fill="url(#brandGrad)" />
+    
+    <!-- Top Diagonal Arm -->
+    <path d="M 224 256 L 336 128 C 348 114 368 114 380 128 L 384 132 C 396 146 394 166 380 178 L 288 280 Z" fill="url(#brandGrad)" />
+    
+    <!-- Bottom Diagonal Arm -->
+    <path d="M 272 264 L 372 372 C 386 386 386 406 372 420 L 368 424 C 354 438 334 438 320 424 L 216 312 Z" fill="url(#cyanGrad)" />
+    
+    <!-- Center Accent Node -->
+    <circle cx="216" cy="272" r="28" fill="#FFFFFF" opacity="0.9" />
+  </g>
+</svg>
