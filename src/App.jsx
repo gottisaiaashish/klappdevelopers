@@ -22,7 +22,6 @@ export default function App() {
       <Navbar />
       <main>
         <Hero />
-        <AboutUs />
         <Services />
 
         <DeviceShowcase />
@@ -33,8 +32,10 @@ export default function App() {
         <Portfolio />
         <Pricing />
         <FAQ />
+        <AboutUs />
         <Contact />
       </main>
+
       <Footer />
     </div>
   );
