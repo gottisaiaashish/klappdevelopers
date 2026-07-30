@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-export default function Navbar() {
+export default function Navbar({ onOpenAi }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -131,7 +131,22 @@ export default function Navbar() {
 
 
               <li><a href="#showcase" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Showcase</a></li>
-              <li><a href="#simulator" className="nav-link" onClick={() => setMobileMenuOpen(false)}>AI Simulator</a></li>
+              <li>
+                <a 
+                  href="#simulator" 
+                  className="nav-link" 
+                  onClick={(e) => {
+                    setMobileMenuOpen(false);
+                    if (onOpenAi) {
+                      e.preventDefault();
+                      onOpenAi('What can KLAPP AI do for my business?');
+                    }
+                  }}
+                >
+                  AI Simulator
+                </a>
+              </li>
+
               <li><a href="#portfolio" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Portfolio</a></li>
               <li><a href="#pricing" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Pricing</a></li>
               <li><a href="#faq" className="nav-link" onClick={() => setMobileMenuOpen(false)}>FAQ</a></li>

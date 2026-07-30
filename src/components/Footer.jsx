@@ -57,10 +57,8 @@ export default function Footer() {
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: '1.6', marginBottom: '16px', maxWidth: '300px' }}>
               Knowledge Led Apps & Performance Partners. Engineering high-performance web apps, AI automation, and scalable software.
             </p>
-            <div className="badge badge-emerald" style={{ padding: '4px 12px' }}>
-              ● ALL SYSTEMS OPERATIONAL - 99.99%
-            </div>
           </div>
+
 
           <div>
             <h4 className="footer-title">Navigation</h4>

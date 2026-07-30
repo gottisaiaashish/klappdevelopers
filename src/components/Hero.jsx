@@ -1,7 +1,55 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-export default function Hero() {
+const ROTATING_PROMPTS = [
+  'Ask KLAPP digital solutions...',
+  'Ask about custom React Web Applications...',
+  'Ask about AI Automations & Meta WhatsApp Bots...',
+  'Ask about Enterprise ERP & Business Software...',
+  'Ask about Founder Gotti Aashish & KLAPP Group...',
+  'Ask about Pricing, Timelines & MVP Packages...'
+];
+
+export default function Hero({ onOpenAi }) {
   const [selectedTag, setSelectedTag] = useState('Web Apps');
+  const [promptText, setPromptText] = useState('');
+  
+  // Typewriter Loop State
+  const [placeholderText, setPlaceholderText] = useState('');
+  const [promptIndex, setPromptIndex] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    const currentFullText = ROTATING_PROMPTS[promptIndex];
+    let typingSpeed = isDeleting ? 30 : 65;
+
+    if (!isDeleting && placeholderText === currentFullText) {
+      typingSpeed = 1800; // Pause at end of phrase
+    } else if (isDeleting && placeholderText === '') {
+      setIsDeleting(false);
+      setPromptIndex((prev) => (prev + 1) % ROTATING_PROMPTS.length);
+      typingSpeed = 300; // Pause before typing next phrase
+    }
+
+    const timer = setTimeout(() => {
+      if (!isDeleting && placeholderText !== currentFullText) {
+        setPlaceholderText(currentFullText.slice(0, placeholderText.length + 1));
+      } else if (isDeleting && placeholderText !== '') {
+        setPlaceholderText(currentFullText.slice(0, placeholderText.length - 1));
+      } else if (!isDeleting && placeholderText === currentFullText) {
+        setIsDeleting(true);
+      }
+    }, typingSpeed);
+
+    return () => clearTimeout(timer);
+  }, [placeholderText, isDeleting, promptIndex]);
+
+  const handleAsk = (e) => {
+    if (e) e.preventDefault();
+    const query = promptText.trim();
+    if (onOpenAi) onOpenAi(query);
+  };
+
+
 
   return (
     <section id="home" className="hero-section">
@@ -62,7 +110,13 @@ export default function Hero() {
           max-width: 600px;
           margin: 0 auto 24px auto;
           box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+          transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
+        .prompt-pill-wrapper:focus-within {
+          border-color: var(--border-highlight);
+          box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+        }
+
         .prompt-pill-input {
           flex: 1;
           background: none;
@@ -91,74 +145,56 @@ export default function Hero() {
           border-radius: 9999px;
           font-family: var(--font-mono);
           font-size: 0.72rem;
-          border: 1px solid transparent;
-          background: rgba(0, 0, 0, 0.04);
+          letter-spacing: 0.04em;
+          background: transparent;
+          border: 1px solid var(--border-color);
           color: var(--text-secondary);
           cursor: pointer;
           transition: all 0.2s ease;
         }
-        .filter-pill.active {
+        .filter-pill:hover, .filter-pill.active {
           background: #18181b;
           color: #ffffff;
+          border-color: #18181b;
         }
 
         .hero-actions {
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 12px;
-          margin-bottom: 32px;
-          flex-wrap: wrap;
+          gap: 16px;
+          margin-bottom: 40px;
         }
 
         .trust-text {
           font-family: var(--font-mono);
           font-size: 0.72rem;
+          letter-spacing: 0.1em;
           color: var(--text-muted);
-          letter-spacing: 0.04em;
           text-transform: uppercase;
         }
 
-        /* Mobile Phone Screen Fixes (< 640px) */
-        @media (max-width: 640px) {
+        @media (max-width: 768px) {
           .hero-section {
-            padding-top: 115px;
-            padding-bottom: 60px;
+            padding-top: 110px;
           }
           .hero-title {
-            font-size: 2.2rem;
-            line-height: 1.15;
-            margin-bottom: 14px;
-          }
-          .hero-desc {
-            font-size: 0.95rem;
-            margin-bottom: 24px;
-            padding: 0 8px;
-          }
-          .hero-tag-badge {
-            font-size: 0.65rem;
-            letter-spacing: 0.02em;
-            margin-bottom: 14px;
+            font-size: 2.8rem;
           }
           .prompt-pill-wrapper {
-            border-radius: 16px;
-            padding: 10px 14px;
-            flex-direction: column;
-            gap: 10px;
-            align-items: stretch;
-            background: #eae5db;
-          }
-          .prompt-pill-input {
-            font-size: 0.88rem;
-            text-align: center;
+            flex-direction: row;
+            padding: 6px 6px 6px 16px;
           }
           .prompt-btn-mobile {
-            width: 100%;
-            justify-content: center;
+            padding: 8px 14px !important;
+            font-size: 0.78rem !important;
           }
           .hero-actions {
             flex-direction: column;
             width: 100%;
+            max-width: 320px;
+            margin-left: auto;
+            margin-right: auto;
           }
           .hero-actions .btn {
             width: 100%;
@@ -167,8 +203,7 @@ export default function Hero() {
       `}</style>
 
       <div className="container">
-        
-        {/* Joined Badge */}
+        {/* Editorial Subtag Badge */}
         <div className="hero-tag-badge">
           <span className="section-tag-dot"></span> KNOWLEDGE LED APPS & PERFORMANCE PARTNERS
         </div>
@@ -183,26 +218,22 @@ export default function Hero() {
           Grounded software engineering & high-performance digital apps — built at <i>your</i> level. Zero bloat if you want. Full scalability if you do.
         </p>
 
-        {/* Pill Input Box */}
-        <div className="prompt-pill-wrapper">
+        {/* Pill Input Box with Real Typewriter Animation */}
+        <form className="prompt-pill-wrapper" onSubmit={handleAsk}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, width: '100%' }}>
-            <i className="ri-question-line" style={{ color: 'var(--text-muted)', fontSize: '1.1rem' }}></i>
+            <i className="ri-sparkling-fill" style={{ color: '#d9532f', fontSize: '1.1rem' }}></i>
             <input 
               type="text" 
               className="prompt-pill-input" 
-              placeholder="Ask KLAPP digital solutions..."
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  const el = document.getElementById('contact');
-                  if (el) el.scrollIntoView({ behavior: 'smooth' });
-                }
-              }}
+              placeholder={placeholderText || 'Ask KLAPP digital solutions...'}
+              value={promptText}
+              onChange={(e) => setPromptText(e.target.value)}
             />
           </div>
-          <a href="#contact" className="btn btn-primary prompt-btn-mobile" style={{ padding: '8px 20px', fontSize: '0.82rem', whiteSpace: 'nowrap' }}>
+          <button type="submit" className="btn btn-primary prompt-btn-mobile" style={{ padding: '8px 20px', fontSize: '0.82rem', whiteSpace: 'nowrap' }}>
             Ask <i className="ri-arrow-right-line"></i>
-          </a>
-        </div>
+          </button>
+        </form>
 
         {/* Filter Pills Underneath */}
         <div className="filter-pills-row">
@@ -210,7 +241,9 @@ export default function Hero() {
           {['Web Apps', 'AI Automation', 'WhatsApp API', 'Enterprise Software'].map((tag) => (
             <button 
               key={tag}
-              onClick={() => setSelectedTag(tag)}
+              onClick={() => {
+                setSelectedTag(tag);
+              }}
               className={`filter-pill ${selectedTag === tag ? 'active' : ''}`}
             >
               {tag}
@@ -231,7 +264,6 @@ export default function Hero() {
         <div className="trust-text">
           FREE CONSULTATION · 24/7 SUPPORT SLA · 50+ ENTERPRISE CLIENTS
         </div>
-
       </div>
     </section>
   );
