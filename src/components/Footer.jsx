@@ -50,9 +50,11 @@ export default function Footer() {
           `}</style>
 
           <div>
-            <div style={{ fontFamily: 'var(--font-sans)', fontWeight: '800', fontSize: '1.1rem', letterSpacing: '0.12em', color: 'var(--text-primary)', marginBottom: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontFamily: 'var(--font-sans)', fontWeight: '800', fontSize: '1.1rem', letterSpacing: '0.12em', color: 'var(--text-primary)', marginBottom: '12px' }}>
+              <img src="/logo.png" alt="KLAPP Logo" style={{ height: '32px', width: '32px', borderRadius: '7px', objectFit: 'cover' }} />
               KLAPP DEVELOPERS
             </div>
+
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: '1.6', marginBottom: '16px', maxWidth: '300px' }}>
               Knowledge Led Apps & Performance Partners. Engineering high-performance web apps, AI automation, and scalable software.
             </p>

@@ -121,9 +121,11 @@ export default function Navbar() {
 
       <div className="container">
         <div className="navbar-content">
-          <a href="#home" className="logo">
+          <a href="#home" className="logo" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <img src="/logo.png" alt="KLAPP Logo" style={{ height: '32px', width: '32px', borderRadius: '7px', objectFit: 'cover' }} />
             <span className="logo-title">KLAPP DEVELOPERS</span>
           </a>
+
 
           <nav>
             <ul className="nav-links">
