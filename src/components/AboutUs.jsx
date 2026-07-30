@@ -138,16 +138,15 @@ export default function AboutUs({ isOpen, onClose }) {
         }
 
         .metric-item {
-          background: var(--bg-card);
+          background: #ffffff;
           border: 1px solid var(--border-color);
-          border-radius: 16px;
+          border-radius: 18px;
           padding: 24px 20px;
           text-align: center;
           box-shadow: var(--shadow-soft);
           transition: all 0.25s ease;
         }
         .metric-item:hover {
-          background: var(--bg-card-hover);
           border-color: var(--border-highlight);
           transform: translateY(-2px);
           box-shadow: 0 12px 28px rgba(0, 0, 0, 0.06);
@@ -180,24 +179,35 @@ export default function AboutUs({ isOpen, onClose }) {
         }
 
         .klapp-editorial-card {
-          background: var(--bg-card);
+          background: #ffffff;
           border: 1px solid var(--border-color);
-          border-radius: 18px;
-          padding: 36px;
+          border-radius: 20px;
+          padding: 40px;
           box-shadow: var(--shadow-soft);
           transition: all 0.25s ease;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          height: 100%;
         }
         .klapp-editorial-card:hover {
           border-color: var(--border-highlight);
-          background: var(--bg-card-hover);
           box-shadow: 0 16px 36px rgba(0, 0, 0, 0.07);
           transform: translateY(-2px);
         }
 
-        .klapp-icon-standalone {
-          font-size: 1.8rem;
+        .card-icon-badge {
+          width: 48px;
+          height: 48px;
+          border-radius: 14px;
+          background: rgba(24, 24, 27, 0.05);
+          border: 1px solid var(--border-color);
           color: var(--text-primary);
-          margin-bottom: 16px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 1.4rem;
+          margin-bottom: 20px;
         }
 
         .card-heading {
@@ -218,9 +228,9 @@ export default function AboutUs({ isOpen, onClose }) {
 
         /* Founder Section */
         .founder-card-box {
-          background: var(--bg-card);
+          background: #ffffff;
           border: 1px solid var(--border-color);
-          border-radius: 20px;
+          border-radius: 22px;
           padding: 48px;
           box-shadow: var(--shadow-soft);
         }
@@ -273,7 +283,7 @@ export default function AboutUs({ isOpen, onClose }) {
           align-items: center;
           justify-content: center;
           font-size: 0.85rem;
-          border: 2px solid var(--bg-card);
+          border: 2px solid #ffffff;
         }
 
         .founder-details {
@@ -525,7 +535,7 @@ export default function AboutUs({ isOpen, onClose }) {
         {/* Goal & Theme Cards */}
         <div className="cards-grid">
           <div className="klapp-editorial-card">
-            <div className="klapp-icon-standalone">
+            <div className="card-icon-badge">
               <i className="ri-target-line"></i>
             </div>
             <div className="section-tag" style={{ marginBottom: '12px' }}>
@@ -538,7 +548,7 @@ export default function AboutUs({ isOpen, onClose }) {
           </div>
 
           <div className="klapp-editorial-card">
-            <div className="klapp-icon-standalone">
+            <div className="card-icon-badge">
               <i className="ri-shield-check-line"></i>
             </div>
             <div className="section-tag" style={{ marginBottom: '12px' }}>
