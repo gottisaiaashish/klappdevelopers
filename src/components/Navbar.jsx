@@ -129,7 +129,9 @@ export default function Navbar() {
 
           <nav>
             <ul className="nav-links">
+              <li><a href="#about" className="nav-link" onClick={() => setMobileMenuOpen(false)}>About Us</a></li>
               <li><a href="#services" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Services</a></li>
+
               <li><a href="#showcase" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Showcase</a></li>
               <li><a href="#simulator" className="nav-link" onClick={() => setMobileMenuOpen(false)}>AI Simulator</a></li>
               <li><a href="#portfolio" className="nav-link" onClick={() => setMobileMenuOpen(false)}>Portfolio</a></li>

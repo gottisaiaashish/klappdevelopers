@@ -2,7 +2,9 @@ import React from 'react';
 import './styles/global.css';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
+import AboutUs from './components/AboutUs';
 import Services from './components/Services';
+
 import DeviceShowcase from './components/DeviceShowcase';
 import AiSimulator from './components/AiSimulator';
 import WhyUs from './components/WhyUs';
@@ -20,7 +22,9 @@ export default function App() {
       <Navbar />
       <main>
         <Hero />
+        <AboutUs />
         <Services />
+
         <DeviceShowcase />
         <AiSimulator />
         <WhyUs />
