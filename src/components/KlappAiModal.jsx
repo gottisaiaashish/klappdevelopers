@@ -150,7 +150,8 @@ He is an 18-year-old full-stack software engineer (born March 4, 2008) with 4+ y
 • Personal IG: @_nanisagar_ | Official IG: @klapp.in
 • Direct WhatsApp: +91 79890 33580`,
 
-  default: `That sounds like a great project concept!
+  default: `(Local Memory Fallback - Gemini API Key is missing or failing)
+That sounds like a great project concept!
 
 Tell me a bit more about your business, and what your target budget is, and I'll outline the exact technical setup for you!`
 };
@@ -247,7 +248,7 @@ export default function KlappAiModal({ isOpen, onClose, initialPrompt = '' }) {
 
       const data = await response.json();
       if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts[0]) {
-        return data.candidates[0].content.parts[0].text;
+        return "(Gemini Online) " + data.candidates[0].content.parts[0].text;
       }
       return null;
     } catch (err) {
