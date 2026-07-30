@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 const ROTATING_PROMPTS = [
   'Ask KLAPP digital solutions...',
@@ -12,6 +12,7 @@ const ROTATING_PROMPTS = [
 export default function Hero({ onOpenAi }) {
   const [selectedTag, setSelectedTag] = useState('Web Apps');
   const [promptText, setPromptText] = useState('');
+  const [isUserTyping, setIsUserTyping] = useState(false);
   
   // Typewriter Loop State
   const [placeholderText, setPlaceholderText] = useState('');
@@ -19,15 +20,16 @@ export default function Hero({ onOpenAi }) {
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
+    if (isUserTyping) return; // Stop typewriter when user is typing
     const currentFullText = ROTATING_PROMPTS[promptIndex];
     let typingSpeed = isDeleting ? 30 : 65;
 
     if (!isDeleting && placeholderText === currentFullText) {
-      typingSpeed = 1800; // Pause at end of phrase
+      typingSpeed = 1800;
     } else if (isDeleting && placeholderText === '') {
       setIsDeleting(false);
       setPromptIndex((prev) => (prev + 1) % ROTATING_PROMPTS.length);
-      typingSpeed = 300; // Pause before typing next phrase
+      typingSpeed = 300;
     }
 
     const timer = setTimeout(() => {
@@ -41,13 +43,43 @@ export default function Hero({ onOpenAi }) {
     }, typingSpeed);
 
     return () => clearTimeout(timer);
-  }, [placeholderText, isDeleting, promptIndex]);
+  }, [placeholderText, isDeleting, promptIndex, isUserTyping]);
 
   const handleAsk = (e) => {
     if (e) e.preventDefault();
-    const query = promptText.trim();
+    if (window.innerWidth <= 768) {
+      // Mobile: always open AI modal directly
+      if (onOpenAi) onOpenAi('');
+      return;
+    }
+    const query = isUserTyping ? promptText.trim() : '';
     if (onOpenAi) onOpenAi(query);
   };
+
+  const handleFocus = (e) => {
+    if (window.innerWidth <= 768) {
+      // Mobile: directly open AI modal, no keyboard scroll issue
+      e.preventDefault();
+      e.target.blur();
+      if (onOpenAi) onOpenAi('');
+      return;
+    }
+    setIsUserTyping(true);
+    setPlaceholderText('');
+  };
+
+  const handleChange = (e) => {
+    setIsUserTyping(true);
+    setPromptText(e.target.value);
+  };
+
+  // Ref to scroll input so END of typewriter text is always visible
+  const inputRef = useRef(null);
+  useEffect(() => {
+    if (!isUserTyping && inputRef.current) {
+      inputRef.current.scrollLeft = inputRef.current.scrollWidth;
+    }
+  }, [placeholderText, isUserTyping]);
 
 
 
@@ -88,14 +120,14 @@ export default function Hero({ onOpenAi }) {
         .hero-tag-badge {
           display: inline-flex;
           align-items: center;
-          gap: 8px;
+          gap: 6px;
           font-family: var(--font-mono);
           font-size: 0.75rem;
           letter-spacing: 0.05em;
           text-transform: uppercase;
           color: var(--text-muted);
           margin-bottom: 20px;
-          flex-wrap: wrap;
+          white-space: nowrap;
           justify-content: center;
         }
 
@@ -111,6 +143,8 @@ export default function Hero({ onOpenAi }) {
           margin: 0 auto 24px auto;
           box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
           transition: border-color 0.2s ease, box-shadow 0.2s ease;
+          overflow: hidden;
+          gap: 8px;
         }
         .prompt-pill-wrapper:focus-within {
           border-color: var(--border-highlight);
@@ -119,13 +153,14 @@ export default function Hero({ onOpenAi }) {
 
         .prompt-pill-input {
           flex: 1;
+          min-width: 0;
           background: none;
           border: none;
           outline: none;
           color: var(--text-primary);
           font-family: var(--font-sans);
           font-size: 0.92rem;
-          min-width: 0;
+          white-space: nowrap;
         }
         .prompt-pill-input::placeholder {
           color: var(--text-muted);
@@ -176,18 +211,39 @@ export default function Hero({ onOpenAi }) {
 
         @media (max-width: 768px) {
           .hero-section {
-            padding-top: 110px;
+            padding-top: 100px;
+            padding-bottom: 40px;
           }
           .hero-title {
-            font-size: 2.8rem;
+            font-size: 2.4rem;
+            line-height: 1.1;
+            margin-bottom: 14px;
+          }
+          .hero-desc {
+            font-size: 0.92rem;
+            margin-bottom: 24px;
+          }
+          .hero-tag-badge {
+            font-size: 0.65rem;
+            gap: 5px;
+            letter-spacing: 0.04em;
+            white-space: nowrap;
           }
           .prompt-pill-wrapper {
-            flex-direction: row;
-            padding: 6px 6px 6px 16px;
+            padding: 5px 5px 5px 14px;
+            margin: 0 16px 20px 16px;
+            max-width: 100%;
+          }
+          .prompt-pill-input {
+            font-size: 0.82rem;
+            min-width: 0;
+            flex: 1;
           }
           .prompt-btn-mobile {
-            padding: 8px 14px !important;
+            padding: 7px 14px !important;
             font-size: 0.78rem !important;
+            flex-shrink: 0;
+            white-space: nowrap;
           }
           .hero-actions {
             flex-direction: column;
@@ -218,19 +274,19 @@ export default function Hero({ onOpenAi }) {
           Grounded software engineering & high-performance digital apps — built at <i>your</i> level. Zero bloat if you want. Full scalability if you do.
         </p>
 
-        {/* Pill Input Box with Real Typewriter Animation */}
+        {/* Pill Input Box — Typewriter uses value so browser scrolls to show last char */}
         <form className="prompt-pill-wrapper" onSubmit={handleAsk}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, width: '100%' }}>
-            <i className="ri-sparkling-fill" style={{ color: '#d9532f', fontSize: '1.1rem' }}></i>
-            <input 
-              type="text" 
-              className="prompt-pill-input" 
-              placeholder={placeholderText || 'Ask KLAPP digital solutions...'}
-              value={promptText}
-              onChange={(e) => setPromptText(e.target.value)}
-            />
-          </div>
-          <button type="submit" className="btn btn-primary prompt-btn-mobile" style={{ padding: '8px 20px', fontSize: '0.82rem', whiteSpace: 'nowrap' }}>
+          <i className="ri-sparkling-fill" style={{ color: '#d9532f', fontSize: '1rem', flexShrink: 0 }}></i>
+          <input 
+            ref={inputRef}
+            type="text" 
+            className="prompt-pill-input" 
+            placeholder={isUserTyping ? 'Ask KLAPP digital solutions...' : ''}
+            value={isUserTyping ? promptText : placeholderText}
+            onFocus={handleFocus}
+            onChange={handleChange}
+          />
+          <button type="submit" className="btn btn-primary prompt-btn-mobile">
             Ask <i className="ri-arrow-right-line"></i>
           </button>
         </form>

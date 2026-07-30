@@ -909,18 +909,105 @@ What is your budget for AI automation? Tell me your target budget, and I'll outl
           40% { transform: scale(1); }
         }
 
+        /* Hide mobile brand by default (desktop) */
+        .mobile-brand {
+          display: none;
+        }
+
         @media (max-width: 768px) {
+          /* Hide sidebar on mobile */
           .editorial-sidebar {
             display: none;
           }
-          .prompt-cards-grid {
-            grid-template-columns: 1fr;
+
+          /* Mobile topbar — show brand */
+          .editorial-topbar {
+            padding: 0 16px;
+            height: 56px;
+          }
+          .mobile-brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+          }
+          .mobile-brand-name {
+            font-family: var(--font-sans);
+            font-weight: 800;
+            font-size: 1rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-primary);
+          }
+          .mobile-brand-badge {
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            background: rgba(0,0,0,0.06);
+            border-radius: 6px;
+            padding: 2px 6px;
+            letter-spacing: 0.05em;
+          }
+
+          /* Welcome screen compact */
+          .welcome-center {
+            padding: 20px 0 10px 0;
           }
           .welcome-serif-title {
-            font-size: 2.2rem;
+            font-size: 1.65rem;
+            margin-bottom: 8px;
           }
+          .welcome-subtitle {
+            font-size: 0.88rem;
+            margin-bottom: 20px;
+          }
+
+          /* Prompt cards — 2 cols compact on mobile */
+          .prompt-cards-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+          }
+          .editorial-prompt-card {
+            padding: 14px;
+            border-radius: 14px;
+          }
+          .prompt-card-title {
+            font-size: 0.88rem;
+            margin-bottom: 4px;
+          }
+          .prompt-card-desc {
+            font-size: 0.78rem;
+            line-height: 1.4;
+          }
+
+          /* Chat feed padding */
+          .chat-feed-container {
+            padding: 16px 0 130px 0;
+          }
+          .feed-max-width {
+            padding: 0 14px;
+          }
+
+          /* User bubble */
           .user-bubble-box {
-            max-width: 90%;
+            max-width: 88%;
+            font-size: 0.92rem;
+            padding: 12px 16px;
+          }
+
+          /* AI text */
+          .ai-human-text {
+            font-size: 0.94rem;
+          }
+
+          /* Input bar compact */
+          .floating-input-bar {
+            padding: 12px 12px 24px 12px;
+          }
+          .input-pill-container {
+            padding: 5px 6px 5px 16px;
+          }
+          .editorial-input {
+            font-size: 0.88rem;
           }
         }
       `}</style>
@@ -977,7 +1064,10 @@ What is your budget for AI automation? Tell me your target budget, and I'll outl
       <main className="editorial-main">
         {/* Topbar */}
         <header className="editorial-topbar">
-          <div></div>
+          <div className="mobile-brand">
+            <span className="mobile-brand-name">KLAPP AI</span>
+            <span className="mobile-brand-badge">2.0</span>
+          </div>
 
           <button className="close-btn-circle" onClick={onClose} title="Close AI Assistant">
             <i className="ri-close-line"></i>
