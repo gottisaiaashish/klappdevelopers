@@ -1102,11 +1102,6 @@ What is your budget for AI automation? Tell me your target budget, and I'll outl
                     <div className="prompt-card-title">Google Ads & Marketing</div>
                     <div className="prompt-card-desc">High-ROI Google Search Ads, Meta Instagram marketing & SEO.</div>
                   </div>
-
-                  <div className="editorial-prompt-card" onClick={() => processQuery('Who is Gotti Aashish and what is KLAPP Group?')}>
-                    <div className="prompt-card-title">Founder & Vision</div>
-                    <div className="prompt-card-desc">Learn about Gotti Aashish (18yo Founder) & KLAPP Developers.</div>
-                  </div>
                 </div>
               </div>
             ) : (
