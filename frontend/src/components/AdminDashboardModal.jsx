@@ -101,8 +101,15 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
   // Manual Lead Form State
   const [manualLead, setManualLead] = useState({
     name: '',
+    phone: '',
     email: '',
-    service: 'Website Development',
+    company: '',
+    service: 'Website Development (Sub-100ms)',
+    budget: '₹50,000 - ₹1,00,000',
+    source: 'Instagram DM',
+    priority: 'HOT (Closing Today)',
+    owner: 'Minni (Client Ops)',
+    deadline: '',
     message: ''
   });
 
@@ -1471,31 +1478,135 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
             </div>
           )}
 
-          {/* TAB 9: ADD LEAD */}
+          {/* TAB 9: COMPREHENSIVE ADD CLIENT LEAD SUITE */}
           {activeTab === 'addLead' && (
             <div className="os-card">
-              <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '14px' }}>Add Manual Client Lead</h3>
+              {/* TOP HEADER WITH BACK TO CRM BUTTON */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', paddingBottom: '14px', borderBottom: '1px solid #c8c3b7', flexWrap: 'wrap', gap: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <button 
+                    onClick={() => setActiveTab('inquiries')}
+                    className="btn-action-outline"
+                    style={{ background: '#ffffff', color: '#18181b', borderColor: '#c8c3b7', padding: '6px 14px', borderRadius: '8px', fontWeight: '700', fontSize: '0.82rem' }}
+                  >
+                    <i className="ri-arrow-left-line"></i> ◀ Back to Inquiries & CRM
+                  </button>
+                  <h3 style={{ fontSize: '1.2rem', fontWeight: '800', margin: 0 }}>Add New Client Lead</h3>
+                </div>
+                <span style={{ fontSize: '0.78rem', color: '#71717a', fontWeight: '600' }}>
+                  Direct Lead Capture Engine
+                </span>
+              </div>
+
               <form onSubmit={(e) => {
                 e.preventDefault();
-                const newInq = { id: 'INQ-' + Date.now(), name: manualLead.name, email: manualLead.email, service: manualLead.service, message: manualLead.message, status: 'NEW', createdAt: new Date().toISOString() };
+                const newInq = { 
+                  id: 'INQ-' + Date.now(), 
+                  name: manualLead.name, 
+                  email: manualLead.email || `${manualLead.phone || 'client'}@klapp.lead`, 
+                  phone: manualLead.phone,
+                  company: manualLead.company,
+                  service: manualLead.service, 
+                  budget: manualLead.budget,
+                  source: manualLead.source,
+                  priority: manualLead.priority,
+                  owner: manualLead.owner,
+                  deadline: manualLead.deadline,
+                  message: manualLead.message, 
+                  status: 'NEW', 
+                  createdAt: new Date().toISOString() 
+                };
                 setInquiries([newInq, ...inquiries]);
-                setManualLead({ name: '', email: '', service: 'Website Development', message: '' });
+                setManualLead({ name: '', phone: '', email: '', company: '', service: 'Website Development (Sub-100ms)', budget: '₹50,000 - ₹1,00,000', source: 'Instagram DM', priority: 'HOT (Closing Today)', owner: 'Minni (Client Ops)', deadline: '', message: '' });
                 setActiveTab('inquiries');
-                alert('✅ Lead added successfully!');
               }}>
-                <div style={{ marginBottom: '12px' }}>
-                  <label style={{ fontSize: '0.8rem', fontWeight: '700' }}>Client Name</label>
-                  <input type="text" required value={manualLead.name} onChange={(e) => setManualLead({ ...manualLead, name: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #c8c3b7' }} />
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '16px', marginBottom: '16px' }}>
+                  {/* CLIENT NAME */}
+                  <div>
+                    <label style={{ fontSize: '0.78rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>Client Full Name *</label>
+                    <input type="text" required placeholder="e.g. Rahul Sharma" value={manualLead.name} onChange={(e) => setManualLead({ ...manualLead, name: e.target.value })} style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #c8c3b7' }} />
+                  </div>
+
+                  {/* PHONE / WHATSAPP */}
+                  <div>
+                    <label style={{ fontSize: '0.78rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>WhatsApp / Phone Number *</label>
+                    <input type="text" required placeholder="e.g. +91 98765 43210" value={manualLead.phone} onChange={(e) => setManualLead({ ...manualLead, phone: e.target.value })} style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #c8c3b7' }} />
+                  </div>
+
+                  {/* EMAIL ADDRESS */}
+                  <div>
+                    <label style={{ fontSize: '0.78rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>Email Address</label>
+                    <input type="email" placeholder="e.g. client@company.com" value={manualLead.email} onChange={(e) => setManualLead({ ...manualLead, email: e.target.value })} style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #c8c3b7' }} />
+                  </div>
+
+                  {/* COMPANY / BRAND NAME */}
+                  <div>
+                    <label style={{ fontSize: '0.78rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>Company / Brand Name</label>
+                    <input type="text" placeholder="e.g. Balaji Pharma / Gym App" value={manualLead.company} onChange={(e) => setManualLead({ ...manualLead, company: e.target.value })} style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #c8c3b7' }} />
+                  </div>
+
+                  {/* REQUIRED SERVICE */}
+                  <div>
+                    <label style={{ fontSize: '0.78rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>Required Service</label>
+                    <select value={manualLead.service} onChange={(e) => setManualLead({ ...manualLead, service: e.target.value })} style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #c8c3b7', background: '#fff', fontSize: '0.85rem', fontWeight: '700' }}>
+                      <option value="Website Development (Sub-100ms)">🚀 Website Development (Sub-100ms)</option>
+                      <option value="Custom Business Software / ERP">💻 Custom Business Software / ERP</option>
+                      <option value="Mobile App (iOS & Android)">📱 Mobile App (iOS & Android)</option>
+                      <option value="AI Agent & Automation Suite">🤖 AI Agent & Automation Suite</option>
+                      <option value="E-Commerce & Payment Engine">🛒 E-Commerce & Payment Engine</option>
+                      <option value="UI/UX Design & Branding">🎨 UI/UX Design & Branding</option>
+                    </select>
+                  </div>
+
+                  {/* ESTIMATED BUDGET */}
+                  <div>
+                    <label style={{ fontSize: '0.78rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>Estimated Budget Range</label>
+                    <select value={manualLead.budget} onChange={(e) => setManualLead({ ...manualLead, budget: e.target.value })} style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #c8c3b7', background: '#fff', fontSize: '0.85rem', fontWeight: '700' }}>
+                      <option value="₹25,000 - ₹50,000">₹25,000 - ₹50,000 (Starter)</option>
+                      <option value="₹50,000 - ₹1,00,000">₹50,000 - ₹1,00,000 (Pro)</option>
+                      <option value="₹1,00,000 - ₹3,00,000">₹1,00,000 - ₹3,00,000 (Enterprise)</option>
+                      <option value="₹3,00,000+">₹3,00,000+ (Custom Suite)</option>
+                    </select>
+                  </div>
+
+                  {/* LEAD SOURCE */}
+                  <div>
+                    <label style={{ fontSize: '0.78rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>Lead Channel / Source</label>
+                    <select value={manualLead.source} onChange={(e) => setManualLead({ ...manualLead, source: e.target.value })} style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #c8c3b7', background: '#fff', fontSize: '0.85rem', fontWeight: '700' }}>
+                      <option value="Instagram DM">📸 Instagram Direct Message</option>
+                      <option value="WhatsApp Inquiry">💬 WhatsApp Direct Inquiry</option>
+                      <option value="Referral / Word of Mouth">🤝 Referral / Client Recommendation</option>
+                      <option value="Website Contact Form">🌐 KLAPP Website Contact Form</option>
+                      <option value="Cold Outreach">📞 Direct Outreach / Call</option>
+                    </select>
+                  </div>
+
+                  {/* LEAD PRIORITY */}
+                  <div>
+                    <label style={{ fontSize: '0.78rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>Lead Priority / Urgency</label>
+                    <select value={manualLead.priority} onChange={(e) => setManualLead({ ...manualLead, priority: e.target.value })} style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #c8c3b7', background: '#fff', fontSize: '0.85rem', fontWeight: '700' }}>
+                      <option value="HOT (Closing Today)">🔥 HOT (Closing Today)</option>
+                      <option value="WARM (Interested)">⚡ WARM (Highly Interested)</option>
+                      <option value="COLD (Inquiry Only)">🧊 COLD (Initial Inquiry)</option>
+                    </select>
+                  </div>
                 </div>
-                <div style={{ marginBottom: '12px' }}>
-                  <label style={{ fontSize: '0.8rem', fontWeight: '700' }}>Email or Phone</label>
-                  <input type="text" required value={manualLead.email} onChange={(e) => setManualLead({ ...manualLead, email: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #c8c3b7' }} />
+
+                {/* PROJECT SCOPE & NOTES */}
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={{ fontSize: '0.78rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>Detailed Project Scope & Client Requirements *</label>
+                  <textarea required rows={4} placeholder="e.g. Client needs booking engine with payment gateway integration, sub-100ms speed, admin dashboard, and automated WhatsApp notifications..." value={manualLead.message} onChange={(e) => setManualLead({ ...manualLead, message: e.target.value })} style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1px solid #c8c3b7', fontSize: '0.88rem' }}></textarea>
                 </div>
-                <div style={{ marginBottom: '12px' }}>
-                  <label style={{ fontSize: '0.8rem', fontWeight: '700' }}>Project Message / Scope</label>
-                  <textarea required rows={3} value={manualLead.message} onChange={(e) => setManualLead({ ...manualLead, message: e.target.value })} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #c8c3b7' }}></textarea>
+
+                {/* FORM ACTION BUTTONS RIGHT ALIGNED */}
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'flex-end', marginTop: '18px' }}>
+                  <button type="button" onClick={() => setActiveTab('inquiries')} className="btn-action-outline" style={{ background: '#ffffff', color: '#71717a', borderColor: '#c8c3b7', padding: '9px 18px', borderRadius: '10px', fontWeight: '700' }}>
+                    Cancel
+                  </button>
+                  <button type="submit" className="btn-action-outline" style={{ background: '#ffffff', color: '#18181b', borderColor: '#c8c3b7', padding: '9px 22px', borderRadius: '10px', fontWeight: '800', boxShadow: '0 2px 6px rgba(0,0,0,0.04)' }}>
+                    <i className="ri-check-line" style={{ color: '#16a34a', marginRight: '4px' }}></i> Save Lead & Open CRM
+                  </button>
                 </div>
-                <button type="submit" className="btn-action-outline">Save Lead</button>
               </form>
             </div>
           )}
