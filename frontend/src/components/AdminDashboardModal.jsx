@@ -352,6 +352,35 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
     syncOSDataToBackend(updated);
   };
 
+  const handleRecordIncrementalPayment = (projectId, paymentReceived) => {
+    const amt = parseFloat(paymentReceived) || 0;
+    if (amt <= 0) return;
+
+    const updatedProjects = (osData.projects || []).map(p => {
+      if (p.id === projectId) {
+        const newAdvance = (p.advancePaid || 0) + amt;
+        const newPending = Math.max(0, (p.budget || 0) - newAdvance);
+        return { ...p, advancePaid: newAdvance, pendingAmount: newPending };
+      }
+      return p;
+    });
+
+    const updated = { ...osData, projects: updatedProjects };
+    syncOSDataToBackend(updated);
+  };
+
+  const handleMarkFullyPaid = (projectId) => {
+    const updatedProjects = (osData.projects || []).map(p => {
+      if (p.id === projectId) {
+        return { ...p, advancePaid: p.budget || 0, pendingAmount: 0 };
+      }
+      return p;
+    });
+
+    const updated = { ...osData, projects: updatedProjects };
+    syncOSDataToBackend(updated);
+  };
+
   const handleUpdateProjectPayment = (projectId, newAdvance) => {
     const updatedProjects = (osData.projects || []).map(p => {
       if (p.id === projectId) {
@@ -2100,15 +2129,45 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                                     </td>
 
                                     <td style={{ padding: '12px' }}>
-                                      <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                                      <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
                                         <input 
                                           type="number" 
-                                          defaultValue={prj.advancePaid || 0}
-                                          onBlur={(e) => handleUpdateProjectPayment(prj.id, e.target.value)}
-                                          style={{ width: '85px', padding: '4px 8px', borderRadius: '6px', border: '1px solid #d4d4d8', fontSize: '0.8rem', fontWeight: '600' }}
-                                          title="Type new advance amount and click away to update payment"
+                                          placeholder="Enter ₹"
+                                          id={`pay_input_${prj.id}`}
+                                          style={{ width: '90px', padding: '5px 8px', borderRadius: '6px', border: '1px solid #d4d4d8', fontSize: '0.8rem', fontWeight: '600' }}
+                                          onKeyDown={(e) => {
+                                            if (e.key === 'Enter') {
+                                              handleRecordIncrementalPayment(prj.id, e.target.value);
+                                              e.target.value = '';
+                                            }
+                                          }}
                                         />
-                                        <span style={{ fontSize: '0.7rem', color: '#71717a' }}>₹</span>
+                                        
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            const el = document.getElementById(`pay_input_${prj.id}`);
+                                            if (el && el.value) {
+                                              handleRecordIncrementalPayment(prj.id, el.value);
+                                              el.value = '';
+                                            }
+                                          }}
+                                          className="btn-action-outline"
+                                          style={{ background: '#f0fdf4', color: '#166534', borderColor: '#bbf7d0', fontSize: '0.75rem', padding: '4px 8px', fontWeight: '700' }}
+                                          title="Add received payment and subtract from pending balance"
+                                        >
+                                          + Pay
+                                        </button>
+
+                                        <button
+                                          type="button"
+                                          onClick={() => handleMarkFullyPaid(prj.id)}
+                                          className="btn-action-outline"
+                                          style={{ background: '#ffffff', color: '#15803d', borderColor: '#bbf7d0', fontSize: '0.74rem', padding: '4px 8px', fontWeight: '700' }}
+                                          title="Mark this client as 100% fully paid"
+                                        >
+                                          ✓ Full Paid
+                                        </button>
                                       </div>
                                     </td>
 
