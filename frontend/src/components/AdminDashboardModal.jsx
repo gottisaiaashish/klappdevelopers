@@ -939,7 +939,44 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                         <input type="text" placeholder="https://meet.google.com/..." value={newEvent.link} onChange={(e) => setNewEvent({ ...newEvent, link: e.target.value })} style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #c8c3b7' }} />
                       </div>
                     </div>
-                    <button type="submit" className="btn-action-outline" style={{ background: '#18181b', color: '#fff' }}>Save Event to Shared Calendar</button>
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginTop: '14px' }}>
+                      <button 
+                        type="submit" 
+                        className="btn-action-outline" 
+                        style={{ 
+                          background: '#18181b', 
+                          color: '#ffffff', 
+                          borderColor: '#18181b', 
+                          padding: '9px 20px', 
+                          borderRadius: '10px', 
+                          fontWeight: '700', 
+                          fontSize: '0.85rem',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                        }}
+                      >
+                        <i className="ri-check-line" style={{ fontSize: '1rem', color: '#22c55e' }}></i> Save Event
+                      </button>
+
+                      <button 
+                        type="button" 
+                        onClick={() => setShowAddMeetingModal(false)}
+                        className="btn-action-outline" 
+                        style={{ 
+                          background: '#ffffff', 
+                          color: '#71717a', 
+                          borderColor: '#c8c3b7', 
+                          padding: '9px 16px', 
+                          borderRadius: '10px', 
+                          fontWeight: '700', 
+                          fontSize: '0.85rem' 
+                        }}
+                      >
+                        Cancel
+                      </button>
+                    </div>
                   </form>
                 </div>
               )}
