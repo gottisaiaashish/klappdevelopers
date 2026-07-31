@@ -68,25 +68,25 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
       date: new Date().toISOString().split('T')[0],
       aashish: {
         attendance: true,
-        gym: true,
-        coding: true,
-        projectUpdate: true,
-        clientFollowups: false,
-        sleep11pm: true,
-        wake7am: true,
-        reading: true,
         waterGoal: true,
+        gym: true,
+        protein: true,
+        coding: true,
+        dinner9pm: true,
+        nightLeadCheck: true,
+        sleep11pm: true,
         mood: '⚡ High Energy'
       },
       minni: {
         attendance: true,
-        instaPosts2: true,
+        waterGoal: true,
+        instaPost1: true,
+        instaPost2: true,
         storiesCompleted: true,
+        scheduleNextDayPosts: true,
         coding: true,
-        clientFollowups: true,
-        contentPlanning: true,
+        dinner9pm: true,
         sleep11pm: true,
-        wake7am: true,
         mood: '✨ Creative Surge'
       }
     },
@@ -158,6 +158,41 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
     syncOSDataToBackend(updated);
     setNewEvent({ title: '', category: 'Meeting', date: new Date().toISOString().split('T')[0], time: '16:00', client: 'General', attendees: 'Aashish & Minni', link: '#' });
     setShowAddMeetingModal(false);
+  };
+
+  // Expenses Tracker State
+  const [newExpense, setNewExpense] = useState({
+    title: '',
+    amount: '',
+    category: 'Marketing'
+  });
+
+  const handleCreateExpense = (e) => {
+    e.preventDefault();
+    if (!newExpense.title || !newExpense.amount) return;
+
+    const exp = {
+      id: 'EXP-' + Date.now(),
+      title: newExpense.title.trim(),
+      amount: parseFloat(newExpense.amount),
+      category: newExpense.category,
+      addedBy: userRole === 'MINNI' ? 'Minni' : 'Aashish',
+      date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    };
+
+    const updated = {
+      ...osData,
+      expenses: [exp, ...(osData.expenses || [])]
+    };
+    syncOSDataToBackend(updated);
+    setNewExpense({ title: '', amount: '', category: 'Marketing' });
+  };
+
+  // Minni Project Progress Updater
+  const handleUpdateProjectProgress = (prjId, newStatus) => {
+    const updatedProjects = osData.projects.map(p => p.id === prjId ? { ...p, status: newStatus } : p);
+    const updated = { ...osData, projects: updatedProjects };
+    syncOSDataToBackend(updated);
   };
 
   // Scratchpad State
@@ -527,9 +562,9 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
               <span className="sidebar-badge">{inquiries.length}</span>
             </button>
 
-            <button className={`sidebar-nav-btn ${activeTab === 'projects' ? 'active' : ''}`} onClick={() => setActiveTab('projects')}>
-              <span><i className="ri-folder-line" style={{ marginRight: '8px' }}></i> Projects & Board</span>
-              <span className="sidebar-badge">{osData.projects.length}</span>
+            <button className={`sidebar-nav-btn ${activeTab === 'content' ? 'active' : ''}`} onClick={() => setActiveTab('content')}>
+              <span><i className="ri-instagram-line" style={{ marginRight: '8px' }}></i> Content Planner</span>
+              <span className="sidebar-badge">{osData.contentPlanner.length}</span>
             </button>
 
             <button className={`sidebar-nav-btn ${activeTab === 'calendar' ? 'active' : ''}`} onClick={() => setActiveTab('calendar')}>
@@ -537,31 +572,23 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
               <span className="sidebar-badge">{osData.meetings.length}</span>
             </button>
 
-            <button className={`sidebar-nav-btn ${activeTab === 'content' ? 'active' : ''}`} onClick={() => setActiveTab('content')}>
-              <span><i className="ri-instagram-line" style={{ marginRight: '8px' }}></i> Content Planner</span>
-              <span className="sidebar-badge">{osData.contentPlanner.length}</span>
-            </button>
-
-            <button className={`sidebar-nav-btn ${activeTab === 'discipline' ? 'active' : ''}`} onClick={() => setActiveTab('discipline')}>
-              <span><i className="ri-shield-user-line" style={{ marginRight: '8px' }}></i> Personal Discipline</span>
-              <span className="sidebar-badge" style={{ background: '#22c55e', color: '#fff' }}>Sync</span>
-            </button>
-
-            <button className={`sidebar-nav-btn ${activeTab === 'competition' ? 'active' : ''}`} onClick={() => setActiveTab('competition')}>
-              <span><i className="ri-trophy-line" style={{ marginRight: '8px' }}></i> Streaks & Score</span>
-              <span className="sidebar-badge">🏆</span>
+            <button className={`sidebar-nav-btn ${activeTab === 'projects' ? 'active' : ''}`} onClick={() => setActiveTab('projects')}>
+              <span><i className="ri-folder-line" style={{ marginRight: '8px' }}></i> Projects & Board</span>
+              <span className="sidebar-badge">{osData.projects.length}</span>
             </button>
 
             <button className={`sidebar-nav-btn ${activeTab === 'revenue' ? 'active' : ''}`} onClick={() => setActiveTab('revenue')}>
-              <span><i className="ri-calculator-line" style={{ marginRight: '8px' }}></i> Revenue & Proposals</span>
+              <span><i className="ri-calculator-line" style={{ marginRight: '8px' }}></i> Revenue & Expenses</span>
             </button>
 
-            <button className={`sidebar-nav-btn ${activeTab === 'reminders' ? 'active' : ''}`} onClick={() => setActiveTab('reminders')}>
-              <span><i className="ri-alarm-warning-line" style={{ marginRight: '8px' }}></i> Smart Reminders</span>
+            <button className={`sidebar-nav-btn ${activeTab === 'discipline' ? 'active' : ''}`} onClick={() => setActiveTab('discipline')}>
+              <span><i className="ri-shield-user-line" style={{ marginRight: '8px' }}></i> Daily Routine & Habits</span>
+              <span className="sidebar-badge" style={{ background: '#22c55e', color: '#fff' }}>Live</span>
             </button>
 
-            <button className={`sidebar-nav-btn ${activeTab === 'addLead' ? 'active' : ''}`} onClick={() => setActiveTab('addLead')}>
-              <span><i className="ri-user-add-line" style={{ marginRight: '8px' }}></i> Add New Lead</span>
+            <button className={`sidebar-nav-btn ${activeTab === 'competition' ? 'active' : ''}`} onClick={() => setActiveTab('competition')}>
+              <span><i className="ri-trophy-line" style={{ marginRight: '8px' }}></i> Streaks & Leaderboard</span>
+              <span className="sidebar-badge">🏆</span>
             </button>
 
             <button className={`sidebar-nav-btn ${activeTab === 'notes' ? 'active' : ''}`} onClick={() => setActiveTab('notes')}>
@@ -818,20 +845,44 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
             </div>
           )}
 
-          {/* TAB 2: PROJECTS & DELIVERABLES */}
+          {/* TAB 2: PROJECTS & BOARD */}
           {activeTab === 'projects' && (
             <div>
               <div className="os-card" style={{ marginBottom: '20px' }}>
-                <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '14px' }}>Active KLAPP Projects</h3>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', flexWrap: 'wrap', gap: '10px' }}>
+                  <h3 style={{ fontSize: '1.1rem', fontWeight: '800', margin: 0 }}>Active KLAPP Projects & Deliverables</h3>
+                  <span style={{ fontSize: '0.78rem', background: userRole === 'MINNI' ? '#dcfce7' : '#f4f1ea', color: userRole === 'MINNI' ? '#15803d' : '#71717a', padding: '4px 10px', borderRadius: '6px', fontWeight: '700' }}>
+                    {userRole === 'MINNI' ? '✏️ Minni Editing Access Enabled' : '👁️ Aashish Live Monitoring View'}
+                  </span>
+                </div>
+
                 {osData.projects.map(prj => (
-                  <div key={prj.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px', background: '#faf8f5', border: '1px solid #c8c3b7', borderRadius: '10px', marginBottom: '10px' }}>
-                    <div>
-                      <div style={{ fontWeight: '800', fontSize: '1rem', color: '#18181b' }}>{prj.name}</div>
-                      <div style={{ fontSize: '0.82rem', color: '#71717a' }}>Client: {prj.client} • Budget: ₹{prj.budget?.toLocaleString()} • Owner: {prj.owner}</div>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <span className="badge-status status-IN_PROGRESS">{prj.status}</span>
-                      <span style={{ fontSize: '0.78rem', fontWeight: '700', color: '#71717a' }}>Due: {prj.dueDate}</span>
+                  <div key={prj.id} style={{ padding: '16px', background: '#faf8f5', border: '1px solid #c8c3b7', borderRadius: '10px', marginBottom: '12px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+                      <div>
+                        <div style={{ fontWeight: '800', fontSize: '1.05rem', color: '#18181b' }}>{prj.name}</div>
+                        <div style={{ fontSize: '0.82rem', color: '#71717a', marginTop: '2px' }}>Client: <strong>{prj.client}</strong> • Budget: ₹{prj.budget?.toLocaleString()} • Due: {prj.dueDate}</div>
+                      </div>
+
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        {userRole === 'MINNI' ? (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <span style={{ fontSize: '0.78rem', fontWeight: '700', color: '#71717a' }}>Update Progress:</span>
+                            <select 
+                              value={prj.status}
+                              onChange={(e) => handleUpdateProjectProgress(prj.id, e.target.value)}
+                              style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid #c8c3b7', background: '#fff', fontSize: '0.8rem', fontWeight: '700' }}
+                            >
+                              <option value="IN_PROGRESS">⚡ IN_PROGRESS</option>
+                              <option value="REVIEW">🔍 CLIENT REVIEW</option>
+                              <option value="COMPLETED">✅ COMPLETED</option>
+                              <option value="PAUSED">⏸️ PAUSED</option>
+                            </select>
+                          </div>
+                        ) : (
+                          <span className={`badge-status status-${prj.status}`}>{prj.status}</span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -1157,26 +1208,26 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
               </div>
 
               <div className="discipline-grid">
+              <div className="discipline-grid">
                 {/* AASHISH DISCIPLINE CARD */}
                 <div className="os-card">
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', paddingBottom: '10px', borderBottom: '1px solid #c8c3b7' }}>
                     <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#2563eb', color: '#fff', fontWeight: '800', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>A</div>
                     <div>
-                      <h4 style={{ margin: 0, fontWeight: '800' }}>Aashish (Founder)</h4>
-                      <div style={{ fontSize: '0.75rem', color: '#71717a' }}>Mood: {osData.disciplineLogs.aashish.mood}</div>
+                      <h4 style={{ margin: 0, fontWeight: '800' }}>Aashish Daily Routine</h4>
+                      <div style={{ fontSize: '0.75rem', color: '#71717a' }}>Status: {osData.disciplineLogs.aashish.mood}</div>
                     </div>
                   </div>
 
                   {[
-                    ['attendance', 'College Attendance'],
-                    ['gym', 'Gym Workout'],
-                    ['coding', 'Coding & Architecture (2+ hrs)'],
-                    ['projectUpdate', 'Client Project Updates'],
-                    ['clientFollowups', 'Client Follow-ups'],
-                    ['sleep11pm', 'Sleep Before 11 PM'],
-                    ['wake7am', 'Wake Before 7 AM'],
-                    ['reading', 'Daily Reading'],
-                    ['waterGoal', 'Water Goal (3L)']
+                    ['attendance', '🌅 College Departure (9:00 AM)'],
+                    ['waterGoal', '💧 Daytime Water Goal (3L)'],
+                    ['gym', '🏋️‍♂️ Evening Gym Workout (4:00 PM)'],
+                    ['protein', '🥤 Post-Workout Protein Shake'],
+                    ['coding', '💻 Joint Coding Session (8:00 PM - 9:30 PM)'],
+                    ['dinner9pm', '🍲 Dinner Before 9:00 PM'],
+                    ['nightLeadCheck', '📞 Night Lead & Inquiry Check (10:30 PM)'],
+                    ['sleep11pm', '🌙 Sleep Before 11:00 PM']
                   ].map(([key, label]) => {
                     const done = osData.disciplineLogs.aashish[key];
                     return (
@@ -1199,21 +1250,21 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', paddingBottom: '10px', borderBottom: '1px solid #c8c3b7' }}>
                     <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#ec4899', color: '#fff', fontWeight: '800', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>M</div>
                     <div>
-                      <h4 style={{ margin: 0, fontWeight: '800' }}>Manashvini (Minni)</h4>
-                      <div style={{ fontSize: '0.75rem', color: '#71717a' }}>Mood: {osData.disciplineLogs.minni.mood}</div>
+                      <h4 style={{ margin: 0, fontWeight: '800' }}>Manashvini (Minni) Daily Routine</h4>
+                      <div style={{ fontSize: '0.75rem', color: '#71717a' }}>Status: {osData.disciplineLogs.minni.mood}</div>
                     </div>
                   </div>
 
                   {[
-                    ['attendance', 'College Attendance'],
-                    ['instaPosts2', '2 Instagram Posts'],
-                    ['storiesCompleted', 'Stories Sequence Completed'],
-                    ['coding', 'Coding & Development'],
-                    ['clientFollowups', 'Client Follow-ups'],
-                    ['contentPlanning', 'Content Planning'],
-                    ['sleep11pm', 'Sleep Before 11 PM'],
-                    ['wake7am', 'Wake Before 7 AM'],
-                    ['waterGoal', 'Water Goal (3L)']
+                    ['attendance', '🌅 College Departure (9:00 AM)'],
+                    ['waterGoal', '💧 Daytime Water Goal (3L)'],
+                    ['instaPost1', '📸 Today Instagram Post 1'],
+                    ['instaPost2', '📸 Today Instagram Post 2'],
+                    ['storiesCompleted', '📲 Stories Sequence Completed'],
+                    ['scheduleNextDayPosts', '📅 Generate & Schedule Tomorrow 2 Posts'],
+                    ['coding', '💻 Joint Coding Session (8:00 PM - 9:30 PM)'],
+                    ['dinner9pm', '🍲 Dinner Before 9:00 PM'],
+                    ['sleep11pm', '🌙 Sleep Before 11:00 PM']
                   ].map(([key, label]) => {
                     const done = osData.disciplineLogs.minni[key];
                     return (
@@ -1230,6 +1281,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                     );
                   })}
                 </div>
+              </div>
               </div>
 
               {/* SHARED GOALS SECTION */}
@@ -1273,57 +1325,149 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
             </div>
           )}
 
-          {/* TAB 7: REVENUE & PROPOSALS */}
+          {/* TAB 6: REVENUE & EXPENSES DASHBOARD */}
           {activeTab === 'revenue' && (
             <div>
-              <div className="os-card" style={{ marginBottom: '20px' }}>
-                <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '14px' }}>Proposal & Quote Generator</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '16px' }}>
-                  <div>
-                    <label style={{ fontSize: '0.8rem', fontWeight: '700', display: 'block', marginBottom: '6px' }}>Package Scope</label>
-                    <select value={calcService} onChange={(e) => setCalcService(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #c8c3b7' }}>
-                      <option value="Starter Web App">Starter Web App (₹25,000 - ₹35,000)</option>
-                      <option value="Custom Business Software">Custom Business Software (₹45,000 - ₹85,000)</option>
-                      <option value="AI Agent & Automation">AI Agent & Automation (₹60,000 - ₹1,50,000)</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label style={{ fontSize: '0.8rem', fontWeight: '700', display: 'block', marginBottom: '6px' }}>Target Budget (₹)</label>
-                    <input type="number" value={calcBudget} onChange={(e) => setCalcBudget(Number(e.target.value))} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #c8c3b7' }} />
-                  </div>
-                </div>
+              {/* TOP FINANCIAL METRICS GRID */}
+              {(() => {
+                const totalRevenue = osData.projects.reduce((acc, p) => acc + (p.budget || 0), 125000);
+                const totalExpenses = (osData.expenses || []).reduce((acc, e) => acc + (e.amount || 0), 0);
+                const netProfit = totalRevenue - totalExpenses;
 
-                <button 
-                  onClick={() => {
-                    const text = `Hi! KLAPP Developers Quote for ${calcService}:\n• Total Estimate: ₹${calcBudget.toLocaleString()}\n• 50% Milestone Advance\n• Guaranteed Sub-100ms Speed\nWhatsApp: +91 79890 33580`;
-                    navigator.clipboard.writeText(text);
-                    alert('📋 Proposal copied to clipboard!');
-                  }}
-                  className="btn-action-outline"
-                >
-                  <i className="ri-file-copy-line"></i> Copy Proposal Quote
-                </button>
-              </div>
-            </div>
-          )}
+                return (
+                  <div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px', marginBottom: '20px' }}>
+                      <div className="os-card" style={{ marginBottom: 0 }}>
+                        <div style={{ fontSize: '0.76rem', fontWeight: '700', color: '#71717a', textTransform: 'uppercase', marginBottom: '4px' }}>GROSS REVENUE</div>
+                        <div style={{ fontSize: '1.8rem', fontWeight: '800', color: '#166534' }}>₹{totalRevenue.toLocaleString()}</div>
+                        <div style={{ fontSize: '0.74rem', color: '#71717a', marginTop: '4px' }}>
+                          {userRole === 'MINNI' ? '✏️ Minni Revenue Management' : '👁️ Aashish Revenue View'}
+                        </div>
+                      </div>
 
-          {/* TAB 8: SMART REMINDERS */}
-          {activeTab === 'reminders' && (
-            <div>
-              <div className="os-card">
-                <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '14px' }}>Smart Reminder Engine</h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  <div style={{ padding: '12px', background: '#faf8f5', border: '1px solid #c8c3b7', borderRadius: '8px' }}>
-                    <strong>🌅 Morning (8:00 AM):</strong> Review Today's Priorities & Shared Goals
+                      <div className="os-card" style={{ marginBottom: 0 }}>
+                        <div style={{ fontSize: '0.76rem', fontWeight: '700', color: '#71717a', textTransform: 'uppercase', marginBottom: '4px' }}>TOTAL EXPENSES</div>
+                        <div style={{ fontSize: '1.8rem', fontWeight: '800', color: '#dc2626' }}>₹{totalExpenses.toLocaleString()}</div>
+                        <div style={{ fontSize: '0.74rem', color: '#71717a', marginTop: '4px' }}>Shared Expense Logging</div>
+                      </div>
+
+                      <div className="os-card" style={{ marginBottom: 0, background: '#f0fdf4', border: '1px solid #bbf7d0' }}>
+                        <div style={{ fontSize: '0.76rem', fontWeight: '700', color: '#166534', textTransform: 'uppercase', marginBottom: '4px' }}>MONTHLY NET PROFIT</div>
+                        <div style={{ fontSize: '1.8rem', fontWeight: '800', color: '#15803d' }}>₹{netProfit.toLocaleString()}</div>
+                        <div style={{ fontSize: '0.74rem', color: '#166534', fontWeight: '600', marginTop: '4px' }}>Overall Month Savings</div>
+                      </div>
+                    </div>
+
+                    {/* EXPENSE CATEGORY BREAKDOWN GRAPH / BAR VISUALIZATION */}
+                    <div className="os-card" style={{ marginBottom: '20px' }}>
+                      <h4 style={{ fontSize: '1.05rem', fontWeight: '800', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <i className="ri-pie-chart-line" style={{ color: '#2563eb' }}></i>
+                        Expense Category Breakdown (Where is money spent?)
+                      </h4>
+
+                      {(() => {
+                        const categories = ['Infrastructure', 'Marketing', 'Tools', 'Office', 'Personal'];
+                        const catTotals = categories.map(cat => {
+                          const amt = (osData.expenses || []).filter(e => e.category === cat).reduce((a, b) => a + (b.amount || 0), 0);
+                          return { cat, amt };
+                        });
+
+                        return (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            {catTotals.map(({ cat, amt }) => {
+                              const pct = totalExpenses > 0 ? Math.round((amt / totalExpenses) * 100) : 0;
+                              return (
+                                <div key={cat}>
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.82rem', fontWeight: '700', marginBottom: '4px' }}>
+                                    <span>{cat}</span>
+                                    <span style={{ color: '#71717a' }}>₹{amt.toLocaleString()} ({pct}%)</span>
+                                  </div>
+                                  <div style={{ height: '8px', background: '#eae6dd', borderRadius: '4px', overflow: 'hidden' }}>
+                                    <div style={{ height: '100%', width: `${pct}%`, background: '#18181b', borderRadius: '4px', transition: 'width 0.3s ease' }}></div>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        );
+                      })()}
+                    </div>
+
+                    {/* ADD EXPENSE FORM (FOR BOTH AASHISH & MINNI) */}
+                    <div className="os-card" style={{ background: '#faf8f5', marginBottom: '20px' }}>
+                      <h4 style={{ fontSize: '1rem', fontWeight: '800', marginBottom: '12px' }}>+ Log New Expense (Both Aashish & Minni Can Add)</h4>
+                      <form onSubmit={handleCreateExpense}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px', marginBottom: '12px' }}>
+                          <div>
+                            <label style={{ fontSize: '0.78rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>Expense Title</label>
+                            <input type="text" required placeholder="e.g. Canva Pro / Ad Campaign" value={newExpense.title} onChange={(e) => setNewExpense({ ...newExpense, title: e.target.value })} style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #c8c3b7' }} />
+                          </div>
+                          <div>
+                            <label style={{ fontSize: '0.78rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>Amount (₹)</label>
+                            <input type="number" required placeholder="800" value={newExpense.amount} onChange={(e) => setNewExpense({ ...newExpense, amount: e.target.value })} style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #c8c3b7' }} />
+                          </div>
+                          <div>
+                            <label style={{ fontSize: '0.78rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>Category</label>
+                            <select value={newExpense.category} onChange={(e) => setNewExpense({ ...newExpense, category: e.target.value })} style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #c8c3b7', background: '#fff', fontSize: '0.85rem', fontWeight: '700' }}>
+                              <option value="Marketing">📢 Marketing & Ads</option>
+                              <option value="Infrastructure">⚡ Infrastructure & Server</option>
+                              <option value="Tools">🛠️ Tools & Subscriptions</option>
+                              <option value="Office">🏢 Office & Food</option>
+                              <option value="Personal">👤 Personal & Misc</option>
+                            </select>
+                          </div>
+                        </div>
+                        <button type="submit" className="btn-action-outline" style={{ background: '#ffffff', color: '#18181b', borderColor: '#c8c3b7', fontWeight: '700' }}>
+                          <i className="ri-add-line" style={{ color: '#16a34a' }}></i> Save Expense
+                        </button>
+                      </form>
+                    </div>
+
+                    {/* EXPENSES LOG TABLE */}
+                    <div className="os-card" style={{ marginBottom: '20px' }}>
+                      <h4 style={{ fontSize: '1.05rem', fontWeight: '800', marginBottom: '14px' }}>Recent Logged Expenses</h4>
+                      {(osData.expenses || []).map(exp => (
+                        <div key={exp.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 14px', background: '#faf8f5', border: '1px solid #c8c3b7', borderRadius: '8px', marginBottom: '8px' }}>
+                          <div>
+                            <div style={{ fontWeight: '800', fontSize: '0.9rem', color: '#18181b' }}>{exp.title}</div>
+                            <div style={{ fontSize: '0.78rem', color: '#71717a' }}>Category: <strong>{exp.category}</strong> • Added by: {exp.addedBy} • {exp.date}</div>
+                          </div>
+                          <div style={{ fontWeight: '800', fontSize: '1rem', color: '#dc2626' }}>-₹{exp.amount?.toLocaleString()}</div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* PROPOSAL QUOTE GENERATOR */}
+                    <div className="os-card">
+                      <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '14px' }}>Proposal & Quote Generator</h3>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '16px' }}>
+                        <div>
+                          <label style={{ fontSize: '0.8rem', fontWeight: '700', display: 'block', marginBottom: '6px' }}>Package Scope</label>
+                          <select value={calcService} onChange={(e) => setCalcService(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #c8c3b7' }}>
+                            <option value="Starter Web App">Starter Web App (₹25,000 - ₹35,000)</option>
+                            <option value="Custom Business Software">Custom Business Software (₹45,000 - ₹85,000)</option>
+                            <option value="AI Agent & Automation">AI Agent & Automation (₹60,000 - ₹1,50,000)</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label style={{ fontSize: '0.8rem', fontWeight: '700', display: 'block', marginBottom: '6px' }}>Target Budget (₹)</label>
+                          <input type="number" value={calcBudget} onChange={(e) => setCalcBudget(Number(e.target.value))} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #c8c3b7' }} />
+                        </div>
+                      </div>
+
+                      <button 
+                        onClick={() => {
+                          const text = `Hi! KLAPP Developers Quote for ${calcService}:\n• Total Estimate: ₹${calcBudget.toLocaleString()}\n• 50% Milestone Advance\n• Guaranteed Sub-100ms Speed\nWhatsApp: +91 79890 33580`;
+                          navigator.clipboard.writeText(text);
+                        }}
+                        className="btn-action-outline"
+                      >
+                        <i className="ri-file-copy-line"></i> Copy Proposal Quote
+                      </button>
+                    </div>
                   </div>
-                  <div style={{ padding: '12px', background: '#faf8f5', border: '1px solid #c8c3b7', borderRadius: '8px' }}>
-                    <strong>🌆 Evening (6:00 PM):</strong> Gym Workout & Coding Session Reminder
-                  </div>
-                  <div style={{ padding: '12px', background: '#faf8f5', border: '1px solid #c8c3b7', borderRadius: '8px' }}>
-                    <strong>🌙 Night (10:30 PM):</strong> Update Discipline Dashboard & Sleep Before 11 PM
-                  </div>
-                </div>
-              </div>
+                );
+              })()}
             </div>
           )}
 

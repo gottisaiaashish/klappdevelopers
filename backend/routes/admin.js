@@ -84,33 +84,37 @@ const defaultOSState = {
     date: new Date().toISOString().split('T')[0],
     aashish: {
       attendance: true,
-      gym: true,
-      coding: true,
-      projectUpdate: true,
-      clientFollowups: false,
-      sleep11pm: true,
-      wake7am: true,
-      reading: true,
       waterGoal: true,
+      gym: true,
+      protein: true,
+      coding: true,
+      dinner9pm: true,
+      nightLeadCheck: true,
+      sleep11pm: true,
       mood: '⚡ High Energy'
     },
     minni: {
       attendance: true,
-      instaPosts2: true,
-      storiesCompleted: true,
-      coding: true,
-      clientFollowups: true,
-      contentPlanning: true,
-      sleep11pm: true,
-      wake7am: true,
       waterGoal: true,
+      instaPost1: true,
+      instaPost2: true,
+      storiesCompleted: true,
+      scheduleNextDayPosts: true,
+      coding: true,
+      dinner9pm: true,
+      sleep11pm: true,
       mood: '✨ Creative Surge'
     }
   },
+  expenses: [
+    { id: 'EXP-1', title: 'MongoDB Atlas Database Hosting', amount: 1500, category: 'Infrastructure', addedBy: 'Aashish', date: 'Jul 28' },
+    { id: 'EXP-2', title: 'Canva Pro & Content Design Tools', amount: 800, category: 'Tools', addedBy: 'Minni', date: 'Jul 29' },
+    { id: 'EXP-3', title: 'Instagram Campaign Ad Budget', amount: 2000, category: 'Marketing', addedBy: 'Minni', date: 'Jul 30' }
+  ],
   sharedGoals: [
-    { id: 'SG-1', title: 'Coding Together (React & Node.js System Architecture)', completed: true },
+    { id: 'SG-1', title: 'Joint Coding Session (8:00 PM - 9:30 PM)', completed: true },
     { id: 'SG-2', title: 'KLAPP Q3 Strategy & Client Review', completed: true },
-    { id: 'SG-3', title: 'Daily Night Planning & Discipline Review', completed: false },
+    { id: 'SG-3', title: 'Daily Night Lead Check & Planning', completed: false },
     { id: 'SG-4', title: 'Review Weekly Content Pipeline & Approvals', completed: true }
   ]
 };

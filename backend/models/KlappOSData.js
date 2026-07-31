@@ -44,29 +44,36 @@ const KlappOSSchema = new mongoose.Schema({
     date: String,
     aashish: {
       attendance: { type: Boolean, default: false },
-      gym: { type: Boolean, default: false },
-      coding: { type: Boolean, default: false },
-      projectUpdate: { type: Boolean, default: false },
-      clientFollowups: { type: Boolean, default: false },
-      sleep11pm: { type: Boolean, default: false },
-      wake7am: { type: Boolean, default: false },
-      reading: { type: Boolean, default: false },
       waterGoal: { type: Boolean, default: false },
-      mood: { type: String, default: '⚡ Energetic' }
+      gym: { type: Boolean, default: false },
+      protein: { type: Boolean, default: false },
+      coding: { type: Boolean, default: false },
+      dinner9pm: { type: Boolean, default: false },
+      nightLeadCheck: { type: Boolean, default: false },
+      sleep11pm: { type: Boolean, default: false },
+      mood: { type: String, default: '⚡ High Energy' }
     },
     minni: {
       attendance: { type: Boolean, default: false },
-      instaPosts2: { type: Boolean, default: false },
-      storiesCompleted: { type: Boolean, default: false },
-      coding: { type: Boolean, default: false },
-      clientFollowups: { type: Boolean, default: false },
-      contentPlanning: { type: Boolean, default: false },
-      sleep11pm: { type: Boolean, default: false },
-      wake7am: { type: Boolean, default: false },
       waterGoal: { type: Boolean, default: false },
-      mood: { type: String, default: '✨ Creative' }
+      instaPost1: { type: Boolean, default: false },
+      instaPost2: { type: Boolean, default: false },
+      storiesCompleted: { type: Boolean, default: false },
+      scheduleNextDayPosts: { type: Boolean, default: false },
+      coding: { type: Boolean, default: false },
+      dinner9pm: { type: Boolean, default: false },
+      sleep11pm: { type: Boolean, default: false },
+      mood: { type: String, default: '✨ Creative Surge' }
     }
   },
+  expenses: [{
+    id: String,
+    title: String,
+    amount: Number,
+    category: String,
+    addedBy: String,
+    date: String
+  }],
   sharedGoals: [{
     id: String,
     title: String,
