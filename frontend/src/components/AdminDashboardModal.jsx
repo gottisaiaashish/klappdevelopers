@@ -2473,37 +2473,13 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                     </p>
                   </div>
 
-                  <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
-                    {/* CATEGORY FILTER PILLS */}
-                    <div style={{ display: 'flex', background: '#e4e4e7', padding: '3px', borderRadius: '8px', gap: '2px' }}>
-                      {['ALL', 'Tech & Code', 'Social Media', 'Client Operations'].map(cat => (
-                        <button
-                          key={cat}
-                          onClick={() => setNoteCategoryFilter(cat)}
-                          style={{
-                            padding: '5px 10px',
-                            borderRadius: '6px',
-                            border: 'none',
-                            background: noteCategoryFilter === cat ? '#ffffff' : 'transparent',
-                            color: noteCategoryFilter === cat ? '#18181b' : '#52525b',
-                            fontWeight: '700',
-                            fontSize: '0.75rem',
-                            cursor: 'pointer'
-                          }}
-                        >
-                          {cat === 'ALL' ? 'All Notes' : cat}
-                        </button>
-                      ))}
-                    </div>
-
-                    <button 
-                      onClick={() => setShowAddNoteModal(!showAddNoteModal)}
-                      className="btn-action-outline"
-                      style={{ background: '#ffffff', color: '#18181b', borderColor: '#c8c3b7', fontWeight: '700', boxShadow: '0 2px 6px rgba(0,0,0,0.04)' }}
-                    >
-                      <i className="ri-add-line" style={{ color: '#2563eb', marginRight: '4px' }}></i> Add New Note
-                    </button>
-                  </div>
+                  <button 
+                    onClick={() => setShowAddNoteModal(!showAddNoteModal)}
+                    className="btn-action-outline"
+                    style={{ background: '#ffffff', color: '#18181b', borderColor: '#c8c3b7', fontWeight: '700', boxShadow: '0 2px 6px rgba(0,0,0,0.04)' }}
+                  >
+                    <i className="ri-add-line" style={{ color: '#2563eb', marginRight: '4px' }}></i> Add New Note
+                  </button>
                 </div>
 
                 {/* ADD NOTE INLINE FORM */}
@@ -2511,20 +2487,10 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                   <div style={{ background: '#faf8f5', border: '1px solid #c8c3b7', borderRadius: '12px', padding: '18px', marginBottom: '20px' }}>
                     <h4 style={{ fontSize: '0.95rem', fontWeight: '800', marginBottom: '12px' }}>Create Shared Sticky Note</h4>
                     <form onSubmit={handleCreateAgencyNote}>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginBottom: '12px' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
                         <div>
                           <label style={{ fontSize: '0.78rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>Note Title *</label>
                           <input type="text" required placeholder="" value={newNoteData.title} onChange={(e) => setNewNoteData({ ...newNoteData, title: e.target.value })} style={{ width: '100%', padding: '9px', borderRadius: '8px', border: '1px solid #d4d4d8', fontSize: '0.85rem' }} />
-                        </div>
-
-                        <div>
-                          <label style={{ fontSize: '0.78rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>Category Tag</label>
-                          <select value={newNoteData.category} onChange={(e) => setNewNoteData({ ...newNoteData, category: e.target.value })} style={{ width: '100%', padding: '9px', borderRadius: '8px', border: '1px solid #d4d4d8', fontSize: '0.85rem', fontWeight: '600' }}>
-                            <option value="Client Operations">💼 Client Operations</option>
-                            <option value="Tech & Code">💻 Tech & Code</option>
-                            <option value="Social Media">📸 Social Media</option>
-                            <option value="General">💡 General Idea</option>
-                          </select>
                         </div>
 
                         <div>
@@ -2570,15 +2536,12 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
 
                 {/* STICKY NOTES GRID */}
                 {(() => {
-                  const notesList = (osData.agencyNotes || []).filter(n => {
-                    if (noteCategoryFilter === 'ALL') return true;
-                    return n.category === noteCategoryFilter;
-                  });
+                  const notesList = osData.agencyNotes || [];
 
                   if (notesList.length === 0) {
                     return (
                       <div style={{ textAlign: 'center', padding: '24px', color: '#71717a', fontSize: '0.88rem' }}>
-                        No notes found in this category. Click "+ Add New Note" above to create one!
+                        No notes created yet. Click "+ Add New Note" above to create one!
                       </div>
                     );
                   }
@@ -2601,7 +2564,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                           }}
                         >
                           <div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px', marginBottom: '8px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px', marginBottom: '10px' }}>
                               <h4 style={{ fontSize: '0.92rem', fontWeight: '800', margin: 0, color: '#18181b' }}>{nte.title}</h4>
                               <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
                                 <button 
@@ -2620,10 +2583,6 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                                 </button>
                               </div>
                             </div>
-
-                            <span style={{ fontSize: '0.7rem', fontWeight: '700', background: 'rgba(255,255,255,0.7)', color: '#334155', padding: '2px 6px', borderRadius: '4px', display: 'inline-block', marginBottom: '10px' }}>
-                              {nte.category}
-                            </span>
 
                             <p style={{ fontSize: '0.85rem', color: '#1e293b', margin: '0 0 12px 0', lineHeight: '1.5', whiteSpace: 'pre-wrap' }}>
                               {nte.content}
