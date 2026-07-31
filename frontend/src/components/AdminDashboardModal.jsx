@@ -1332,20 +1332,20 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                   );
                 })()}
 
-                {/* ADD CONTENT FORM CARD */}
+                {/* ADD CONTENT FORM CARD (CLEAN LIGHT DESIGN, NO PLACEHOLDERS) */}
                 {showAddContentModal && (
-                  <div style={{ background: '#faf8f5', border: '1px solid #c8c3b7', borderRadius: '10px', padding: '16px', marginTop: '16px' }}>
-                    <h4 style={{ fontSize: '0.98rem', fontWeight: '800', marginBottom: '12px' }}>Create New Social Post or Reel Concept</h4>
+                  <div style={{ background: '#ffffff', border: '1px solid #e4e4e7', borderRadius: '12px', padding: '18px', marginTop: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
+                    <h4 style={{ fontSize: '0.95rem', fontWeight: '700', color: '#27272a', marginBottom: '14px' }}>Create New Social Post Concept</h4>
                     <form onSubmit={handleCreateContent}>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginBottom: '12px' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px', marginBottom: '14px' }}>
                         <div>
-                          <label style={{ fontSize: '0.78rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>Post Title / Headline *</label>
-                          <input type="text" required placeholder="e.g. How we built sub-100ms websites for Indian Brands" value={newContent.title} onChange={(e) => setNewContent({ ...newContent, title: e.target.value })} style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #c8c3b7' }} />
+                          <label style={{ fontSize: '0.78rem', fontWeight: '600', color: '#52525b', display: 'block', marginBottom: '5px' }}>Post Title / Headline *</label>
+                          <input type="text" required placeholder="" value={newContent.title} onChange={(e) => setNewContent({ ...newContent, title: e.target.value })} style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #d4d4d8', background: '#fff', fontSize: '0.85rem', color: '#18181b' }} />
                         </div>
 
                         <div>
-                          <label style={{ fontSize: '0.78rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>Platform Format</label>
-                          <select value={newContent.platform} onChange={(e) => setNewContent({ ...newContent, platform: e.target.value })} style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #c8c3b7', background: '#fff', fontSize: '0.85rem', fontWeight: '700' }}>
+                          <label style={{ fontSize: '0.78rem', fontWeight: '600', color: '#52525b', display: 'block', marginBottom: '5px' }}>Platform Format</label>
+                          <select value={newContent.platform} onChange={(e) => setNewContent({ ...newContent, platform: e.target.value })} style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #d4d4d8', background: '#fff', fontSize: '0.85rem', fontWeight: '600', color: '#27272a' }}>
                             <option value="Instagram Reel">📸 Instagram Reel</option>
                             <option value="Instagram Carousel / Post">🖼️ Instagram Carousel / Post</option>
                             <option value="Instagram Story">📲 Instagram Story Sequence</option>
@@ -1355,18 +1355,18 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                         </div>
 
                         <div>
-                          <label style={{ fontSize: '0.78rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>Target Schedule Date</label>
-                          <input type="date" required value={newContent.date} onChange={(e) => setNewContent({ ...newContent, date: e.target.value })} style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #c8c3b7', background: '#fff', fontSize: '0.85rem', fontWeight: '600' }} />
+                          <label style={{ fontSize: '0.78rem', fontWeight: '600', color: '#52525b', display: 'block', marginBottom: '5px' }}>Target Schedule Date</label>
+                          <input type="date" required value={newContent.date} onChange={(e) => setNewContent({ ...newContent, date: e.target.value })} style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #d4d4d8', background: '#fff', fontSize: '0.85rem', fontWeight: '600', color: '#27272a' }} />
                         </div>
                       </div>
 
-                      <div style={{ marginBottom: '12px' }}>
-                        <label style={{ fontSize: '0.78rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>Strategy Notes & Script Hook</label>
-                        <textarea rows={3} placeholder="e.g. Show live PageSpeed 100/100 score video recording, hook: 'Why 90% of business websites lose clients due to slow speed'..." value={newContent.notes} onChange={(e) => setNewContent({ ...newContent, notes: e.target.value })} style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #c8c3b7', fontSize: '0.86rem' }}></textarea>
+                      <div style={{ marginBottom: '14px' }}>
+                        <label style={{ fontSize: '0.78rem', fontWeight: '600', color: '#52525b', display: 'block', marginBottom: '5px' }}>Strategy Notes & Script Hook</label>
+                        <textarea rows={3} placeholder="" value={newContent.notes} onChange={(e) => setNewContent({ ...newContent, notes: e.target.value })} style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #d4d4d8', background: '#fff', fontSize: '0.85rem', color: '#18181b', fontFamily: 'inherit' }}></textarea>
                       </div>
 
                       <div style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'flex-end' }}>
-                        <button type="button" onClick={() => setShowAddContentModal(false)} className="btn-action-outline" style={{ background: '#ffffff', color: '#71717a', borderColor: '#c8c3b7', padding: '8px 16px', borderRadius: '8px', fontWeight: '600', fontSize: '0.82rem' }}>
+                        <button type="button" onClick={() => setShowAddContentModal(false)} className="btn-action-outline" style={{ background: '#ffffff', color: '#71717a', borderColor: '#d4d4d8', padding: '8px 16px', borderRadius: '8px', fontWeight: '600', fontSize: '0.82rem' }}>
                           Cancel
                         </button>
                         <button type="submit" className="btn-action-outline" style={{ background: '#ffffff', color: '#166534', borderColor: '#bbf7d0', padding: '8px 20px', borderRadius: '8px', fontWeight: '700', fontSize: '0.82rem' }}>
