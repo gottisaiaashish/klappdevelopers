@@ -1216,43 +1216,10 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
 
                       {/* REQUIREMENTS SCOPE */}
                       {prj.requirements && (
-                        <p style={{ fontSize: '0.86rem', color: '#3f3f46', margin: '0 0 12px 0', lineHeight: '1.5', background: '#ffffff', padding: '10px 12px', borderRadius: '8px', border: '1px solid #e4e4e7' }}>
+                        <p style={{ fontSize: '0.86rem', color: '#3f3f46', margin: '0', lineHeight: '1.5', background: '#ffffff', padding: '10px 12px', borderRadius: '8px', border: '1px solid #e4e4e7' }}>
                           <strong>Deliverables Scope:</strong> {prj.requirements}
                         </p>
                       )}
-
-                      {/* CALL FOLLOW UP TRACKER */}
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', paddingTop: '10px', borderTop: '1px solid #c8c3b7' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                          <a 
-                            href={`tel:${prj.phone || ''}`} 
-                            onClick={() => handleFollowUpCall(prj.id)}
-                            className="btn-action-outline"
-                            style={{ background: '#eff6ff', color: '#1d4ed8', borderColor: '#bfdbfe', fontSize: '0.82rem', padding: '6px 12px', fontWeight: '700', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
-                            title={`Click to call ${prj.client} and log follow up`}
-                          >
-                            📞 {prj.phone || '+91 98765 43210'}
-                          </a>
-                          
-                          {prj.lastFollowedUpBy ? (
-                            <span style={{ fontSize: '0.76rem', background: '#f0f0f4', color: '#15803d', padding: '4px 10px', borderRadius: '6px', fontWeight: '700', border: '1px solid #bbf7d0' }}>
-                              ✓ Followed up by {prj.lastFollowedUpBy} ({prj.lastFollowedUpAt || 'Today'})
-                            </span>
-                          ) : (
-                            <span style={{ fontSize: '0.76rem', background: '#f4f4f5', color: '#71717a', padding: '4px 10px', borderRadius: '6px', fontWeight: '600' }}>
-                              No call logged yet
-                            </span>
-                          )}
-                        </div>
-
-                        <button 
-                          onClick={() => handleFollowUpCall(prj.id)}
-                          className="btn-action-outline"
-                          style={{ background: '#ffffff', color: '#2563eb', borderColor: '#bfdbfe', fontSize: '0.78rem', padding: '6px 12px', fontWeight: '700' }}
-                        >
-                          <i className="ri-phone-line" style={{ color: '#2563eb', marginRight: '4px' }}></i> Log Call Done
-                        </button>
-                      </div>
                     </div>
                   ));
                 })()}
