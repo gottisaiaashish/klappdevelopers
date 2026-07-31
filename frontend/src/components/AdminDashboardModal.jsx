@@ -1369,7 +1369,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                     <div className="os-card" style={{ marginBottom: '20px' }}>
                       <h4 style={{ fontSize: '1.05rem', fontWeight: '800', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <i className="ri-pie-chart-line" style={{ color: '#2563eb' }}></i>
-                        Expense Category Breakdown (Where is money spent?)
+                        Expense Category Breakdown
                       </h4>
 
                       {(() => {
@@ -1400,9 +1400,9 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                       })()}
                     </div>
 
-                    {/* ADD EXPENSE FORM (FOR BOTH AASHISH & MINNI) */}
+                    {/* ADD EXPENSE FORM */}
                     <div className="os-card" style={{ background: '#faf8f5', marginBottom: '20px' }}>
-                      <h4 style={{ fontSize: '1rem', fontWeight: '800', marginBottom: '12px' }}>+ Log New Expense (Both Aashish & Minni Can Add)</h4>
+                      <h4 style={{ fontSize: '1rem', fontWeight: '800', marginBottom: '12px' }}>+ Log New Expense</h4>
                       <form onSubmit={handleCreateExpense}>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px', marginBottom: '12px' }}>
                           <div>
