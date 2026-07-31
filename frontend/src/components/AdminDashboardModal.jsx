@@ -118,11 +118,22 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
     title: '',
     category: 'Meeting', // 'Meeting', 'Deadline', 'Birthday', 'Task'
     date: new Date().toISOString().split('T')[0],
-    time: '4:00 PM',
+    time: '16:00',
     client: 'General',
     attendees: 'Aashish & Minni',
     link: '#'
   });
+
+  const formatTime12h = (timeStr) => {
+    if (!timeStr) return 'All Day';
+    if (timeStr.includes('AM') || timeStr.includes('PM')) return timeStr;
+    const [h, m] = timeStr.split(':');
+    if (!h) return timeStr;
+    const hour = parseInt(h);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const h12 = hour % 12 || 12;
+    return `${h12}:${m || '00'} ${ampm}`;
+  };
 
   const handleCreateEvent = (e) => {
     e.preventDefault();
@@ -133,7 +144,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
       title: newEvent.title.trim(),
       category: newEvent.category,
       date: newEvent.date,
-      time: newEvent.time,
+      time: formatTime12h(newEvent.time),
       client: newEvent.client,
       attendees: newEvent.attendees,
       type: newEvent.category,
@@ -145,7 +156,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
       meetings: [evt, ...osData.meetings]
     };
     syncOSDataToBackend(updated);
-    setNewEvent({ title: '', category: 'Meeting', date: new Date().toISOString().split('T')[0], time: '4:00 PM', client: 'General', attendees: 'Aashish & Minni', link: '#' });
+    setNewEvent({ title: '', category: 'Meeting', date: new Date().toISOString().split('T')[0], time: '16:00', client: 'General', attendees: 'Aashish & Minni', link: '#' });
     setShowAddMeetingModal(false);
   };
 
@@ -913,8 +924,14 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                       </div>
 
                       <div>
-                        <label style={{ fontSize: '0.78rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>Time / Duration</label>
-                        <input type="text" placeholder="e.g. 4:00 PM or All Day" value={newEvent.time} onChange={(e) => setNewEvent({ ...newEvent, time: e.target.value })} style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #c8c3b7' }} />
+                        <label style={{ fontSize: '0.78rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>Select Time</label>
+                        <input 
+                          type="time" 
+                          required 
+                          value={newEvent.time} 
+                          onChange={(e) => setNewEvent({ ...newEvent, time: e.target.value })} 
+                          style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #c8c3b7', background: '#fff', fontSize: '0.85rem', fontWeight: '600' }} 
+                        />
                       </div>
 
                       <div>
