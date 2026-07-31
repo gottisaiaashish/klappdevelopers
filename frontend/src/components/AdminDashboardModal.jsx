@@ -117,7 +117,8 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
   const [newEvent, setNewEvent] = useState({
     title: '',
     category: 'Meeting', // 'Meeting', 'Deadline', 'Birthday', 'Task'
-    time: 'Today, 4:00 PM',
+    date: new Date().toISOString().split('T')[0],
+    time: '4:00 PM',
     client: 'General',
     attendees: 'Aashish & Minni',
     link: '#'
@@ -131,6 +132,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
       id: 'EVT-' + Date.now(),
       title: newEvent.title.trim(),
       category: newEvent.category,
+      date: newEvent.date,
       time: newEvent.time,
       client: newEvent.client,
       attendees: newEvent.attendees,
@@ -143,9 +145,9 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
       meetings: [evt, ...osData.meetings]
     };
     syncOSDataToBackend(updated);
-    setNewEvent({ title: '', category: 'Meeting', time: 'Today, 4:00 PM', client: 'General', attendees: 'Aashish & Minni', link: '#' });
+    setNewEvent({ title: '', category: 'Meeting', date: new Date().toISOString().split('T')[0], time: '4:00 PM', client: 'General', attendees: 'Aashish & Minni', link: '#' });
     setShowAddMeetingModal(false);
-    alert(`✅ ${newEvent.category} saved to Shared Calendar!`);
+    alert(`✅ ${newEvent.category} saved for ${newEvent.date}!`);
   };
 
   // Scratchpad State
@@ -908,8 +910,19 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                       </div>
 
                       <div>
-                        <label style={{ fontSize: '0.78rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>Time / Day Note</label>
-                        <input type="text" required placeholder="e.g. All Day / Today, 4:00 PM" value={newEvent.time} onChange={(e) => setNewEvent({ ...newEvent, time: e.target.value })} style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #c8c3b7' }} />
+                        <label style={{ fontSize: '0.78rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>Select Date</label>
+                        <input 
+                          type="date" 
+                          required 
+                          value={newEvent.date} 
+                          onChange={(e) => setNewEvent({ ...newEvent, date: e.target.value })} 
+                          style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #c8c3b7', background: '#fff', fontSize: '0.85rem', fontWeight: '600' }} 
+                        />
+                      </div>
+
+                      <div>
+                        <label style={{ fontSize: '0.78rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>Time / Duration</label>
+                        <input type="text" placeholder="e.g. 4:00 PM or All Day" value={newEvent.time} onChange={(e) => setNewEvent({ ...newEvent, time: e.target.value })} style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #c8c3b7' }} />
                       </div>
 
                       <div>
