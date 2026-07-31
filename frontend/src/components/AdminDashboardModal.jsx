@@ -110,6 +110,41 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
   const [calcService, setCalcService] = useState('Starter Web App');
   const [calcBudget, setCalcBudget] = useState(35000);
 
+  // Shared Interactive Calendar State
+  const [calendarDate, setCalendarDate] = useState(new Date());
+  const [showAddMeetingModal, setShowAddMeetingModal] = useState(false);
+  const [newMeeting, setNewMeeting] = useState({
+    title: '',
+    time: 'Today, 4:00 PM',
+    client: 'Rahul Sharma',
+    attendees: 'Aashish & Minni',
+    link: 'https://meet.google.com/klapp-demo'
+  });
+
+  const handleCreateMeeting = (e) => {
+    e.preventDefault();
+    if (!newMeeting.title) return;
+
+    const mtg = {
+      id: 'MTG-' + Date.now(),
+      title: newMeeting.title.trim(),
+      time: newMeeting.time,
+      client: newMeeting.client,
+      attendees: newMeeting.attendees,
+      type: 'Google Meet',
+      link: newMeeting.link
+    };
+
+    const updated = {
+      ...osData,
+      meetings: [mtg, ...osData.meetings]
+    };
+    syncOSDataToBackend(updated);
+    setNewMeeting({ title: '', time: 'Today, 4:00 PM', client: '', attendees: 'Aashish & Minni', link: 'https://meet.google.com/klapp-demo' });
+    setShowAddMeetingModal(false);
+    alert('✅ Meeting scheduled & synced to Shared Calendar!');
+  };
+
   // Scratchpad State
   const [scratchpadText, setScratchpadText] = useState(
     localStorage.getItem('klapp_admin_scratchpad') || 
@@ -789,18 +824,150 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
             </div>
           )}
 
-          {/* TAB 3: SHARED CALENDAR */}
+          {/* TAB 3: SHARED REAL MONTHLY CALENDAR */}
           {activeTab === 'calendar' && (
             <div>
+              {/* CALENDAR HEADER TOOLBAR */}
+              <div className="os-card" style={{ marginBottom: '16px', padding: '18px 24px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '14px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <h3 style={{ fontSize: '1.3rem', fontWeight: '800', margin: 0, textTransform: 'uppercase', color: '#18181b' }}>
+                      {calendarDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                    </h3>
+                    <div style={{ display: 'flex', gap: '4px' }}>
+                      <button 
+                        onClick={() => setCalendarDate(new Date(calendarDate.getFullYear(), calendarDate.getMonth() - 1, 1))}
+                        className="btn-action-outline" 
+                        style={{ padding: '4px 10px', fontSize: '0.8rem' }}
+                      >
+                        ◀ Prev
+                      </button>
+                      <button 
+                        onClick={() => setCalendarDate(new Date())}
+                        className="btn-action-outline" 
+                        style={{ padding: '4px 10px', fontSize: '0.8rem', background: '#18181b', color: '#fff', borderColor: '#18181b' }}
+                      >
+                        Today
+                      </button>
+                      <button 
+                        onClick={() => setCalendarDate(new Date(calendarDate.getFullYear(), calendarDate.getMonth() + 1, 1))}
+                        className="btn-action-outline" 
+                        style={{ padding: '4px 10px', fontSize: '0.8rem' }}
+                      >
+                        Next ▶
+                      </button>
+                    </div>
+                  </div>
+
+                  <button 
+                    onClick={() => setShowAddMeetingModal(!showAddMeetingModal)}
+                    className="btn-action-outline"
+                    style={{ background: '#18181b', color: '#ffffff', borderColor: '#18181b', fontWeight: '700' }}
+                  >
+                    <i className="ri-calendar-event-line"></i> + Schedule Meeting
+                  </button>
+                </div>
+              </div>
+
+              {/* SCHEDULE MEETING FORM */}
+              {showAddMeetingModal && (
+                <div className="os-card" style={{ background: '#faf8f5', marginBottom: '20px' }}>
+                  <h4 style={{ fontSize: '1rem', fontWeight: '800', marginBottom: '12px' }}>Schedule New Meeting / Deadline</h4>
+                  <form onSubmit={handleCreateMeeting}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginBottom: '12px' }}>
+                      <div>
+                        <label style={{ fontSize: '0.78rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>Meeting Title</label>
+                        <input type="text" required placeholder="e.g. Nandhakam Milestone Review" value={newMeeting.title} onChange={(e) => setNewMeeting({ ...newMeeting, title: e.target.value })} style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #c8c3b7' }} />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '0.78rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>Time & Day</label>
+                        <input type="text" required placeholder="e.g. Today, 4:00 PM" value={newMeeting.time} onChange={(e) => setNewMeeting({ ...newMeeting, time: e.target.value })} style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #c8c3b7' }} />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '0.78rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>Google Meet Link</label>
+                        <input type="text" required value={newMeeting.link} onChange={(e) => setNewMeeting({ ...newMeeting, link: e.target.value })} style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #c8c3b7' }} />
+                      </div>
+                    </div>
+                    <button type="submit" className="btn-action-outline" style={{ background: '#18181b', color: '#fff' }}>Save to Shared Calendar</button>
+                  </form>
+                </div>
+              )}
+
+              {/* MONTHLY CALENDAR GRID (Sun - Sat) */}
               <div className="os-card">
-                <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '14px' }}>Shared Meetings & Deadlines</h3>
+                {/* DAY OF WEEK HEADER */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px', textAlign: 'center', fontWeight: '800', fontSize: '0.8rem', color: '#71717a', textTransform: 'uppercase', marginBottom: '10px' }}>
+                  <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+                </div>
+
+                {/* DAYS MATRIX */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px' }}>
+                  {(() => {
+                    const year = calendarDate.getFullYear();
+                    const month = calendarDate.getMonth();
+                    const firstDayIndex = new Date(year, month, 1).getDay();
+                    const daysInMonth = new Date(year, month + 1, 0).getDate();
+                    const todayDate = new Date();
+                    const isCurrentMonth = todayDate.getFullYear() === year && todayDate.getMonth() === month;
+
+                    const gridCells = [];
+                    for (let i = 0; i < firstDayIndex; i++) {
+                      gridCells.push(<div key={`blank-${i}`} style={{ height: '80px', background: '#fcfbf9', borderRadius: '8px', border: '1px solid #eae6dd' }}></div>);
+                    }
+
+                    for (let d = 1; d <= daysInMonth; d++) {
+                      const isToday = isCurrentMonth && todayDate.getDate() === d;
+                      const hasMeeting = d === todayDate.getDate() || d === 15;
+
+                      gridCells.push(
+                        <div 
+                          key={`day-${d}`} 
+                          style={{
+                            height: '84px',
+                            padding: '8px',
+                            background: isToday ? '#eae6dd' : '#ffffff',
+                            borderRadius: '8px',
+                            border: isToday ? '2px solid #18181b' : '1px solid #c8c3b7',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                            overflow: 'hidden'
+                          }}
+                        >
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontSize: '0.86rem', fontWeight: isToday ? '800' : '700', color: isToday ? '#18181b' : '#52525b' }}>
+                              {d}
+                            </span>
+                            {isToday && <span style={{ fontSize: '0.65rem', background: '#18181b', color: '#fff', padding: '1px 5px', borderRadius: '4px', fontWeight: '800' }}>TODAY</span>}
+                          </div>
+
+                          {hasMeeting && (
+                            <div style={{ background: '#dbeafe', color: '#1e40af', border: '1px solid #bfdbfe', borderRadius: '4px', padding: '2px 4px', fontSize: '0.68rem', fontWeight: '700', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                              <i className="ri-video-line" style={{ marginRight: '2px' }}></i> Meet
+                            </div>
+                          )}
+                        </div>
+                      );
+                    }
+                    return gridCells;
+                  })()}
+                </div>
+              </div>
+
+              {/* SCHEDULED MEETINGS FEED */}
+              <div className="os-card">
+                <h3 style={{ fontSize: '1.05rem', fontWeight: '800', marginBottom: '14px' }}>All Shared Meetings & Milestones</h3>
                 {osData.meetings.map(mtg => (
                   <div key={mtg.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px', background: '#faf8f5', border: '1px solid #c8c3b7', borderRadius: '10px', marginBottom: '10px' }}>
                     <div>
-                      <div style={{ fontWeight: '800', fontSize: '0.98rem' }}><i className="ri-video-chat-line" style={{ marginRight: '6px', color: '#2563eb' }}></i> {mtg.title}</div>
-                      <div style={{ fontSize: '0.82rem', color: '#71717a' }}>Time: {mtg.time} • Attendees: {mtg.attendees}</div>
+                      <div style={{ fontWeight: '800', fontSize: '0.98rem', color: '#18181b' }}>
+                        <i className="ri-video-chat-line" style={{ marginRight: '6px', color: '#2563eb' }}></i> {mtg.title}
+                      </div>
+                      <div style={{ fontSize: '0.82rem', color: '#71717a', marginTop: '2px' }}>Time: {mtg.time} • Attendees: {mtg.attendees}</div>
                     </div>
-                    <a href={mtg.link} target="_blank" rel="noopener noreferrer" className="btn-action-outline">Join Meeting</a>
+                    <a href={mtg.link} target="_blank" rel="noopener noreferrer" className="btn-action-outline">
+                      Join Meet <i className="ri-external-link-line"></i>
+                    </a>
                   </div>
                 ))}
               </div>
