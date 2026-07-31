@@ -1253,10 +1253,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
               <div className="os-card" style={{ marginBottom: '20px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
                   <div>
-                    <h3 style={{ fontSize: '1.15rem', fontWeight: '800', margin: 0 }}>Sunday Content Co-Planning & Weekly Matrix</h3>
-                    <p style={{ fontSize: '0.82rem', color: '#71717a', margin: '4px 0 0 0' }}>
-                      Both Aashish & Minni share ideas. Requires mutual approvals (both likes) before Minni publishes & closes.
-                    </p>
+                    <h3 style={{ fontSize: '1.15rem', fontWeight: '800', margin: 0 }}>Weekly Content Matrix</h3>
                   </div>
 
                   <button 
