@@ -666,13 +666,22 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
           {activeTab === 'inquiries' && (
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '14px', marginBottom: '20px' }}>
-                <input 
-                  type="text" 
-                  placeholder="Search leads by name, email, service..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  style={{ flex: 1, minWidth: '260px', padding: '10px 14px', borderRadius: '10px', border: '1px solid #c8c3b7', outline: 'none', background: '#fff', fontSize: '0.88rem' }}
-                />
+                <div style={{ flex: 1, display: 'flex', gap: '10px', minWidth: '280px' }}>
+                  <input 
+                    type="text" 
+                    placeholder="Search leads by name, email, service..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    style={{ flex: 1, padding: '10px 14px', borderRadius: '10px', border: '1px solid #c8c3b7', outline: 'none', background: '#fff', fontSize: '0.88rem' }}
+                  />
+                  <button 
+                    onClick={() => setActiveTab('addLead')} 
+                    className="btn-action-outline" 
+                    style={{ background: '#18181b', color: '#ffffff', borderColor: '#18181b', fontWeight: '700', whiteSpace: 'nowrap' }}
+                  >
+                    <i className="ri-user-add-line"></i> + Add Lead
+                  </button>
+                </div>
 
                 <div style={{ display: 'flex', gap: '6px' }}>
                   {['ALL', 'NEW', 'CONTACTED', 'IN_PROGRESS', 'CLOSED'].map(st => (
