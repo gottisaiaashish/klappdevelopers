@@ -58,21 +58,27 @@ const defaultOSState = {
       id: 'CNT-01',
       title: 'How we built sub-100ms websites for Indian Brands',
       platform: 'Instagram Reel',
-      status: 'READY_FOR_APPROVAL',
-      date: 'Today, 6:00 PM',
-      notes: 'Video edited, needs Aashish approval before posting',
+      status: 'APPROVED',
+      date: new Date().toISOString().split('T')[0],
+      dayOfWeek: 'Thursday',
+      notes: 'Show live PageSpeed 100/100 recording and architecture breakdown',
       author: 'Minni',
-      approvedBy: ''
+      approvedBy: 'Aashish & Minni',
+      aashishLiked: true,
+      minniLiked: true
     },
     {
       id: 'CNT-02',
       title: 'KLAPP Developers Behind the Scenes - Coding Session',
       platform: 'LinkedIn Post',
       status: 'DRAFT',
-      date: 'Tomorrow, 10:00 AM',
+      date: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+      dayOfWeek: 'Friday',
       notes: 'Drafting tech stack highlights and architecture diagram',
       author: 'Aashish',
-      approvedBy: ''
+      approvedBy: '',
+      aashishLiked: true,
+      minniLiked: false
     }
   ],
   tasks: [

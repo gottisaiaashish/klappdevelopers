@@ -208,15 +208,22 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
     e.preventDefault();
     if (!newContent.title) return;
 
+    const postDate = new Date(newContent.date);
+    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const dayOfWeek = dayNames[postDate.getDay()] || 'Monday';
+
     const post = {
       id: 'CNT-' + Date.now(),
       title: newContent.title.trim(),
       platform: newContent.platform,
-      status: userRole === 'MINNI' ? 'READY_FOR_APPROVAL' : 'APPROVED',
+      status: 'DRAFT',
       date: newContent.date,
+      dayOfWeek: dayOfWeek,
       notes: newContent.notes || 'Drafted content post idea',
       author: userRole === 'MINNI' ? 'Minni' : 'Aashish',
-      approvedBy: userRole === 'AASHISH' ? 'Aashish' : ''
+      approvedBy: '',
+      aashishLiked: userRole === 'AASHISH',
+      minniLiked: userRole === 'MINNI'
     };
 
     const updated = {
@@ -228,9 +235,35 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
     setShowAddContentModal(false);
   };
 
-  const handleUpdateContentStatus = (contentId, newStatus) => {
-    const updatedContent = osData.contentPlanner.map(c => c.id === contentId ? { ...c, status: newStatus } : c);
-    const updated = { ...osData, contentPlanner: updatedContent };
+  // Selected Day Filter for Mon-Sat Weekly Matrix
+  const [selectedContentDay, setSelectedContentDay] = useState('ALL');
+
+  const handleToggleContentLike = (contentId, person) => {
+    const updatedPlanner = osData.contentPlanner.map(item => {
+      if (item.id === contentId) {
+        const aashishLiked = person === 'aashish' ? !item.aashishLiked : item.aashishLiked;
+        const minniLiked = person === 'minni' ? !item.minniLiked : item.minniLiked;
+        const isBothApproved = aashishLiked && minniLiked;
+        return {
+          ...item,
+          aashishLiked,
+          minniLiked,
+          status: isBothApproved ? 'APPROVED' : (item.status === 'PUBLISHED' ? 'PUBLISHED' : 'READY_FOR_APPROVAL'),
+          approvedBy: isBothApproved ? 'Aashish & Minni' : (aashishLiked ? 'Aashish' : (minniLiked ? 'Minni' : ''))
+        };
+      }
+      return item;
+    });
+
+    const updated = { ...osData, contentPlanner: updatedPlanner };
+    syncOSDataToBackend(updated);
+  };
+
+  const handlePublishContent = (contentId) => {
+    const updatedPlanner = osData.contentPlanner.map(item => 
+      item.id === contentId ? { ...item, status: 'PUBLISHED' } : item
+    );
+    const updated = { ...osData, contentPlanner: updatedPlanner };
     syncOSDataToBackend(updated);
   };
 
@@ -1210,24 +1243,81 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
             </div>
           )}
 
-          {/* TAB 4: CONTENT PLANNER & SOCIAL PIPELINE */}
+          {/* TAB 4: CONTENT PLANNER & WEEKLY SOCIAL MATRIX */}
           {activeTab === 'content' && (
             <div>
-              <div className="os-card">
+              {/* TOP 6-DAY WEEKLY MATRIX (MON TO SAT) */}
+              <div className="os-card" style={{ marginBottom: '20px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
-                  <h3 style={{ fontSize: '1.15rem', fontWeight: '800', margin: 0 }}>Content & Social Media Pipeline</h3>
-                  <button 
-                    onClick={() => setShowAddContentModal(!showAddContentModal)}
-                    className="btn-action-outline"
-                    style={{ background: '#ffffff', color: '#18181b', borderColor: '#c8c3b7', fontWeight: '700', boxShadow: '0 2px 6px rgba(0,0,0,0.04)' }}
-                  >
-                    <i className="ri-add-line" style={{ color: '#2563eb' }}></i> + Add Content Post / Reel
-                  </button>
+                  <div>
+                    <h3 style={{ fontSize: '1.15rem', fontWeight: '800', margin: 0 }}>Sunday Content Co-Planning & Weekly Matrix</h3>
+                    <p style={{ fontSize: '0.82rem', color: '#71717a', margin: '4px 0 0 0' }}>
+                      Both Aashish & Minni share ideas. Requires mutual approvals (both likes) before Minni publishes & closes.
+                    </p>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button 
+                      onClick={() => setSelectedContentDay('ALL')}
+                      style={{ padding: '6px 12px', borderRadius: '8px', border: '1px solid #c8c3b7', background: selectedContentDay === 'ALL' ? '#18181b' : '#fff', color: selectedContentDay === 'ALL' ? '#fff' : '#18181b', fontWeight: '700', fontSize: '0.78rem', cursor: 'pointer' }}
+                    >
+                      ALL POSTS
+                    </button>
+                    <button 
+                      onClick={() => setShowAddContentModal(!showAddContentModal)}
+                      className="btn-action-outline"
+                      style={{ background: '#ffffff', color: '#18181b', borderColor: '#c8c3b7', fontWeight: '700', boxShadow: '0 2px 6px rgba(0,0,0,0.04)' }}
+                    >
+                      <i className="ri-add-line" style={{ color: '#2563eb' }}></i> + Add Content Post / Reel
+                    </button>
+                  </div>
                 </div>
+
+                {/* 6-DAY MON-SAT WEEKLY GRID */}
+                {(() => {
+                  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                  const todayDayName = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+
+                  return (
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '10px' }}>
+                      {days.map(dName => {
+                        const isToday = todayDayName === dName;
+                        const isSelected = selectedContentDay === dName;
+                        const dayPosts = osData.contentPlanner.filter(c => c.dayOfWeek === dName || (c.date && new Date(c.date).toLocaleDateString('en-US', { weekday: 'long' }) === dName));
+
+                        return (
+                          <div 
+                            key={dName} 
+                            onClick={() => setSelectedContentDay(dName)}
+                            style={{ 
+                              background: isSelected ? '#eff6ff' : (isToday ? '#faf8f5' : '#ffffff'),
+                              border: isSelected ? '2px solid #2563eb' : (isToday ? '2px solid #18181b' : '1px solid #c8c3b7'),
+                              borderRadius: '10px',
+                              padding: '12px 10px',
+                              textAlign: 'center',
+                              cursor: 'pointer',
+                              transition: 'all 0.15s ease'
+                            }}
+                          >
+                            <div style={{ fontSize: '0.72rem', fontWeight: '800', textTransform: 'uppercase', color: isSelected ? '#2563eb' : (isToday ? '#18181b' : '#71717a') }}>
+                              {dName.slice(0, 3)}
+                            </div>
+                            <div style={{ fontSize: '1.2rem', fontWeight: '800', color: '#18181b', margin: '2px 0' }}>
+                              {dayPosts.length}
+                            </div>
+                            <div style={{ fontSize: '0.68rem', fontWeight: '700', color: isToday ? '#166534' : '#71717a' }}>
+                              {isToday ? '📍 TODAY' : `${dayPosts.length} Ideas`}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })()}
 
                 {/* ADD CONTENT FORM CARD */}
                 {showAddContentModal && (
-                  <div style={{ background: '#faf8f5', border: '1px solid #c8c3b7', borderRadius: '10px', padding: '16px', marginBottom: '20px' }}>
+                  <div style={{ background: '#faf8f5', border: '1px solid #c8c3b7', borderRadius: '10px', padding: '16px', marginTop: '16px' }}>
                     <h4 style={{ fontSize: '0.98rem', fontWeight: '800', marginBottom: '12px' }}>Create New Social Post or Reel Concept</h4>
                     <form onSubmit={handleCreateContent}>
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginBottom: '12px' }}>
@@ -1254,7 +1344,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                       </div>
 
                       <div style={{ marginBottom: '12px' }}>
-                        <label style={{ fontSize: '0.78rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>Strategy Notes, Script Hook, or Caption Brief</label>
+                        <label style={{ fontSize: '0.78rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>Strategy Notes & Script Hook</label>
                         <textarea rows={3} placeholder="e.g. Show live PageSpeed 100/100 score video recording, hook: 'Why 90% of business websites lose clients due to slow speed'..." value={newContent.notes} onChange={(e) => setNewContent({ ...newContent, notes: e.target.value })} style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #c8c3b7', fontSize: '0.86rem' }}></textarea>
                       </div>
 
@@ -1263,48 +1353,128 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                           Cancel
                         </button>
                         <button type="submit" className="btn-action-outline" style={{ background: '#ffffff', color: '#18181b', borderColor: '#c8c3b7', padding: '8px 20px', borderRadius: '8px', fontWeight: '800', fontSize: '0.82rem', boxShadow: '0 2px 6px rgba(0,0,0,0.04)' }}>
-                          <i className="ri-check-line" style={{ color: '#16a34a', marginRight: '4px' }}></i> Save Post to Pipeline
+                          <i className="ri-check-line" style={{ color: '#16a34a', marginRight: '4px' }}></i> Save Post Idea
                         </button>
                       </div>
                     </form>
                   </div>
                 )}
+              </div>
 
-                {/* CONTENT POST LIST */}
-                {osData.contentPlanner.map(cnt => (
-                  <div key={cnt.id} style={{ padding: '16px', background: '#faf8f5', border: '1px solid #c8c3b7', borderRadius: '10px', marginBottom: '12px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap', gap: '10px' }}>
-                      <div style={{ fontWeight: '800', fontSize: '1rem', color: '#18181b' }}>{cnt.title}</div>
-                      
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ fontSize: '0.78rem', fontWeight: '700', color: '#71717a' }}>Status:</span>
-                        <select 
-                          value={cnt.status}
-                          onChange={(e) => handleUpdateContentStatus(cnt.id, e.target.value)}
-                          style={{ padding: '4px 8px', borderRadius: '6px', border: '1px solid #c8c3b7', background: '#fff', fontSize: '0.78rem', fontWeight: '700' }}
-                        >
-                          <option value="DRAFT">📝 DRAFT</option>
-                          <option value="READY_FOR_APPROVAL">⏳ READY FOR APPROVAL</option>
-                          <option value="APPROVED">✅ APPROVED</option>
-                          <option value="PUBLISHED">🚀 PUBLISHED / POSTED</option>
-                        </select>
-                      </div>
-                    </div>
+              {/* CONTENT POST FEED WITH DUAL LIKES & PUBLISH CLOSING BUTTON */}
+              <div className="os-card">
+                <h4 style={{ fontSize: '1.05rem', fontWeight: '800', marginBottom: '14px' }}>
+                  {selectedContentDay === 'ALL' ? 'All Weekly Content Ideas' : `${selectedContentDay} Content Pipeline`}
+                </h4>
 
-                    <p style={{ fontSize: '0.86rem', color: '#52525b', margin: '0 0 12px 0', lineHeight: '1.5' }}>{cnt.notes}</p>
-                    
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
-                      <div style={{ fontSize: '0.78rem', color: '#71717a' }}>
-                        Platform: <strong>{cnt.platform}</strong> • Author: <strong>{cnt.author}</strong> {cnt.date ? `• Date: ${cnt.date}` : ''}
+                {(() => {
+                  const filtered = osData.contentPlanner.filter(cnt => {
+                    if (selectedContentDay === 'ALL') return true;
+                    const dName = cnt.dayOfWeek || (cnt.date && new Date(cnt.date).toLocaleDateString('en-US', { weekday: 'long' }));
+                    return dName === selectedContentDay;
+                  });
+
+                  if (filtered.length === 0) {
+                    return (
+                      <div style={{ textAlign: 'center', padding: '24px', color: '#71717a', fontSize: '0.88rem' }}>
+                        No content scheduled for {selectedContentDay}. Add a new post idea above!
                       </div>
-                      {cnt.status === 'READY_FOR_APPROVAL' && userRole === 'AASHISH' && (
-                        <button onClick={() => handleApproveContent(cnt.id)} className="btn-action-outline" style={{ background: '#ffffff', color: '#166534', borderColor: '#bbf7d0', fontSize: '0.78rem', padding: '5px 12px' }}>
-                          <i className="ri-check-line" style={{ color: '#16a34a', marginRight: '4px' }}></i> Approve Post
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                ))}
+                    );
+                  }
+
+                  return filtered.map(cnt => {
+                    const isBothLiked = cnt.aashishLiked && cnt.minniLiked;
+                    const isPublished = cnt.status === 'PUBLISHED';
+
+                    return (
+                      <div 
+                        key={cnt.id} 
+                        style={{ 
+                          padding: '18px', 
+                          background: isPublished ? '#f0fdf4' : (isBothLiked ? '#f0f9ff' : '#faf8f5'), 
+                          border: isPublished ? '1px solid #bbf7d0' : (isBothLiked ? '1px solid #bae6fd' : '1px solid #c8c3b7'), 
+                          borderRadius: '12px', 
+                          marginBottom: '14px' 
+                        }}
+                      >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', flexWrap: 'wrap', gap: '10px' }}>
+                          <div style={{ fontWeight: '800', fontSize: '1.05rem', color: '#18181b' }}>
+                            {cnt.title}
+                          </div>
+
+                          {/* MUTUAL APPROVAL BADGE */}
+                          <div>
+                            {isPublished ? (
+                              <span style={{ background: '#166534', color: '#ffffff', padding: '4px 10px', borderRadius: '6px', fontSize: '0.76rem', fontWeight: '800' }}>
+                                🚀 PUBLISHED & CLOSED ✅
+                              </span>
+                            ) : isBothLiked ? (
+                              <span style={{ background: '#0284c7', color: '#ffffff', padding: '4px 10px', borderRadius: '6px', fontSize: '0.76rem', fontWeight: '800' }}>
+                                ✅ MUTUALLY APPROVED (Ready To Post)
+                              </span>
+                            ) : (
+                              <span style={{ background: '#fef3c7', color: '#b45309', padding: '4px 10px', borderRadius: '6px', fontSize: '0.76rem', fontWeight: '800' }}>
+                                ⏳ Needs Both Approvals ({cnt.aashishLiked ? 1 : 0} + {cnt.minniLiked ? 1 : 0}/2)
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        <p style={{ fontSize: '0.88rem', color: '#3f3f46', margin: '0 0 14px 0', lineHeight: '1.5' }}>"{cnt.notes}"</p>
+
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', paddingTop: '12px', borderTop: '1px solid #c8c3b7' }}>
+                          <div style={{ fontSize: '0.78rem', color: '#71717a' }}>
+                            Platform: <strong>{cnt.platform}</strong> • Author: <strong>{cnt.author}</strong> • Scheduled: <strong>{cnt.dayOfWeek || 'Weekly'} ({cnt.date || 'TBD'})</strong>
+                          </div>
+
+                          {/* DUAL LIKE / APPROVAL BUTTONS */}
+                          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                            <button 
+                              onClick={() => handleToggleContentLike(cnt.id, 'aashish')}
+                              className="btn-action-outline"
+                              style={{ 
+                                background: cnt.aashishLiked ? '#dbeafe' : '#ffffff', 
+                                color: cnt.aashishLiked ? '#1e40af' : '#71717a', 
+                                borderColor: cnt.aashishLiked ? '#93c5fd' : '#c8c3b7',
+                                fontSize: '0.78rem',
+                                padding: '5px 10px',
+                                fontWeight: '700'
+                              }}
+                            >
+                              👍 Aashish {cnt.aashishLiked ? 'Approved ✅' : 'Approve'}
+                            </button>
+
+                            <button 
+                              onClick={() => handleToggleContentLike(cnt.id, 'minni')}
+                              className="btn-action-outline"
+                              style={{ 
+                                background: cnt.minniLiked ? '#fce7f3' : '#ffffff', 
+                                color: cnt.minniLiked ? '#be185d' : '#71717a', 
+                                borderColor: cnt.minniLiked ? '#fbcfe8' : '#c8c3b7',
+                                fontSize: '0.78rem',
+                                padding: '5px 10px',
+                                fontWeight: '700'
+                              }}
+                            >
+                              👍 Minni {cnt.minniLiked ? 'Approved ✅' : 'Approve'}
+                            </button>
+
+                            {/* MINNI FINAL PUBLISH & CLOSE BUTTON */}
+                            {userRole === 'MINNI' && !isPublished && (
+                              <button 
+                                onClick={() => handlePublishContent(cnt.id)}
+                                className="btn-action-outline"
+                                style={{ background: '#18181b', color: '#ffffff', borderColor: '#18181b', fontSize: '0.78rem', padding: '5px 12px', fontWeight: '800' }}
+                              >
+                                🚀 Mark Published (Close Content)
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  });
+                })()}
               </div>
             </div>
           )}

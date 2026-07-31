@@ -25,12 +25,15 @@ const KlappOSSchema = new mongoose.Schema({
   contentPlanner: [{
     id: String,
     title: String,
-    platform: String, // Instagram, LinkedIn, YouTube, Twitter
+    platform: String,
     status: { type: String, enum: ['DRAFT', 'READY_FOR_APPROVAL', 'APPROVED', 'PUBLISHED'], default: 'DRAFT' },
     date: String,
+    dayOfWeek: String,
     notes: String,
     author: String,
-    approvedBy: String
+    approvedBy: String,
+    aashishLiked: { type: Boolean, default: false },
+    minniLiked: { type: Boolean, default: false }
   }],
   tasks: [{
     id: String,
