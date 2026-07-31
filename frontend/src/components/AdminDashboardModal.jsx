@@ -2042,22 +2042,6 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                 </div>
               </div>
 
-              {/* SHARED GOALS SECTION */}
-              <div className="os-card" style={{ marginTop: '20px' }}>
-                <h4 style={{ fontSize: '1.05rem', fontWeight: '800', marginBottom: '12px' }}>Shared Goals & Daily Co-Working</h4>
-                {osData.sharedGoals.map(sg => (
-                  <div 
-                    key={sg.id} 
-                    className="habit-row"
-                    onClick={() => handleToggleSharedGoal(sg.id)}
-                  >
-                    <span style={{ fontSize: '0.9rem', fontWeight: '700' }}>{sg.title}</span>
-                    <span className={sg.completed ? 'state-badge-done' : 'state-badge-pending'}>
-                      {sg.completed ? '✅ COMPLETED' : '⏳ PENDING'}
-                    </span>
-                  </div>
-                ))}
-              </div>
             </div>
           )}
 
