@@ -1365,8 +1365,8 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                         <button type="button" onClick={() => setShowAddContentModal(false)} className="btn-action-outline" style={{ background: '#ffffff', color: '#71717a', borderColor: '#c8c3b7', padding: '8px 16px', borderRadius: '8px', fontWeight: '600', fontSize: '0.82rem' }}>
                           Cancel
                         </button>
-                        <button type="submit" className="btn-action-outline" style={{ background: '#ffffff', color: '#18181b', borderColor: '#c8c3b7', padding: '8px 20px', borderRadius: '8px', fontWeight: '800', fontSize: '0.82rem', boxShadow: '0 2px 6px rgba(0,0,0,0.04)' }}>
-                          <i className="ri-check-line" style={{ color: '#16a34a', marginRight: '4px' }}></i> Save Post Idea
+                        <button type="submit" className="btn-action-outline" style={{ background: '#ffffff', color: '#166534', borderColor: '#bbf7d0', padding: '8px 20px', borderRadius: '8px', fontWeight: '700', fontSize: '0.82rem' }}>
+                          Save Post Idea
                         </button>
                       </div>
                     </form>
