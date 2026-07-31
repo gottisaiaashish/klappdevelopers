@@ -52,8 +52,8 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
       { id: 'PRJ-102', name: 'Balaji Pharma Billing & GST Portal', client: 'Balaji Pharma', service: 'Business Software', status: 'PLANNING', priority: 'HIGH', dueDate: '2026-08-20', budget: 45000, owner: 'Minni' }
     ],
     meetings: [
-      { id: 'MTG-01', title: 'Nandhakam Project Milestone Review', time: 'Today, 4:00 PM', client: 'Rahul Sharma', attendees: 'Aashish & Minni', type: 'Google Meet', link: 'https://meet.google.com/klapp-demo' },
-      { id: 'MTG-02', title: 'KLAPP Q3 Agency Growth Strategy', time: 'Friday, 11:00 AM', client: 'Internal', attendees: 'Aashish & Minni', type: 'Office Room', link: '#' }
+      { id: 'MTG-01', title: 'Nandhakam Project Milestone Review', date: new Date().toISOString().split('T')[0], time: '4:00 PM', client: 'Rahul Sharma', attendees: 'Aashish & Minni', type: 'Google Meet', category: 'Meeting', link: 'https://meet.google.com/klapp-demo' },
+      { id: 'MTG-02', title: 'KLAPP Q3 Agency Growth Strategy', date: new Date(Date.now() + 86400000).toISOString().split('T')[0], time: '11:00 AM', client: 'Internal', attendees: 'Aashish & Minni', type: 'Office Room', category: 'Meeting', link: '#' }
     ],
     contentPlanner: [
       { id: 'CNT-01', title: 'How we built sub-100ms websites for Indian Brands', platform: 'Instagram Reel', status: 'READY_FOR_APPROVAL', date: 'Today, 6:00 PM', notes: 'Video edited, needs Aashish approval before posting', author: 'Minni', approvedBy: '' },
@@ -977,15 +977,26 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                   <h3 style={{ fontSize: '1.05rem', fontWeight: '800', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <i className="ri-calendar-todo-fill" style={{ color: '#2563eb' }}></i> Today's Meetings & Schedule
                   </h3>
-                  {osData.meetings.map(mtg => (
-                    <div key={mtg.id} style={{ padding: '12px', background: '#faf8f5', border: '1px solid #c8c3b7', borderRadius: '10px', marginBottom: '10px' }}>
-                      <div style={{ fontWeight: '800', fontSize: '0.92rem', color: '#18181b' }}>{mtg.title}</div>
-                      <div style={{ fontSize: '0.78rem', color: '#71717a', marginTop: '2px' }}>{mtg.time} • {mtg.attendees}</div>
-                      <a href={mtg.link} target="_blank" rel="noopener noreferrer" className="btn-action-outline" style={{ marginTop: '8px', fontSize: '0.76rem', padding: '4px 10px' }}>
-                        Join Meet <i className="ri-arrow-right-line"></i>
-                      </a>
-                    </div>
-                  ))}
+                  {(() => {
+                    const todayStr = new Date().toISOString().split('T')[0];
+                    const todayEvents = osData.meetings.filter(mtg => mtg.date === todayStr);
+                    if (todayEvents.length === 0) {
+                      return <div style={{ fontSize: '0.85rem', color: '#71717a', padding: '12px', textAlign: 'center' }}>No meetings or events scheduled for today.</div>;
+                    }
+                    return todayEvents.map(mtg => (
+                      <div key={mtg.id} style={{ padding: '12px', background: '#faf8f5', border: '1px solid #c8c3b7', borderRadius: '10px', marginBottom: '10px' }}>
+                        <div style={{ fontWeight: '800', fontSize: '0.92rem', color: '#18181b' }}>{mtg.title}</div>
+                        <div style={{ fontSize: '0.78rem', color: '#71717a', marginTop: '2px' }}>
+                          {mtg.time} • {new Date(mtg.date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} • {mtg.attendees}
+                        </div>
+                        {mtg.link && mtg.link !== '#' && (
+                          <a href={mtg.link} target="_blank" rel="noopener noreferrer" className="btn-action-outline" style={{ marginTop: '8px', fontSize: '0.76rem', padding: '4px 10px' }}>
+                            Join Meet <i className="ri-arrow-right-line"></i>
+                          </a>
+                        )}
+                      </div>
+                    ));
+                  })()}
                 </div>
 
                 {/* TODAY'S ASSIGNED TASKS */}
@@ -1547,11 +1558,8 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                     for (let d = 1; d <= daysInMonth; d++) {
                       const isToday = isCurrentMonth && todayDate.getDate() === d;
                       const isSelected = selectedDay === d;
-                      const dayEvents = osData.meetings.filter(evt => {
-                        if (!evt.date) return d === 31;
-                        const dayNum = parseInt(evt.date.split('-').pop() || evt.date);
-                        return dayNum === d;
-                      });
+                      const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                      const dayEvents = osData.meetings.filter(evt => evt.date === dateStr);
 
                       gridCells.push(
                         <div 
@@ -1604,11 +1612,8 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                 </div>
 
                 {(() => {
-                  const selectedEvents = osData.meetings.filter(evt => {
-                    if (!evt.date) return selectedDay === 31;
-                    const dayNum = parseInt(evt.date.split('-').pop() || evt.date);
-                    return dayNum === selectedDay;
-                  });
+                  const selDateStr = `${calendarDate.getFullYear()}-${String(calendarDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDay).padStart(2, '0')}`;
+                  const selectedEvents = osData.meetings.filter(evt => evt.date === selDateStr);
 
                   if (selectedEvents.length === 0) {
                     return (
@@ -1649,7 +1654,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                             {evt.title}
                           </div>
                           <div style={{ fontSize: '0.82rem', color: '#71717a', marginTop: '2px' }}>
-                            Category: <strong>{cat}</strong> • Time: {evt.time} • Date: {evt.date || 'Jul 31'} • Attendees: {evt.attendees}
+                            {evt.time} • {evt.date ? new Date(evt.date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }) : 'Today'} • {evt.attendees}
                           </div>
                         </div>
                         {evt.link && evt.link !== '#' && (
