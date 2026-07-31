@@ -1217,14 +1217,8 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                           }}
                         >
                           <div>
-                            <div style={{ fontWeight: '800', fontSize: '1.05rem', color: '#18181b', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                              <span>{prj.name}</span>
-                              <span style={{ fontSize: '0.74rem', background: isExpanded ? '#18181b' : '#e4e4e7', color: isExpanded ? '#ffffff' : '#3f3f46', padding: '3px 10px', borderRadius: '12px', fontWeight: '700' }}>
-                                {isExpanded ? '▲ Hide Details' : '▼ Click for Full Details'}
-                              </span>
-                            </div>
-                            <div style={{ fontSize: '0.8rem', color: '#71717a', marginTop: '4px' }}>
-                              Client: <strong>{prj.client}</strong> • Service: <strong>{prj.service || 'Web Dev'}</strong> • 📅 Deadline: <strong style={{ color: '#1e40af' }}>{prj.dueDate || 'TBD'}</strong>
+                            <div style={{ fontWeight: '800', fontSize: '1.05rem', color: '#18181b' }}>
+                              {prj.name}
                             </div>
                           </div>
 
