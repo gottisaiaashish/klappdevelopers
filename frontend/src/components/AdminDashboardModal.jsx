@@ -1264,7 +1264,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                     className="btn-action-outline"
                     style={{ background: '#ffffff', color: '#18181b', borderColor: '#c8c3b7', fontWeight: '700', boxShadow: '0 2px 6px rgba(0,0,0,0.04)' }}
                   >
-                    <i className="ri-add-line" style={{ color: '#2563eb' }}></i> + Add Content Post / Reel
+                    <i className="ri-add-line" style={{ color: '#2563eb' }}></i> Add Content Post / Reel
                   </button>
                 </div>
 
