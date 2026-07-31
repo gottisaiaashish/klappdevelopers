@@ -837,27 +837,37 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                     <h3 style={{ fontSize: '1.3rem', fontWeight: '800', margin: 0, textTransform: 'uppercase', color: '#18181b' }}>
                       {calendarDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                     </h3>
-                    <div style={{ display: 'flex', gap: '4px' }}>
+                    <div style={{ display: 'inline-flex', background: '#faf8f5', border: '1px solid #c8c3b7', borderRadius: '10px', padding: '3px', gap: '2px' }}>
                       <button 
-                        onClick={() => setCalendarDate(new Date(calendarDate.getFullYear(), calendarDate.getMonth() - 1, 1))}
-                        className="btn-action-outline" 
-                        style={{ padding: '4px 10px', fontSize: '0.8rem' }}
+                        onClick={() => {
+                          setCalendarDate(new Date(calendarDate.getFullYear(), calendarDate.getMonth() - 1, 1));
+                          setSelectedDay(1);
+                        }}
+                        style={{ border: 'none', background: 'transparent', padding: '6px 10px', borderRadius: '7px', cursor: 'pointer', fontSize: '0.88rem', color: '#18181b', display: 'flex', alignItems: 'center' }}
+                        title="Previous Month"
                       >
-                        ◀ Prev
+                        <i className="ri-arrow-left-s-line" style={{ fontSize: '1.1rem' }}></i>
                       </button>
+
                       <button 
-                        onClick={() => setCalendarDate(new Date())}
-                        className="btn-action-outline" 
-                        style={{ padding: '4px 10px', fontSize: '0.8rem', background: '#18181b', color: '#fff', borderColor: '#18181b' }}
+                        onClick={() => {
+                          setCalendarDate(new Date());
+                          setSelectedDay(new Date().getDate());
+                        }}
+                        style={{ border: 'none', background: '#18181b', color: '#ffffff', padding: '6px 14px', borderRadius: '7px', cursor: 'pointer', fontSize: '0.78rem', fontWeight: '700', letterSpacing: '0.02em', display: 'flex', alignItems: 'center', gap: '6px' }}
                       >
-                        Today
+                        <i className="ri-calendar-event-fill" style={{ fontSize: '0.85rem', color: '#38bdf8' }}></i> Today
                       </button>
+
                       <button 
-                        onClick={() => setCalendarDate(new Date(calendarDate.getFullYear(), calendarDate.getMonth() + 1, 1))}
-                        className="btn-action-outline" 
-                        style={{ padding: '4px 10px', fontSize: '0.8rem' }}
+                        onClick={() => {
+                          setCalendarDate(new Date(calendarDate.getFullYear(), calendarDate.getMonth() + 1, 1));
+                          setSelectedDay(1);
+                        }}
+                        style={{ border: 'none', background: 'transparent', padding: '6px 10px', borderRadius: '7px', cursor: 'pointer', fontSize: '0.88rem', color: '#18181b', display: 'flex', alignItems: 'center' }}
+                        title="Next Month"
                       >
-                        Next ▶
+                        <i className="ri-arrow-right-s-line" style={{ fontSize: '1.1rem' }}></i>
                       </button>
                     </div>
                   </div>
