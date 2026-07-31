@@ -1088,25 +1088,32 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                   <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
                     {/* STATUS FILTER PILLS */}
                     <div style={{ display: 'flex', background: '#e4e4e7', padding: '3px', borderRadius: '8px', gap: '2px' }}>
-                      {['ALL', 'IN_PROGRESS', 'REVIEW', 'COMPLETED'].map(st => (
-                        <button
-                          key={st}
-                          onClick={() => setProjectStatusFilter(st)}
-                          style={{
-                            padding: '5px 10px',
-                            borderRadius: '6px',
-                            border: 'none',
-                            background: projectStatusFilter === st ? '#ffffff' : 'transparent',
-                            color: projectStatusFilter === st ? '#18181b' : '#52525b',
-                            fontWeight: '700',
-                            fontSize: '0.75rem',
-                            cursor: 'pointer',
-                            boxShadow: projectStatusFilter === st ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'
-                          }}
-                        >
-                          {st === 'ALL' ? 'All' : st}
-                        </button>
-                      ))}
+                      {['ALL', 'IN_PROGRESS', 'REVIEW', 'COMPLETED'].map(st => {
+                        let label = 'All';
+                        if (st === 'IN_PROGRESS') label = 'In Progress';
+                        if (st === 'REVIEW') label = 'Client Review';
+                        if (st === 'COMPLETED') label = 'Completed';
+
+                        return (
+                          <button
+                            key={st}
+                            onClick={() => setProjectStatusFilter(st)}
+                            style={{
+                              padding: '5px 10px',
+                              borderRadius: '6px',
+                              border: 'none',
+                              background: projectStatusFilter === st ? '#ffffff' : 'transparent',
+                              color: projectStatusFilter === st ? '#18181b' : '#52525b',
+                              fontWeight: '700',
+                              fontSize: '0.75rem',
+                              cursor: 'pointer',
+                              boxShadow: projectStatusFilter === st ? '0 1px 3px rgba(0,0,0,0.1)' : 'none'
+                            }}
+                          >
+                            {label}
+                          </button>
+                        );
+                      })}
                     </div>
 
                     <button 
@@ -1114,7 +1121,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                       className="btn-action-outline"
                       style={{ background: '#ffffff', color: '#18181b', borderColor: '#c8c3b7', fontWeight: '700', boxShadow: '0 2px 6px rgba(0,0,0,0.04)' }}
                     >
-                      <i className="ri-add-line" style={{ color: '#2563eb' }}></i> + Add Confirmed Project
+                      <i className="ri-add-line" style={{ color: '#2563eb', marginRight: '4px' }}></i> Add Confirmed Project
                     </button>
                   </div>
                 </div>
