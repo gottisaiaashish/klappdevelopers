@@ -40,7 +40,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
       }
     } catch (err) {
       console.error('Error fetching admin inquiries:', err);
-      setError(`Could not connect to backend server at ${API_BASE_URL || 'local server'}. On Render free tier, the backend server spins down with inactivity and takes ~30 seconds to wake up! Please click Refresh in 15 seconds.`);
+      setError(`Could not connect to backend server. On Render free tier, server spins down with inactivity (~20s wake up time). Please click Refresh in 15 seconds!`);
     } finally {
       setLoading(false);
     }
@@ -125,13 +125,13 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
           width: 100vw;
           height: 100vh;
           z-index: 999999;
-          background: #0f0f12;
+          background-color: var(--bg-primary, #f4f1ea);
           background-image: 
-            radial-gradient(#27272a 0.75px, transparent 0.75px),
-            radial-gradient(#27272a 0.75px, #0f0f12 0.75px);
+            radial-gradient(#d5d0c4 0.75px, transparent 0.75px),
+            radial-gradient(#d5d0c4 0.75px, #f4f1ea 0.75px);
           background-size: 30px 30px;
           background-position: 0 0, 15px 15px;
-          color: #f4f4f5;
+          color: var(--text-primary, #18181b);
           font-family: var(--font-sans, system-ui, sans-serif);
           display: flex;
           flex-direction: column;
@@ -139,11 +139,11 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
           animation: slideUpFull 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        /* Top Admin Bar */
+        /* Top Bar matching website header */
         .admin-topbar {
-          background: rgba(24, 24, 27, 0.94);
+          background: rgba(244, 241, 234, 0.94);
           backdrop-filter: blur(16px);
-          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+          border-bottom: 1px solid var(--border-color, #e4e0d7);
           padding: 16px 32px;
           display: flex;
           align-items: center;
@@ -157,31 +157,31 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
           gap: 12px;
         }
         .admin-brand-logo {
-          width: 36px;
-          height: 36px;
-          border-radius: 10px;
-          background: #ffffff;
-          padding: 5px;
+          height: 32px;
+          width: auto;
           object-fit: contain;
         }
         .admin-title {
+          font-family: var(--font-sans);
           font-weight: 800;
           font-size: 1.1rem;
           letter-spacing: 0.12em;
-          color: #ffffff;
+          color: #18181b;
+          text-transform: uppercase;
         }
         .admin-tag {
           font-family: var(--font-mono, monospace);
           font-size: 0.7rem;
-          color: #22c55e;
-          background: rgba(34, 197, 94, 0.12);
-          border: 1px solid rgba(34, 197, 94, 0.3);
+          color: #18181b;
+          background: #eae6dd;
+          border: 1px solid #d4d0c5;
           padding: 4px 10px;
           border-radius: 999px;
           text-transform: uppercase;
           display: inline-flex;
           align-items: center;
           gap: 6px;
+          font-weight: 600;
         }
 
         /* Metrics Row */
@@ -190,64 +190,65 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
           grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
           gap: 20px;
           padding: 24px 32px;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+          border-bottom: 1px solid var(--border-color, #e4e0d7);
           max-width: 1400px;
           width: 100%;
           margin: 0 auto;
         }
         .metric-card {
-          background: #18181b;
-          background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, transparent 100%);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 18px;
+          background: #ffffff;
+          border: 1px solid var(--border-color, #e4e0d7);
+          border-radius: 16px;
           padding: 20px 24px;
-          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-          transition: transform 0.2s ease, border-color 0.2s ease;
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+          transition: transform 0.2s ease;
         }
         .metric-card:hover {
           transform: translateY(-2px);
-          border-color: rgba(255, 255, 255, 0.2);
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
         }
         .metric-header {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          margin-bottom: 10px;
+          margin-bottom: 8px;
         }
         .metric-label {
-          font-size: 0.78rem;
-          color: #a1a1aa;
+          font-size: 0.76rem;
+          color: var(--text-muted, #71717a);
           text-transform: uppercase;
           letter-spacing: 0.08em;
           font-family: var(--font-mono, monospace);
+          font-weight: 600;
         }
         .metric-icon-box {
-          width: 34px;
-          height: 34px;
-          border-radius: 10px;
-          background: rgba(255, 255, 255, 0.05);
+          width: 32px;
+          height: 32px;
+          border-radius: 8px;
+          background: #f4f1ea;
+          color: #18181b;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 1.1rem;
+          font-size: 1.05rem;
         }
         .metric-value {
           font-size: 2rem;
           font-weight: 800;
-          color: #ffffff;
+          color: #18181b;
           font-family: var(--font-mono, monospace);
         }
 
         /* Filter Controls */
         .controls-row {
-          padding: 18px 32px;
+          padding: 16px 32px;
           display: flex;
           align-items: center;
           justify-content: space-between;
           gap: 16px;
           flex-wrap: wrap;
-          background: rgba(18, 18, 21, 0.8);
-          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+          background: rgba(244, 241, 234, 0.8);
+          border-bottom: 1px solid var(--border-color, #e4e0d7);
           max-width: 1400px;
           width: 100%;
           margin: 0 auto;
@@ -260,39 +261,39 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
         .search-icon {
           position: absolute;
           left: 14px;
-          color: #71717a;
+          color: var(--text-muted, #71717a);
           font-size: 1rem;
         }
         .search-box {
-          background: #27272a;
-          border: 1px solid rgba(255, 255, 255, 0.12);
-          border-radius: 12px;
+          background: #ffffff;
+          border: 1px solid var(--border-color, #e4e0d7);
+          border-radius: 10px;
           padding: 10px 16px 10px 40px;
-          color: #ffffff;
+          color: #18181b;
           outline: none;
           font-size: 0.88rem;
           width: 340px;
           transition: all 0.2s ease;
+          font-family: var(--font-sans);
         }
         .search-box:focus {
-          border-color: #ffffff;
-          box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.08);
+          border-color: #18181b;
         }
         .status-tab {
-          background: transparent;
-          border: 1px solid transparent;
-          color: #a1a1aa;
-          padding: 8px 16px;
-          border-radius: 10px;
+          background: #ffffff;
+          border: 1px solid var(--border-color, #e4e0d7);
+          color: var(--text-secondary, #52525b);
+          padding: 8px 18px;
+          border-radius: 999px;
           cursor: pointer;
-          font-size: 0.85rem;
+          font-size: 0.82rem;
           font-weight: 600;
           transition: all 0.2s ease;
         }
         .status-tab.active {
-          background: #ffffff;
-          color: #18181b;
-          box-shadow: 0 4px 12px rgba(255, 255, 255, 0.15);
+          background: #18181b;
+          border-color: #18181b;
+          color: #ffffff;
         }
 
         /* Main Inquiry Feed */
@@ -305,25 +306,23 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
           margin: 0 auto;
         }
         .inquiry-card {
-          background: #18181b;
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 20px;
+          background: #ffffff;
+          border: 1px solid var(--border-color, #e4e0d7);
+          border-radius: 18px;
           padding: 28px;
           margin-bottom: 20px;
-          box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
-          transition: all 0.25s ease;
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+          transition: all 0.2s ease;
         }
         .inquiry-card:hover {
-          border-color: rgba(255, 255, 255, 0.25);
-          transform: translateY(-2px);
-          box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+          box-shadow: 0 8px 28px rgba(0, 0, 0, 0.06);
+          border-color: #d4d0c5;
         }
         .client-avatar {
           width: 44px;
           height: 44px;
-          border-radius: 14px;
-          background: linear-gradient(135deg, #3f3f46 0%, #18181b 100%);
-          border: 1px solid rgba(255, 255, 255, 0.15);
+          border-radius: 12px;
+          background: #18181b;
           color: #ffffff;
           font-weight: 800;
           font-size: 1.1rem;
@@ -341,16 +340,16 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
           text-transform: uppercase;
           letter-spacing: 0.06em;
         }
-        .status-NEW { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); }
-        .status-CONTACTED { background: rgba(234, 179, 8, 0.15); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.4); }
-        .status-IN_PROGRESS { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4); }
-        .status-CLOSED { background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.4); }
+        .status-NEW { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+        .status-CONTACTED { background: #fef9c3; color: #a16207; border: 1px solid #fef08a; }
+        .status-IN_PROGRESS { background: #f3e8ff; color: #7e22ce; border: 1px solid #e9d5ff; }
+        .status-CLOSED { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
 
-        .btn-action {
-          padding: 10px 16px;
+        .btn-action-brand {
+          padding: 10px 18px;
           border-radius: 10px;
-          border: 1px solid rgba(255, 255, 255, 0.12);
-          background: #27272a;
+          border: 1px solid #18181b;
+          background: #18181b;
           color: #ffffff;
           font-size: 0.85rem;
           font-weight: 600;
@@ -361,19 +360,26 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
           text-decoration: none;
           transition: all 0.2s ease;
         }
-        .btn-action:hover {
-          background: #3f3f46;
-          border-color: #52525b;
+        .btn-action-brand:hover {
+          background: #27272a;
         }
-        .btn-whatsapp {
-          background: #15803d;
-          border-color: #166534;
-          color: #ffffff;
-          box-shadow: 0 4px 12px rgba(21, 128, 61, 0.25);
+        .btn-action-outline {
+          padding: 10px 18px;
+          border-radius: 10px;
+          border: 1px solid var(--border-color, #e4e0d7);
+          background: #ffffff;
+          color: #18181b;
+          font-size: 0.85rem;
+          font-weight: 600;
+          cursor: pointer;
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          text-decoration: none;
+          transition: all 0.2s ease;
         }
-        .btn-whatsapp:hover {
-          background: #166534;
-          box-shadow: 0 6px 16px rgba(21, 128, 61, 0.4);
+        .btn-action-outline:hover {
+          background: #f4f1ea;
         }
       `}</style>
 
@@ -386,29 +392,27 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
             className="admin-brand-logo" 
             onError={(e) => { e.target.style.display = 'none'; }}
           />
-          <div>
-            <div className="admin-title">KLAPP DEVELOPERS</div>
-          </div>
-          <span className="admin-tag"><i className="ri-shield-check-fill"></i> Founder CRM</span>
+          <div className="admin-title">KLAPP DEVELOPERS</div>
+          <span className="admin-tag"><i className="ri-shield-check-line"></i> Founder CRM</span>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(255, 255, 255, 0.05)', padding: '6px 14px', borderRadius: '999px', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#ffffff', padding: '6px 14px', borderRadius: '999px', border: '1px solid #e4e0d7' }}>
             <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22c55e', display: 'inline-block' }}></span>
-            <span style={{ fontSize: '0.85rem', color: '#a1a1aa' }}>
-              Founder: <strong style={{ color: '#fff' }}>Gotti Aashish</strong>
+            <span style={{ fontSize: '0.85rem', color: '#52525b' }}>
+              Founder: <strong style={{ color: '#18181b' }}>Gotti Aashish</strong>
             </span>
           </div>
 
-          <button onClick={fetchInquiries} className="btn-action" title="Refresh leads">
+          <button onClick={fetchInquiries} className="btn-action-brand" title="Refresh leads">
             <i className="ri-refresh-line"></i> Refresh
           </button>
 
-          <button onClick={onLogout} className="btn-action" style={{ background: 'rgba(239, 68, 68, 0.15)', borderColor: 'rgba(239, 68, 68, 0.4)', color: '#fca5a5' }}>
+          <button onClick={onLogout} className="btn-action-outline" style={{ color: '#dc2626', borderColor: '#fca5a5' }}>
             <i className="ri-logout-box-r-line"></i> Logout
           </button>
 
-          <button onClick={onClose} className="btn-action">
+          <button onClick={onClose} className="btn-action-outline">
             <i className="ri-close-line"></i> Close
           </button>
         </div>
@@ -419,33 +423,33 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
         <div className="metric-card">
           <div className="metric-header">
             <span className="metric-label">Total Inquiries</span>
-            <div className="metric-icon-box" style={{ color: '#ffffff' }}><i className="ri-bar-chart-fill"></i></div>
+            <div className="metric-icon-box"><i className="ri-bar-chart-line"></i></div>
           </div>
           <div className="metric-value">{metrics.total}</div>
         </div>
 
         <div className="metric-card">
           <div className="metric-header">
-            <span className="metric-label" style={{ color: '#60a5fa' }}>New Unread Leads</span>
-            <div className="metric-icon-box" style={{ color: '#60a5fa', background: 'rgba(59, 130, 246, 0.1)' }}><i className="ri-notification-3-line"></i></div>
+            <span className="metric-label">New Unread Leads</span>
+            <div className="metric-icon-box"><i className="ri-notification-3-line"></i></div>
           </div>
-          <div className="metric-value" style={{ color: '#60a5fa' }}>{metrics.newLeads}</div>
+          <div className="metric-value">{metrics.newLeads}</div>
         </div>
 
         <div className="metric-card">
           <div className="metric-header">
-            <span className="metric-label" style={{ color: '#facc15' }}>Contacted Leads</span>
-            <div className="metric-icon-box" style={{ color: '#facc15', background: 'rgba(234, 179, 8, 0.1)' }}><i className="ri-chat-check-line"></i></div>
+            <span className="metric-label">Contacted Leads</span>
+            <div className="metric-icon-box"><i className="ri-chat-check-line"></i></div>
           </div>
-          <div className="metric-value" style={{ color: '#facc15' }}>{metrics.contacted}</div>
+          <div className="metric-value">{metrics.contacted}</div>
         </div>
 
         <div className="metric-card">
           <div className="metric-header">
-            <span className="metric-label" style={{ color: '#4ade80' }}>Closed Deals</span>
-            <div className="metric-icon-box" style={{ color: '#4ade80', background: 'rgba(34, 197, 94, 0.1)' }}><i className="ri-checkbox-circle-fill"></i></div>
+            <span className="metric-label">Closed Deals</span>
+            <div className="metric-icon-box"><i className="ri-checkbox-circle-line"></i></div>
           </div>
-          <div className="metric-value" style={{ color: '#4ade80' }}>{metrics.closed}</div>
+          <div className="metric-value">{metrics.closed}</div>
         </div>
       </div>
 
@@ -456,7 +460,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
           <input 
             type="text" 
             className="search-box" 
-            placeholder="Search leads by name, contact, service..."
+            placeholder="Search leads by client name, email, service..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -478,19 +482,23 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
       {/* Main Inquiry Feed */}
       <div className="feed-area">
         {loading ? (
-          <div style={{ textAlign: 'center', padding: '80px 0', color: '#a1a1aa' }}>
-            <i className="ri-loader-4-line ri-spin" style={{ fontSize: '2.4rem', display: 'block', marginBottom: '14px', color: '#ffffff' }}></i>
+          <div style={{ textAlign: 'center', padding: '80px 0', color: '#71717a' }}>
+            <i className="ri-loader-4-line ri-spin" style={{ fontSize: '2.4rem', display: 'block', marginBottom: '14px', color: '#18181b' }}></i>
             Loading client inquiries...
           </div>
         ) : error ? (
-          <div style={{ background: 'rgba(239, 68, 68, 0.12)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '16px', padding: '28px', textAlign: 'center', color: '#fca5a5', maxWidth: '600px', margin: '40px auto' }}>
-            <i className="ri-error-warning-fill" style={{ fontSize: '2.4rem', display: 'block', marginBottom: '10px' }}></i>
-            {error}
+          <div style={{ background: '#ffffff', border: '1px solid #e4e0d7', borderRadius: '16px', padding: '32px', textAlign: 'center', color: '#18181b', maxWidth: '600px', margin: '40px auto', boxShadow: '0 8px 24px rgba(0,0,0,0.04)' }}>
+            <i className="ri-information-line" style={{ fontSize: '2.4rem', display: 'block', marginBottom: '10px', color: '#71717a' }}></i>
+            <h4 style={{ fontSize: '1.15rem', fontFamily: 'var(--font-serif)', marginBottom: '8px' }}>Backend Connection Note</h4>
+            <p style={{ color: '#52525b', fontSize: '0.9rem', lineHeight: '1.6' }}>{error}</p>
+            <button onClick={fetchInquiries} className="btn-action-brand" style={{ marginTop: '16px' }}>
+              <i className="ri-refresh-line"></i> Retry Connection
+            </button>
           </div>
         ) : filteredInquiries.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '90px 0', color: '#71717a' }}>
-            <i className="ri-inbox-archive-line" style={{ fontSize: '3.5rem', display: 'block', marginBottom: '14px', color: '#3f3f46' }}></i>
-            <h4 style={{ fontSize: '1.25rem', color: '#a1a1aa', marginBottom: '6px' }}>No Client Inquiries Found</h4>
+            <i className="ri-inbox-archive-line" style={{ fontSize: '3.5rem', display: 'block', marginBottom: '14px', color: '#a1a1aa' }}></i>
+            <h4 style={{ fontSize: '1.25rem', fontFamily: 'var(--font-serif)', color: '#18181b', marginBottom: '6px' }}>No Client Inquiries Found</h4>
             <p style={{ fontSize: '0.9rem', color: '#71717a' }}>When clients submit the contact form, their leads will appear here in real-time.</p>
           </div>
         ) : (
@@ -510,51 +518,51 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                     <div className="client-avatar">{initialLetter}</div>
                     <div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', marginBottom: '4px' }}>
-                        <h4 style={{ fontSize: '1.3rem', fontWeight: '700', color: '#ffffff', margin: 0 }}>{inq.name}</h4>
+                        <h4 style={{ fontSize: '1.3rem', fontFamily: 'var(--font-serif)', fontWeight: '700', color: '#18181b', margin: 0 }}>{inq.name}</h4>
                         <span className={`badge-status status-${inq.status}`}>{inq.status}</span>
                       </div>
-                      <div style={{ fontSize: '0.9rem', color: '#a1a1aa', fontFamily: 'var(--font-mono, monospace)' }}>
-                        <i className="ri-contacts-line" style={{ marginRight: '6px', color: '#71717a' }}></i> {inq.email}
+                      <div style={{ fontSize: '0.88rem', color: '#71717a', fontFamily: 'var(--font-mono, monospace)' }}>
+                        <i className="ri-contacts-line" style={{ marginRight: '6px', color: '#a1a1aa' }}></i> {inq.email}
                       </div>
                     </div>
                   </div>
 
-                  <div style={{ fontSize: '0.82rem', color: '#71717a', fontFamily: 'var(--font-mono, monospace)', background: 'rgba(255, 255, 255, 0.04)', padding: '6px 12px', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                  <div style={{ fontSize: '0.82rem', color: '#71717a', fontFamily: 'var(--font-mono, monospace)', background: '#f4f1ea', padding: '6px 12px', borderRadius: '8px', border: '1px solid #e4e0d7' }}>
                     <i className="ri-time-line" style={{ marginRight: '6px' }}></i>
                     {new Date(inq.createdAt).toLocaleString()}
                   </div>
                 </div>
 
-                <div style={{ background: '#27272a', borderRadius: '14px', padding: '20px', marginBottom: '24px', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
-                  <div style={{ fontSize: '0.75rem', color: '#a1a1aa', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px', fontFamily: 'var(--font-mono, monospace)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <i className="ri-stack-line" style={{ color: '#38bdf8' }}></i>
-                    SERVICE REQUIRED: <strong style={{ color: '#38bdf8' }}>{inq.service}</strong>
+                <div style={{ background: '#fcfbf9', borderRadius: '12px', padding: '20px', marginBottom: '24px', border: '1px solid #e4e0d7' }}>
+                  <div style={{ fontSize: '0.75rem', color: '#71717a', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '8px', fontFamily: 'var(--font-mono, monospace)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <i className="ri-stack-line" style={{ color: '#18181b' }}></i>
+                    SERVICE REQUIRED: <strong style={{ color: '#18181b' }}>{inq.service}</strong>
                   </div>
-                  <p style={{ color: '#f4f4f5', fontSize: '0.95rem', lineHeight: '1.6', margin: 0, fontStyle: 'italic' }}>
+                  <p style={{ color: '#18181b', fontSize: '0.95rem', lineHeight: '1.6', margin: 0, fontStyle: 'italic' }}>
                     "{inq.message}"
                   </p>
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '14px', paddingTop: '12px', borderTop: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '14px', paddingTop: '12px', borderTop: '1px solid #e4e0d7' }}>
                   <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                    <a href={waUrl} target="_blank" rel="noopener noreferrer" className="btn-action btn-whatsapp">
-                      <i className="ri-whatsapp-fill" style={{ fontSize: '1.1rem' }}></i> WhatsApp Client
+                    <a href={waUrl} target="_blank" rel="noopener noreferrer" className="btn-action-brand">
+                      <i className="ri-whatsapp-fill" style={{ color: '#22c55e', fontSize: '1.1rem' }}></i> WhatsApp Client
                     </a>
 
-                    <a href={`mailto:${inq.email}`} className="btn-action">
+                    <a href={`mailto:${inq.email}`} className="btn-action-outline">
                       <i className="ri-mail-send-line" style={{ fontSize: '1.05rem' }}></i> Email Client
                     </a>
                   </div>
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <span style={{ fontSize: '0.82rem', color: '#a1a1aa' }}>Status:</span>
+                    <span style={{ fontSize: '0.82rem', color: '#71717a', fontWeight: '600' }}>Status:</span>
                     <select 
                       value={inq.status} 
                       onChange={(e) => handleUpdateStatus(inq.id, e.target.value)}
                       style={{
-                        background: '#27272a',
-                        border: '1px solid rgba(255, 255, 255, 0.15)',
-                        color: '#ffffff',
+                        background: '#ffffff',
+                        border: '1px solid #e4e0d7',
+                        color: '#18181b',
                         padding: '8px 14px',
                         borderRadius: '8px',
                         fontSize: '0.85rem',
@@ -569,7 +577,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                       <option value="CLOSED">CLOSED</option>
                     </select>
 
-                    <button onClick={() => handleDeleteInquiry(inq.id)} className="btn-action" style={{ color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)' }} title="Delete Inquiry">
+                    <button onClick={() => handleDeleteInquiry(inq.id)} className="btn-action-outline" style={{ color: '#dc2626', borderColor: '#fca5a5' }} title="Delete Inquiry">
                       <i className="ri-delete-bin-line"></i>
                     </button>
                   </div>
