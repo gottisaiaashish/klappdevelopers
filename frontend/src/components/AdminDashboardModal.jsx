@@ -2107,8 +2107,13 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                                 return (
                                   <tr key={prj.id} style={{ borderBottom: '1px solid #e4e4e7' }}>
                                     <td style={{ padding: '12px' }}>
-                                      <div style={{ fontWeight: '700', color: '#18181b' }}>{prj.client}</div>
-                                      <div style={{ fontSize: '0.76rem', color: '#71717a' }}>{prj.name}</div>
+                                      <div style={{ fontWeight: '700', color: '#18181b', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                                        <span>{prj.client}</span>
+                                        <a href={`tel:${prj.phone || ''}`} style={{ fontSize: '0.78rem', color: '#2563eb', textDecoration: 'none', fontWeight: '600' }} title="Click to call client">
+                                          📞 {prj.phone || '+91 98765 43210'}
+                                        </a>
+                                      </div>
+                                      <div style={{ fontSize: '0.76rem', color: '#71717a', marginTop: '2px' }}>{prj.name}</div>
                                     </td>
 
                                     <td style={{ padding: '12px', fontWeight: '700', color: '#18181b' }}>
@@ -2167,28 +2172,22 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                                     </td>
 
                                     <td style={{ padding: '12px', textAlign: 'right' }}>
-                                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
-                                         <a 
-                                           href={`tel:${prj.phone || ''}`} 
-                                           onClick={() => handleFollowUpCall(prj.id)}
-                                           className="btn-action-outline"
-                                           style={{ background: '#eff6ff', color: '#1d4ed8', borderColor: '#bfdbfe', fontSize: '0.76rem', padding: '4px 8px', fontWeight: '700', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
-                                           title={`Click to call ${prj.client} and log follow up`}
-                                         >
-                                           📞 {prj.phone || '+91 98765 43210'}
-                                         </a>
-
-                                         {prj.lastFollowedUpBy ? (
-                                           <span style={{ fontSize: '0.7rem', color: '#15803d', fontWeight: '700', background: '#f0fdf4', padding: '2px 6px', borderRadius: '4px', border: '1px solid #bbf7d0' }}>
-                                             ✓ Followed up by {prj.lastFollowedUpBy}
-                                           </span>
-                                         ) : (
-                                           <span style={{ fontSize: '0.7rem', color: '#6b7280', fontWeight: '600' }}>
-                                             No call logged yet
-                                           </span>
-                                         )}
-                                       </div>
-                                     </td>
+                                      <button 
+                                        onClick={() => handleFollowUpCall(prj.id)}
+                                        className="btn-action-outline"
+                                        style={{ 
+                                          background: prj.lastFollowedUpBy ? '#f0fdf4' : '#ffffff', 
+                                          color: prj.lastFollowedUpBy ? '#15803d' : '#2563eb', 
+                                          borderColor: prj.lastFollowedUpBy ? '#bbf7d0' : '#bfdbfe', 
+                                          fontSize: '0.76rem', 
+                                          padding: '5px 10px', 
+                                          fontWeight: '700' 
+                                        }}
+                                        title="Click to log follow up"
+                                      >
+                                        📞 {prj.lastFollowedUpBy ? `Followed up by ${prj.lastFollowedUpBy}` : 'Log Call'}
+                                      </button>
+                                    </td>
                                   </tr>
                                 );
                               });
