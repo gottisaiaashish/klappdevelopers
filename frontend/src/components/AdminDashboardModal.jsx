@@ -334,7 +334,6 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
       )
     };
     syncOSDataToBackend(updated);
-    alert('✅ Content post approved by Aashish! Ready for publishing by Minni.');
   };
 
   const filteredInquiries = inquiries.filter(inq => {
@@ -851,11 +850,8 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
           {activeTab === 'projects' && (
             <div>
               <div className="os-card" style={{ marginBottom: '20px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', flexWrap: 'wrap', gap: '10px' }}>
+                <div style={{ marginBottom: '14px' }}>
                   <h3 style={{ fontSize: '1.1rem', fontWeight: '800', margin: 0 }}>Active KLAPP Projects & Deliverables</h3>
-                  <span style={{ fontSize: '0.78rem', background: userRole === 'MINNI' ? '#dcfce7' : '#f4f1ea', color: userRole === 'MINNI' ? '#15803d' : '#71717a', padding: '4px 10px', borderRadius: '6px', fontWeight: '700' }}>
-                    {userRole === 'MINNI' ? '✏️ Minni Editing Access Enabled' : '👁️ Aashish Live Monitoring View'}
-                  </span>
                 </div>
 
                 {osData.projects.map(prj => (
@@ -1354,9 +1350,6 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                       <div className="os-card" style={{ marginBottom: 0 }}>
                         <div style={{ fontSize: '0.76rem', fontWeight: '700', color: '#71717a', textTransform: 'uppercase', marginBottom: '4px' }}>GROSS REVENUE</div>
                         <div style={{ fontSize: '1.8rem', fontWeight: '800', color: '#166534' }}>₹{totalRevenue.toLocaleString()}</div>
-                        <div style={{ fontSize: '0.74rem', color: '#71717a', marginTop: '4px' }}>
-                          {userRole === 'MINNI' ? '✏️ Minni Revenue Management' : '👁️ Aashish Revenue View'}
-                        </div>
                       </div>
 
                       <div className="os-card" style={{ marginBottom: 0 }}>
