@@ -2,6 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { API_BASE_URL } from '../config/api';
 
 export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
+  // Helper: get today's date string in LOCAL timezone (IST) as YYYY-MM-DD
+  const getLocalDateStr = (d = new Date()) => {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
   // Active User Role: 'AASHISH' vs 'MINNI'
   const [userRole, setUserRole] = useState(
     sessionStorage.getItem('klapp_admin_avatar') || 'AASHISH'
@@ -52,8 +59,8 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
       { id: 'PRJ-102', name: 'Balaji Pharma Billing & GST Portal', client: 'Balaji Pharma', service: 'Business Software', status: 'PLANNING', priority: 'HIGH', dueDate: '2026-08-20', budget: 45000, owner: 'Minni' }
     ],
     meetings: [
-      { id: 'MTG-01', title: 'Nandhakam Project Milestone Review', date: new Date().toISOString().split('T')[0], time: '4:00 PM', client: 'Rahul Sharma', attendees: 'Aashish & Minni', type: 'Google Meet', category: 'Meeting', createdBy: 'Aashish', link: 'https://meet.google.com/klapp-demo' },
-      { id: 'MTG-02', title: 'KLAPP Q3 Agency Growth Strategy', date: new Date(Date.now() + 86400000).toISOString().split('T')[0], time: '11:00 AM', client: 'Internal', attendees: 'Aashish & Minni', type: 'Office Room', category: 'Meeting', createdBy: 'Minni', link: '#' }
+      { id: 'MTG-01', title: 'Nandhakam Project Milestone Review', date: getLocalDateStr(), time: '4:00 PM', client: 'Rahul Sharma', attendees: 'Aashish & Minni', type: 'Google Meet', category: 'Meeting', createdBy: 'Aashish', link: 'https://meet.google.com/klapp-demo' },
+      { id: 'MTG-02', title: 'KLAPP Q3 Agency Growth Strategy', date: getLocalDateStr(new Date(Date.now() + 86400000)), time: '11:00 AM', client: 'Internal', attendees: 'Aashish & Minni', type: 'Office Room', category: 'Meeting', createdBy: 'Minni', link: '#' }
     ],
     contentPlanner: [
       { id: 'CNT-01', title: 'How we built sub-100ms websites for Indian Brands', platform: 'Instagram Reel', status: 'READY_FOR_APPROVAL', date: 'Today, 6:00 PM', notes: 'Video edited, needs Aashish approval before posting', author: 'Minni', approvedBy: '' },
@@ -65,7 +72,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
       { id: 'TSK-03', title: 'Send GST billing proposal PDF to Balaji Pharma', assignedTo: 'Minni', status: 'PENDING', dueDate: 'Today', category: 'Client Operations' }
     ],
     disciplineLogs: {
-      date: new Date().toISOString().split('T')[0],
+      date: getLocalDateStr(),
       aashish: {
         attendance: true,
         waterGoal: true,
@@ -124,7 +131,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
   const [newEvent, setNewEvent] = useState({
     title: '',
     category: 'Meeting', // 'Meeting', 'Deadline', 'Birthday', 'Task'
-    date: new Date().toISOString().split('T')[0],
+    date: getLocalDateStr(),
     time: '16:00',
     client: 'General',
     attendees: 'Aashish & Minni',
@@ -165,7 +172,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
       meetings: [evt, ...osData.meetings]
     };
     syncOSDataToBackend(updated);
-    setNewEvent({ title: '', category: 'Meeting', date: new Date().toISOString().split('T')[0], time: '16:00', client: 'General', attendees: 'Aashish & Minni', createdBy: 'Aashish', link: '#' });
+    setNewEvent({ title: '', category: 'Meeting', date: getLocalDateStr(), time: '16:00', client: 'General', attendees: 'Aashish & Minni', createdBy: 'Aashish', link: '#' });
     setShowAddMeetingModal(false);
   };
 
@@ -202,7 +209,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
   const [newContent, setNewContent] = useState({
     title: '',
     platform: 'Instagram Reel',
-    date: new Date().toISOString().split('T')[0],
+    date: getLocalDateStr(),
     notes: ''
   });
 
@@ -233,7 +240,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
       contentPlanner: [post, ...osData.contentPlanner]
     };
     syncOSDataToBackend(updated);
-    setNewContent({ title: '', platform: 'Instagram Reel', date: new Date().toISOString().split('T')[0], notes: '' });
+    setNewContent({ title: '', platform: 'Instagram Reel', date: getLocalDateStr(), notes: '' });
     setShowAddContentModal(false);
   };
 
@@ -281,7 +288,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
     phone: '',
     requirements: '',
     service: 'Website Development',
-    dueDate: new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0],
+    dueDate: getLocalDateStr(new Date(Date.now() + 14 * 86400000)),
     budget: '',
     advancePaid: ''
   });
@@ -336,7 +343,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
     };
 
     syncOSDataToBackend(updated);
-    setNewProject({ name: '', client: '', phone: '', requirements: '', service: 'Website Development', dueDate: new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0], budget: '', advancePaid: '' });
+    setNewProject({ name: '', client: '', phone: '', requirements: '', service: 'Website Development', dueDate: getLocalDateStr(new Date(Date.now() + 14 * 86400000)), budget: '', advancePaid: '' });
     setShowAddProjectModal(false);
   };
 
@@ -980,7 +987,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                     <i className="ri-calendar-todo-fill" style={{ color: '#2563eb' }}></i> Today's Meetings & Schedule
                   </h3>
                   {(() => {
-                    const todayStr = new Date().toISOString().split('T')[0];
+                    const todayStr = getLocalDateStr();
                     const todayEvents = osData.meetings.filter(mtg => mtg.date === todayStr);
                     if (todayEvents.length === 0) {
                       return <div style={{ fontSize: '0.85rem', color: '#71717a', padding: '12px', textAlign: 'center' }}>No meetings or events scheduled for today.</div>;
