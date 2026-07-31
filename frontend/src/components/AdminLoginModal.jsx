@@ -10,6 +10,11 @@ export default function AdminLoginModal({ isOpen, onClose, onSuccessLogin }) {
 
   if (!isOpen) return null;
 
+  const handleSelectRoleShortcut = (selectedUser) => {
+    setUsername(selectedUser);
+    setPassword('04160416');
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -26,17 +31,33 @@ export default function AdminLoginModal({ isOpen, onClose, onSuccessLogin }) {
       if (res.ok && data.success) {
         sessionStorage.setItem('klapp_admin_token', data.token);
         sessionStorage.setItem('klapp_admin_user', data.admin.name);
-        onSuccessLogin();
+        sessionStorage.setItem('klapp_admin_role', data.admin.role);
+        sessionStorage.setItem('klapp_admin_avatar', data.admin.avatarRole || 'AASHISH');
+        onSuccessLogin(data.admin);
         return;
       } else {
         setErrorMsg(data.error || 'Invalid credentials');
       }
     } catch (err) {
-      console.warn('Backend login fallback to direct credentials check:', err);
-      if (username.trim() === 'gottiaashish' && password.trim() === '04160416') {
+      console.warn('Backend login fallback:', err);
+      const cleanU = username.trim().toLowerCase();
+      const cleanP = password.trim();
+
+      if (cleanU === 'gottiaashish' && cleanP === '04160416') {
+        const admin = { name: 'Gotti Aashish', role: 'Founder & Lead Architect', avatarRole: 'AASHISH' };
         sessionStorage.setItem('klapp_admin_token', 'klapp_admin_token_04160416');
-        sessionStorage.setItem('klapp_admin_user', 'Gotti Aashish');
-        onSuccessLogin();
+        sessionStorage.setItem('klapp_admin_user', admin.name);
+        sessionStorage.setItem('klapp_admin_role', admin.role);
+        sessionStorage.setItem('klapp_admin_avatar', admin.avatarRole);
+        onSuccessLogin(admin);
+        return;
+      } else if ((cleanU === 'manashvini' || cleanU === 'minni') && cleanP === '04160416') {
+        const admin = { name: 'Manashvini (Minni)', role: 'Operations Lead & Content Director', avatarRole: 'MINNI' };
+        sessionStorage.setItem('klapp_admin_token', 'klapp_admin_token_minni');
+        sessionStorage.setItem('klapp_admin_user', admin.name);
+        sessionStorage.setItem('klapp_admin_role', admin.role);
+        sessionStorage.setItem('klapp_admin_avatar', admin.avatarRole);
+        onSuccessLogin(admin);
         return;
       } else {
         setErrorMsg('Invalid Username or Password');
@@ -56,7 +77,7 @@ export default function AdminLoginModal({ isOpen, onClose, onSuccessLogin }) {
           width: 100vw;
           height: 100vh;
           z-index: 999999;
-          background: rgba(15, 15, 18, 0.75);
+          background: rgba(15, 15, 18, 0.8);
           backdrop-filter: blur(16px);
           display: flex;
           align-items: center;
@@ -73,7 +94,7 @@ export default function AdminLoginModal({ isOpen, onClose, onSuccessLogin }) {
           border: 1px solid rgba(255, 255, 255, 0.12);
           border-radius: 20px;
           width: 100%;
-          max-width: 380px;
+          max-width: 400px;
           padding: 32px 28px;
           color: #ffffff;
           box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
@@ -96,11 +117,56 @@ export default function AdminLoginModal({ isOpen, onClose, onSuccessLogin }) {
         }
 
         .minimal-title {
-          font-size: 1.4rem;
+          font-size: 1.35rem;
           font-weight: 700;
           color: #ffffff;
-          margin-bottom: 24px;
-          font-family: var(--font-sans, system-ui, sans-serif);
+          margin-bottom: 6px;
+          font-family: var(--font-sans, Plus Jakarta Sans, sans-serif);
+        }
+        .minimal-sub {
+          font-size: 0.8rem;
+          color: #a1a1aa;
+          margin-bottom: 22px;
+        }
+
+        .role-shortcuts {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 10px;
+          margin-bottom: 20px;
+        }
+        .role-btn {
+          background: #27272a;
+          border: 1px solid #3f3f46;
+          padding: 10px 12px;
+          border-radius: 12px;
+          color: #e4e4e7;
+          font-size: 0.8rem;
+          font-weight: 600;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          transition: all 0.2s ease;
+          text-align: left;
+        }
+        .role-btn:hover {
+          background: #3f3f46;
+          border-color: #71717a;
+          color: #ffffff;
+        }
+        .role-avatar-dot {
+          width: 24px;
+          height: 24px;
+          border-radius: 50%;
+          background: #18181b;
+          color: #ffffff;
+          font-weight: 800;
+          font-size: 0.72rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .input-group {
@@ -125,7 +191,7 @@ export default function AdminLoginModal({ isOpen, onClose, onSuccessLogin }) {
           border-radius: 10px;
           padding: 12px 14px;
           color: #ffffff;
-          font-family: var(--font-sans, system-ui, sans-serif);
+          font-family: var(--font-sans, Plus Jakarta Sans, sans-serif);
           font-size: 0.92rem;
           outline: none;
           transition: border-color 0.2s ease;
@@ -154,7 +220,7 @@ export default function AdminLoginModal({ isOpen, onClose, onSuccessLogin }) {
           border: none;
           padding: 14px;
           border-radius: 10px;
-          font-family: var(--font-sans, system-ui, sans-serif);
+          font-family: var(--font-sans, Plus Jakarta Sans, sans-serif);
           font-weight: 700;
           font-size: 0.92rem;
           cursor: pointer;
@@ -181,7 +247,35 @@ export default function AdminLoginModal({ isOpen, onClose, onSuccessLogin }) {
           <i className="ri-close-line"></i>
         </button>
 
-        <h3 className="minimal-title">Sign In</h3>
+        <h3 className="minimal-title">KLAPP OS Sign In</h3>
+        <p className="minimal-sub">Access Founder or Operations Workspace</p>
+
+        {/* Quick Role Shortcuts */}
+        <div className="role-shortcuts">
+          <button 
+            type="button" 
+            className="role-btn"
+            onClick={() => handleSelectRoleShortcut('gottiaashish')}
+          >
+            <div className="role-avatar-dot" style={{ background: '#2563eb' }}>A</div>
+            <div>
+              <div style={{ fontWeight: 700 }}>Aashish</div>
+              <div style={{ fontSize: '0.68rem', color: '#a1a1aa' }}>Founder</div>
+            </div>
+          </button>
+
+          <button 
+            type="button" 
+            className="role-btn"
+            onClick={() => handleSelectRoleShortcut('manashvini')}
+          >
+            <div className="role-avatar-dot" style={{ background: '#ec4899' }}>M</div>
+            <div>
+              <div style={{ fontWeight: 700 }}>Manashvini</div>
+              <div style={{ fontSize: '0.68rem', color: '#a1a1aa' }}>Operations</div>
+            </div>
+          </button>
+        </div>
 
         {errorMsg && (
           <div className="error-alert-box">
@@ -198,7 +292,7 @@ export default function AdminLoginModal({ isOpen, onClose, onSuccessLogin }) {
                 type="text" 
                 required 
                 className="styled-input" 
-                placeholder="Username"
+                placeholder="Username (e.g. gottiaashish / manashvini)"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 autoFocus
@@ -229,7 +323,7 @@ export default function AdminLoginModal({ isOpen, onClose, onSuccessLogin }) {
           </div>
 
           <button type="submit" disabled={loading} className="submit-btn-minimal">
-            {loading ? 'Signing in...' : 'Sign In'}
+            {loading ? 'Entering KLAPP OS...' : 'Open KLAPP OS'}
           </button>
         </form>
       </div>
