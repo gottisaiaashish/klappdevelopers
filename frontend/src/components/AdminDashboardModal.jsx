@@ -1259,31 +1259,13 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                     </p>
                   </div>
 
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    <button 
-                      onClick={() => setSelectedContentDay('ALL')}
-                      className="btn-action-outline"
-                      style={{ 
-                        padding: '6px 14px', 
-                        borderRadius: '8px', 
-                        border: selectedContentDay === 'ALL' ? '2px solid #2563eb' : '1px solid #c8c3b7', 
-                        background: selectedContentDay === 'ALL' ? '#eff6ff' : '#ffffff', 
-                        color: selectedContentDay === 'ALL' ? '#1d4ed8' : '#3f3f46', 
-                        fontWeight: '800', 
-                        fontSize: '0.78rem', 
-                        cursor: 'pointer' 
-                      }}
-                    >
-                      ALL POSTS
-                    </button>
-                    <button 
-                      onClick={() => setShowAddContentModal(!showAddContentModal)}
-                      className="btn-action-outline"
-                      style={{ background: '#ffffff', color: '#18181b', borderColor: '#c8c3b7', fontWeight: '700', boxShadow: '0 2px 6px rgba(0,0,0,0.04)' }}
-                    >
-                      <i className="ri-add-line" style={{ color: '#2563eb' }}></i> + Add Content Post / Reel
-                    </button>
-                  </div>
+                  <button 
+                    onClick={() => setShowAddContentModal(!showAddContentModal)}
+                    className="btn-action-outline"
+                    style={{ background: '#ffffff', color: '#18181b', borderColor: '#c8c3b7', fontWeight: '700', boxShadow: '0 2px 6px rgba(0,0,0,0.04)' }}
+                  >
+                    <i className="ri-add-line" style={{ color: '#2563eb' }}></i> + Add Content Post / Reel
+                  </button>
                 </div>
 
                 {/* 6-DAY MON-SAT WEEKLY GRID */}
@@ -1301,7 +1283,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                         return (
                           <div 
                             key={dName} 
-                            onClick={() => setSelectedContentDay(dName)}
+                            onClick={() => setSelectedContentDay(isSelected ? 'ALL' : dName)}
                             style={{ 
                               background: isSelected ? '#eff6ff' : (isToday ? '#faf8f5' : '#ffffff'),
                               border: isSelected ? '2px solid #2563eb' : (isToday ? '2px solid #18181b' : '1px solid #c8c3b7'),
