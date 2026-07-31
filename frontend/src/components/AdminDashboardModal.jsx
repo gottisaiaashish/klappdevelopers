@@ -1223,18 +1223,23 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
 
                       {/* CALL FOLLOW UP TRACKER */}
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', paddingTop: '10px', borderTop: '1px solid #c8c3b7' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <i className="ri-phone-fill" style={{ color: '#2563eb' }}></i>
-                          <a href={`tel:${prj.phone || ''}`} style={{ fontSize: '0.82rem', fontWeight: '700', color: '#1d4ed8', textDecoration: 'none' }}>
-                            {prj.phone || '+91 98765 43210'}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                          <a 
+                            href={`tel:${prj.phone || ''}`} 
+                            onClick={() => handleFollowUpCall(prj.id)}
+                            className="btn-action-outline"
+                            style={{ background: '#eff6ff', color: '#1d4ed8', borderColor: '#bfdbfe', fontSize: '0.82rem', padding: '6px 12px', fontWeight: '700', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
+                            title={`Click to call ${prj.client} and log follow up`}
+                          >
+                            📞 {prj.phone || '+91 98765 43210'}
                           </a>
                           
                           {prj.lastFollowedUpBy ? (
-                            <span style={{ fontSize: '0.74rem', background: '#dbeafe', color: '#1e40af', padding: '3px 8px', borderRadius: '5px', fontWeight: '700' }}>
+                            <span style={{ fontSize: '0.76rem', background: '#f0f0f4', color: '#15803d', padding: '4px 10px', borderRadius: '6px', fontWeight: '700', border: '1px solid #bbf7d0' }}>
                               ✓ Followed up by {prj.lastFollowedUpBy} ({prj.lastFollowedUpAt || 'Today'})
                             </span>
                           ) : (
-                            <span style={{ fontSize: '0.74rem', background: '#f3f4f6', color: '#6b7280', padding: '3px 8px', borderRadius: '5px', fontWeight: '600' }}>
+                            <span style={{ fontSize: '0.76rem', background: '#f4f4f5', color: '#71717a', padding: '4px 10px', borderRadius: '6px', fontWeight: '600' }}>
                               No call logged yet
                             </span>
                           )}
@@ -1243,9 +1248,9 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                         <button 
                           onClick={() => handleFollowUpCall(prj.id)}
                           className="btn-action-outline"
-                          style={{ background: '#ffffff', color: '#2563eb', borderColor: '#bfdbfe', fontSize: '0.78rem', padding: '5px 12px', fontWeight: '700' }}
+                          style={{ background: '#ffffff', color: '#2563eb', borderColor: '#bfdbfe', fontSize: '0.78rem', padding: '6px 12px', fontWeight: '700' }}
                         >
-                          <i className="ri-phone-line" style={{ color: '#2563eb', marginRight: '4px' }}></i> Log Call Follow Up
+                          <i className="ri-phone-line" style={{ color: '#2563eb', marginRight: '4px' }}></i> Log Call Done
                         </button>
                       </div>
                     </div>
@@ -2162,14 +2167,28 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                                     </td>
 
                                     <td style={{ padding: '12px', textAlign: 'right' }}>
-                                      <button 
-                                        onClick={() => handleFollowUpCall(prj.id)}
-                                        className="btn-action-outline"
-                                        style={{ background: '#ffffff', color: '#2563eb', borderColor: '#bfdbfe', fontSize: '0.74rem', padding: '4px 8px', fontWeight: '700' }}
-                                      >
-                                        📞 {prj.lastFollowedUpBy ? `${prj.lastFollowedUpBy}` : 'Log Call'}
-                                      </button>
-                                    </td>
+                                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
+                                         <a 
+                                           href={`tel:${prj.phone || ''}`} 
+                                           onClick={() => handleFollowUpCall(prj.id)}
+                                           className="btn-action-outline"
+                                           style={{ background: '#eff6ff', color: '#1d4ed8', borderColor: '#bfdbfe', fontSize: '0.76rem', padding: '4px 8px', fontWeight: '700', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                                           title={`Click to call ${prj.client} and log follow up`}
+                                         >
+                                           📞 {prj.phone || '+91 98765 43210'}
+                                         </a>
+
+                                         {prj.lastFollowedUpBy ? (
+                                           <span style={{ fontSize: '0.7rem', color: '#15803d', fontWeight: '700', background: '#f0fdf4', padding: '2px 6px', borderRadius: '4px', border: '1px solid #bbf7d0' }}>
+                                             ✓ Followed up by {prj.lastFollowedUpBy}
+                                           </span>
+                                         ) : (
+                                           <span style={{ fontSize: '0.7rem', color: '#6b7280', fontWeight: '600' }}>
+                                             No call logged yet
+                                           </span>
+                                         )}
+                                       </div>
+                                     </td>
                                   </tr>
                                 );
                               });
