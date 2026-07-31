@@ -1262,7 +1262,17 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <button 
                       onClick={() => setSelectedContentDay('ALL')}
-                      style={{ padding: '6px 12px', borderRadius: '8px', border: '1px solid #c8c3b7', background: selectedContentDay === 'ALL' ? '#18181b' : '#fff', color: selectedContentDay === 'ALL' ? '#fff' : '#18181b', fontWeight: '700', fontSize: '0.78rem', cursor: 'pointer' }}
+                      className="btn-action-outline"
+                      style={{ 
+                        padding: '6px 14px', 
+                        borderRadius: '8px', 
+                        border: selectedContentDay === 'ALL' ? '2px solid #2563eb' : '1px solid #c8c3b7', 
+                        background: selectedContentDay === 'ALL' ? '#eff6ff' : '#ffffff', 
+                        color: selectedContentDay === 'ALL' ? '#1d4ed8' : '#3f3f46', 
+                        fontWeight: '800', 
+                        fontSize: '0.78rem', 
+                        cursor: 'pointer' 
+                      }}
                     >
                       ALL POSTS
                     </button>
