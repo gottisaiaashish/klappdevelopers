@@ -939,7 +939,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                         <input type="text" placeholder="https://meet.google.com/..." value={newEvent.link} onChange={(e) => setNewEvent({ ...newEvent, link: e.target.value })} style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #c8c3b7' }} />
                       </div>
                     </div>
-                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginTop: '14px' }}>
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'flex-end', marginTop: '16px' }}>
                       <button 
                         type="submit" 
                         className="btn-action-outline" 
