@@ -272,6 +272,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
 
   // Minni & Aashish Confirmed Project Creation State
   const [showAddProjectModal, setShowAddProjectModal] = useState(false);
+  const [filterPendingOnly, setFilterPendingOnly] = useState(false);
   const [newProject, setNewProject] = useState({
     name: '',
     client: '',
@@ -1048,13 +1049,31 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
               <div className="os-card" style={{ marginBottom: '20px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
                   <h3 style={{ fontSize: '1.15rem', fontWeight: '800', margin: 0 }}>Confirmed KLAPP Projects & Deliverables</h3>
-                  <button 
-                    onClick={() => setShowAddProjectModal(!showAddProjectModal)}
-                    className="btn-action-outline"
-                    style={{ background: '#ffffff', color: '#18181b', borderColor: '#c8c3b7', fontWeight: '700', boxShadow: '0 2px 6px rgba(0,0,0,0.04)' }}
-                  >
-                    <i className="ri-add-line" style={{ color: '#2563eb' }}></i> Add Confirmed Project
-                  </button>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button 
+                      onClick={() => setFilterPendingOnly(!filterPendingOnly)}
+                      className="btn-action-outline"
+                      style={{ 
+                        padding: '6px 12px', 
+                        borderRadius: '8px', 
+                        border: filterPendingOnly ? '2px solid #d97706' : '1px solid #c8c3b7', 
+                        background: filterPendingOnly ? '#fffbeb' : '#ffffff', 
+                        color: filterPendingOnly ? '#b45309' : '#3f3f46', 
+                        fontWeight: '700', 
+                        fontSize: '0.78rem' 
+                      }}
+                    >
+                      💳 Pending Balances Only ({ (osData.projects || []).filter(p => (p.pendingAmount !== undefined ? p.pendingAmount : Math.max(0, (p.budget || 0) - (p.advancePaid || 0))) > 0).length })
+                    </button>
+
+                    <button 
+                      onClick={() => setShowAddProjectModal(!showAddProjectModal)}
+                      className="btn-action-outline"
+                      style={{ background: '#ffffff', color: '#18181b', borderColor: '#c8c3b7', fontWeight: '700', boxShadow: '0 2px 6px rgba(0,0,0,0.04)' }}
+                    >
+                      <i className="ri-add-line" style={{ color: '#2563eb' }}></i> Add Confirmed Project
+                    </button>
+                  </div>
                 </div>
 
                 {/* ADD CONFIRMED PROJECT FORM MODAL/CARD */}
@@ -1112,7 +1131,22 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                 )}
 
                 {/* CONFIRMED PROJECT LIST CARDS */}
-                {osData.projects.map(prj => {
+                {(() => {
+                  const projectsToDisplay = (osData.projects || []).filter(p => {
+                    if (!filterPendingOnly) return true;
+                    const pend = p.pendingAmount !== undefined ? p.pendingAmount : Math.max(0, (p.budget || 0) - (p.advancePaid || 0));
+                    return pend > 0;
+                  });
+
+                  if (projectsToDisplay.length === 0) {
+                    return (
+                      <div style={{ textAlign: 'center', padding: '24px', color: '#71717a', fontSize: '0.88rem' }}>
+                        No pending balance projects found. All clients are fully paid up! 🎉
+                      </div>
+                    );
+                  }
+
+                  return projectsToDisplay.map(prj => {
                   const pending = prj.pendingAmount !== undefined ? prj.pendingAmount : Math.max(0, (prj.budget || 0) - (prj.advancePaid || 0));
 
                   return (
@@ -1199,7 +1233,8 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                       </div>
                     </div>
                   );
-                })}
+                });
+              })()}
               </div>
             </div>
           )}

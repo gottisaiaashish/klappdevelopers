@@ -43,6 +43,40 @@ const defaultOSState = {
       owner: 'Minni',
       lastFollowedUpBy: 'Aashish',
       lastFollowedUpAt: 'Jul 31, 2026'
+    },
+    {
+      id: 'PRJ-103',
+      name: 'CyberCity Gym & Fitness App',
+      client: 'Vikram Reddy',
+      phone: '+91 99887 76655',
+      requirements: 'Member workout tracker, Biometric attendance sync, Automated renewal SMS notifications',
+      service: 'Mobile & Web App',
+      status: 'IN_PROGRESS',
+      priority: 'HIGH',
+      dueDate: '2026-08-25',
+      budget: 85000,
+      advancePaid: 40000,
+      pendingAmount: 45000,
+      owner: 'Aashish',
+      lastFollowedUpBy: '',
+      lastFollowedUpAt: ''
+    },
+    {
+      id: 'PRJ-104',
+      name: 'Royal Grand Banquet & Catering Booking Portal',
+      client: 'Anish Kothari',
+      phone: '+91 98490 12345',
+      requirements: 'Interactive hall booking calendar, Custom catering menu builder & advance deposit payment gateway',
+      service: 'Custom Web Application',
+      status: 'REVIEW',
+      priority: 'HIGH',
+      dueDate: '2026-08-28',
+      budget: 95000,
+      advancePaid: 50000,
+      pendingAmount: 45000,
+      owner: 'Minni',
+      lastFollowedUpBy: 'Minni',
+      lastFollowedUpAt: 'Aug 01, 2026'
     }
   ],
   meetings: [
