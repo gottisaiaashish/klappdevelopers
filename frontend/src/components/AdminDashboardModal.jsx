@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_BASE_URL } from '../config/api';
 
 export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
   const [inquiries, setInquiries] = useState([]);
@@ -14,7 +15,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
     const token = sessionStorage.getItem('klapp_admin_token') || 'klapp_admin_token_04160416';
 
     try {
-      const res = await fetch(`/api/admin/inquiries?token=${token}`, {
+      const res = await fetch(`${API_BASE_URL}/api/admin/inquiries?token=${token}`, {
         headers: { 'x-admin-token': token }
       });
       const data = await res.json();
@@ -28,7 +29,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
         }
       } else {
         // Fallback: try standard inquiry route with admin key
-        const fRes = await fetch(`/api/inquiry?admin_key=klapp_admin_secret_2026`);
+        const fRes = await fetch(`${API_BASE_URL}/api/inquiry?admin_key=klapp_admin_secret_2026`);
         const fData = await fRes.json();
         if (fRes.ok && fData.success) {
           setInquiries(fData.inquiries || []);
@@ -39,7 +40,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
       }
     } catch (err) {
       console.error('Error fetching admin inquiries:', err);
-      setError('Could not connect to backend server. Make sure Node backend server is running.');
+      setError(`Could not connect to backend server at ${API_BASE_URL || 'local server'}. On Render free tier, the backend server spins down with inactivity and takes ~30 seconds to wake up! Please click Refresh in 15 seconds.`);
     } finally {
       setLoading(false);
     }
@@ -63,7 +64,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
   const handleUpdateStatus = async (id, newStatus) => {
     const token = sessionStorage.getItem('klapp_admin_token') || 'klapp_admin_token_04160416';
     try {
-      const res = await fetch(`/api/admin/inquiry/${id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/admin/inquiry/${id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -85,7 +86,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
     if (!window.confirm('Are you sure you want to delete this lead?')) return;
     const token = sessionStorage.getItem('klapp_admin_token') || 'klapp_admin_token_04160416';
     try {
-      const res = await fetch(`/api/admin/inquiry/${id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/admin/inquiry/${id}`, {
         method: 'DELETE',
         headers: { 'x-admin-token': token }
       });

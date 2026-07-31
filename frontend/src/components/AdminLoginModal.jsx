@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { API_BASE_URL } from '../config/api';
 
 export default function AdminLoginModal({ isOpen, onClose, onSuccessLogin }) {
   const [username, setUsername] = useState('');
@@ -16,7 +17,7 @@ export default function AdminLoginModal({ isOpen, onClose, onSuccessLogin }) {
 
     try {
       // 1. Try Backend API login
-      const res = await fetch('/api/admin/login', {
+      const res = await fetch(`${API_BASE_URL}/api/admin/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })

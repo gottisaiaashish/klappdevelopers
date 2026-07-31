@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { API_BASE_URL } from '../config/api';
 
 export default function Contact() {
   const [submitted, setSubmitted] = useState(false);
@@ -16,7 +17,7 @@ export default function Contact() {
     setLoading(true);
     setErrorMessage('');
     try {
-      const res = await fetch('/api/inquiry', {
+      const res = await fetch(`${API_BASE_URL}/api/inquiry`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form)

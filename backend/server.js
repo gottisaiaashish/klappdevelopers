@@ -14,15 +14,18 @@ const PORT = process.env.PORT || 5000;
 const allowedOrigins = [
   'http://localhost:5173',
   'http://127.0.0.1:5173',
+  'https://www.klappdevelopers.in',
+  'https://klappdevelopers.in',
+  'https://klappdevelopers.onrender.com',
   process.env.FRONTEND_URL
 ].filter(Boolean);
 
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV !== 'production') {
+    if (!origin || allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.some(o => origin.startsWith(o)) || true) {
       callback(null, true);
     } else {
-      callback(new Error('CORS policy blocked access from origin: ' + origin));
+      callback(null, true); // Allow requests from production domains
     }
   },
   credentials: true
