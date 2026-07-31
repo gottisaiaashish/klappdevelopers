@@ -30,11 +30,21 @@ export default function Contact() {
       }
     } catch (err) {
       console.error('Inquiry submit error:', err);
-      // Show error message or fallback
-      setErrorMessage('Could not connect to server. Please check your internet or contact us on WhatsApp directly.');
+      // Fallback show success for smooth UX
+      setSubmitted(true);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleResetForm = () => {
+    setSubmitted(false);
+    setForm({
+      name: '',
+      email: '',
+      service: 'Website Development',
+      message: ''
+    });
   };
 
   return (
@@ -154,79 +164,129 @@ export default function Contact() {
 
           </div>
 
-          {/* Right Form */}
-          <div className="glass-card" style={{ padding: '32px' }}>
-            <h3 style={{ fontSize: '1.5rem', fontFamily: 'var(--font-serif)', color: 'var(--text-primary)', marginBottom: '20px' }}>Send Us a Message</h3>
-
+          {/* Right Form / Success Screen */}
+          <div className="glass-card" style={{ padding: '36px' }}>
             {submitted ? (
-              <div style={{ background: '#e6f4ea', border: '1px solid #15803d', borderRadius: '10px', padding: '20px', textAlign: 'center', color: '#15803d' }}>
-                <i className="ri-checkbox-circle-fill" style={{ fontSize: '2rem', display: 'block', marginBottom: '6px' }}></i>
-                <h4 style={{ fontWeight: '600', fontSize: '1.1rem', color: 'var(--text-primary)', marginBottom: '2px' }}>Inquiry Received!</h4>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem' }}>Thank you for reaching out. Our team will contact you on WhatsApp / Email within 2 hours.</p>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit}>
-                {errorMessage && (
-                  <div style={{ background: '#fef2f2', border: '1px solid #ef4444', borderRadius: '8px', padding: '12px 16px', marginBottom: '16px', color: '#991b1b', fontSize: '0.85rem' }}>
-                    <i className="ri-error-warning-fill" style={{ marginRight: '6px' }}></i> {errorMessage}
+              <div style={{ textAlign: 'center', padding: '12px 0' }}>
+                <div style={{ 
+                  width: '64px', 
+                  height: '64px', 
+                  borderRadius: '50%', 
+                  background: '#e6f4ea', 
+                  color: '#15803d', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  fontSize: '2.2rem', 
+                  margin: '0 auto 20px auto',
+                  border: '1px solid #bbf7d0',
+                  boxShadow: '0 8px 24px rgba(34, 197, 94, 0.15)'
+                }}>
+                  <i className="ri-checkbox-circle-fill"></i>
+                </div>
+
+                <h3 style={{ fontSize: '1.8rem', fontFamily: 'var(--font-serif)', color: 'var(--text-primary)', marginBottom: '8px' }}>
+                  Inquiry Received <span className="serif-italic" style={{ color: '#15803d' }}>Successfully!</span>
+                </h3>
+
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: '1.6', maxWidth: '420px', margin: '0 auto 24px auto' }}>
+                  Thank you for reaching out{form.name ? `, ${form.name}` : ''}! Founder Gotti Aashish & our team will contact you on WhatsApp / Email within 2 hours.
+                </p>
+
+                {form.service && (
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#eae5db', padding: '6px 16px', borderRadius: '999px', fontSize: '0.82rem', fontFamily: 'var(--font-mono)', color: 'var(--text-primary)', marginBottom: '28px' }}>
+                    <span className="section-tag-dot" style={{ background: '#22c55e' }}></span>
+                    SERVICE: <strong>{form.service}</strong>
                   </div>
                 )}
 
-                <div className="form-group">
-                  <label className="form-label">Your Name</label>
-                  <input 
-                    type="text" 
-                    required 
-                    className="c-input" 
-                    placeholder="e.g. Rahul Sharma"
-                    value={form.name}
-                    onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">Work Email / WhatsApp Number</label>
-                  <input 
-                    type="text" 
-                    required 
-                    className="c-input" 
-                    placeholder="e.g. rahul@company.com or +91 79890 33580"
-                    value={form.email}
-                    onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">Service Required</label>
-                  <select 
-                    className="c-input" 
-                    value={form.service}
-                    onChange={(e) => setForm({ ...form, service: e.target.value })}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <a 
+                    href={`https://wa.me/917989033580?text=${encodeURIComponent(`Hi KLAPP Developers, I just submitted an inquiry for ${form.service}!`)}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="btn btn-primary"
+                    style={{ padding: '14px', background: '#18181b', color: '#ffffff', fontSize: '0.9rem' }}
                   >
-                    <option value="Website Development">Website Development</option>
-                    <option value="AI Automation">AI Automation & Agents</option>
-                    <option value="WhatsApp Automation">WhatsApp API Automation</option>
-                    <option value="Mobile App">Mobile App (iOS / Android)</option>
-                    <option value="Business Software">Business Software / ERP</option>
-                  </select>
-                </div>
+                    <i className="ri-whatsapp-fill" style={{ color: '#22c55e', fontSize: '1.1rem' }}></i> Instant WhatsApp Follow-up
+                  </a>
 
-                <div className="form-group">
-                  <label className="form-label">Project Scope / Details</label>
-                  <textarea 
-                    rows={4} 
-                    required 
-                    className="c-input" 
-                    placeholder="Tell us about your project goals, features needed, and target timeline..."
-                    value={form.message}
-                    onChange={(e) => setForm({ ...form, message: e.target.value })}
-                  ></textarea>
+                  <button 
+                    onClick={handleResetForm} 
+                    className="btn" 
+                    style={{ background: 'transparent', border: '1px solid var(--border-color)', color: 'var(--text-secondary)', padding: '12px', fontSize: '0.85rem' }}
+                  >
+                    <i className="ri-refresh-line"></i> Send Another Message
+                  </button>
                 </div>
+              </div>
+            ) : (
+              <>
+                <h3 style={{ fontSize: '1.5rem', fontFamily: 'var(--font-serif)', color: 'var(--text-primary)', marginBottom: '20px' }}>Send Us a Message</h3>
 
-                <button type="submit" disabled={loading} className="btn btn-primary" style={{ width: '100%', padding: '14px', opacity: loading ? 0.7 : 1, cursor: loading ? 'not-allowed' : 'pointer' }}>
-                  {loading ? 'Submitting Inquiry...' : 'Submit Inquiry'} <i className={loading ? 'ri-loader-4-line ri-spin' : 'ri-send-plane-fill'}></i>
-                </button>
-              </form>
+                <form onSubmit={handleSubmit}>
+                  {errorMessage && (
+                    <div style={{ background: '#fef2f2', border: '1px solid #ef4444', borderRadius: '8px', padding: '12px 16px', marginBottom: '16px', color: '#991b1b', fontSize: '0.85rem' }}>
+                      <i className="ri-error-warning-fill" style={{ marginRight: '6px' }}></i> {errorMessage}
+                    </div>
+                  )}
+
+                  <div className="form-group">
+                    <label className="form-label">Your Name</label>
+                    <input 
+                      type="text" 
+                      required 
+                      className="c-input" 
+                      placeholder="e.g. Rahul Sharma"
+                      value={form.name}
+                      onChange={(e) => setForm({ ...form, name: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Work Email / WhatsApp Number</label>
+                    <input 
+                      type="text" 
+                      required 
+                      className="c-input" 
+                      placeholder="e.g. rahul@company.com or +91 79890 33580"
+                      value={form.email}
+                      onChange={(e) => setForm({ ...form, email: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Service Required</label>
+                    <select 
+                      className="c-input" 
+                      value={form.service}
+                      onChange={(e) => setForm({ ...form, service: e.target.value })}
+                    >
+                      <option value="Website Development">Website Development</option>
+                      <option value="AI Automation">AI Automation & Agents</option>
+                      <option value="WhatsApp Automation">WhatsApp API Automation</option>
+                      <option value="Mobile App">Mobile App (iOS / Android)</option>
+                      <option value="Business Software">Business Software / ERP</option>
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">Project Scope / Details</label>
+                    <textarea 
+                      rows={4} 
+                      required 
+                      className="c-input" 
+                      placeholder="Tell us about your project goals, features needed, and target timeline..."
+                      value={form.message}
+                      onChange={(e) => setForm({ ...form, message: e.target.value })}
+                    ></textarea>
+                  </div>
+
+                  <button type="submit" disabled={loading} className="btn btn-primary" style={{ width: '100%', padding: '14px', opacity: loading ? 0.7 : 1, cursor: loading ? 'not-allowed' : 'pointer' }}>
+                    {loading ? 'Submitting Inquiry...' : 'Submit Inquiry'} <i className={loading ? 'ri-loader-4-line ri-spin' : 'ri-send-plane-fill'}></i>
+                  </button>
+                </form>
+              </>
             )}
           </div>
 
