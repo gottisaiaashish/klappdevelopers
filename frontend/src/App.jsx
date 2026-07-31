@@ -4,7 +4,6 @@ import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import AboutUs from './components/AboutUs';
 import Services from './components/Services';
-
 import DeviceShowcase from './components/DeviceShowcase';
 import WhyUs from './components/WhyUs';
 import TechStack from './components/TechStack';
@@ -15,6 +14,8 @@ import FAQ from './components/FAQ';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import KlappAiModal from './components/KlappAiModal';
+import AdminLoginModal from './components/AdminLoginModal';
+import AdminDashboardModal from './components/AdminDashboardModal';
 
 export default function App() {
   const [aiModalOpen, setAiModalOpen] = useState(false);
@@ -22,9 +23,33 @@ export default function App() {
   const [pricingOpen, setPricingOpen] = useState(false);
   const [showcaseOpen, setShowcaseOpen] = useState(false);
 
+  // Admin Portal State
+  const [adminLoginOpen, setAdminLoginOpen] = useState(false);
+  const [adminDashboardOpen, setAdminDashboardOpen] = useState(false);
+
   const handleOpenAi = (prompt = '') => {
     setAiPrompt(prompt);
     setAiModalOpen(true);
+  };
+
+  const handleOpenAdminLogin = () => {
+    const existingToken = sessionStorage.getItem('klapp_admin_token');
+    if (existingToken === 'klapp_admin_token_04160416') {
+      setAdminDashboardOpen(true);
+    } else {
+      setAdminLoginOpen(true);
+    }
+  };
+
+  const handleSuccessLogin = () => {
+    setAdminLoginOpen(false);
+    setAdminDashboardOpen(true);
+  };
+
+  const handleLogout = () => {
+    sessionStorage.removeItem('klapp_admin_token');
+    sessionStorage.removeItem('klapp_admin_user');
+    setAdminDashboardOpen(false);
   };
 
   return (
@@ -37,7 +62,6 @@ export default function App() {
       <main>
         <Hero onOpenAi={handleOpenAi} />
         <Services />
-
         <WhyUs />
         <TechStack />
         <Process />
@@ -50,14 +74,15 @@ export default function App() {
       <Footer 
         onOpenPricing={() => setPricingOpen(true)} 
         onOpenShowcase={() => setShowcaseOpen(true)} 
+        onOpenAdminLogin={handleOpenAdminLogin}
       />
 
-      {/* Dedicated Separate Showcase Page Overlay */}
+      {/* Showcase Page Overlay */}
       {showcaseOpen && (
         <DeviceShowcase isOpen={true} onClose={() => setShowcaseOpen(false)} />
       )}
 
-      {/* Dedicated Separate Pricing Page Overlay */}
+      {/* Pricing Page Overlay */}
       {pricingOpen && (
         <Pricing isOpen={true} onClose={() => setPricingOpen(false)} />
       )}
@@ -67,6 +92,20 @@ export default function App() {
         isOpen={aiModalOpen} 
         onClose={() => setAiModalOpen(false)} 
         initialPrompt={aiPrompt} 
+      />
+
+      {/* Founder Admin Login Popup */}
+      <AdminLoginModal 
+        isOpen={adminLoginOpen} 
+        onClose={() => setAdminLoginOpen(false)} 
+        onSuccessLogin={handleSuccessLogin} 
+      />
+
+      {/* Founder Admin Inquiries Dashboard */}
+      <AdminDashboardModal 
+        isOpen={adminDashboardOpen} 
+        onClose={() => setAdminDashboardOpen(false)} 
+        onLogout={handleLogout} 
       />
     </div>
   );

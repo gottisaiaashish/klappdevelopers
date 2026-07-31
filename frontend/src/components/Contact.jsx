@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 
 export default function Contact() {
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const [form, setForm] = useState({
     name: '',
     email: '',
@@ -9,9 +11,29 @@ export default function Contact() {
     message: ''
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitted(true);
+    setLoading(true);
+    setErrorMessage('');
+    try {
+      const res = await fetch('/api/inquiry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form)
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setSubmitted(true);
+      } else {
+        setErrorMessage(data.error || 'Failed to submit inquiry. Please try again.');
+      }
+    } catch (err) {
+      console.error('Inquiry submit error:', err);
+      // Show error message or fallback
+      setErrorMessage('Could not connect to server. Please check your internet or contact us on WhatsApp directly.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -143,6 +165,12 @@ export default function Contact() {
               </div>
             ) : (
               <form onSubmit={handleSubmit}>
+                {errorMessage && (
+                  <div style={{ background: '#fef2f2', border: '1px solid #ef4444', borderRadius: '8px', padding: '12px 16px', marginBottom: '16px', color: '#991b1b', fontSize: '0.85rem' }}>
+                    <i className="ri-error-warning-fill" style={{ marginRight: '6px' }}></i> {errorMessage}
+                  </div>
+                )}
+
                 <div className="form-group">
                   <label className="form-label">Your Name</label>
                   <input 
@@ -194,8 +222,8 @@ export default function Contact() {
                   ></textarea>
                 </div>
 
-                <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '14px' }}>
-                  Submit Inquiry <i className="ri-send-plane-fill"></i>
+                <button type="submit" disabled={loading} className="btn btn-primary" style={{ width: '100%', padding: '14px', opacity: loading ? 0.7 : 1, cursor: loading ? 'not-allowed' : 'pointer' }}>
+                  {loading ? 'Submitting Inquiry...' : 'Submit Inquiry'} <i className={loading ? 'ri-loader-4-line ri-spin' : 'ri-send-plane-fill'}></i>
                 </button>
               </form>
             )}

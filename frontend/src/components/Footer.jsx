@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function Footer({ onOpenPricing, onOpenShowcase }) {
+export default function Footer({ onOpenPricing, onOpenShowcase, onOpenAdminLogin }) {
   return (
     <footer style={{ background: '#eae6dd', borderTop: '1px solid var(--border-color)', padding: '60px 0 36px 0' }}>
       <div className="container">
@@ -47,11 +47,41 @@ export default function Footer({ onOpenPricing, onOpenShowcase }) {
             .footer-links a:hover {
               color: var(--text-primary);
             }
+            .footer-logo-img {
+              height: 42px;
+              width: auto;
+              cursor: pointer;
+              transition: transform 0.2s ease, opacity 0.2s ease;
+              margin-bottom: 12px;
+              display: block;
+            }
+            .footer-logo-img:hover {
+              transform: scale(1.05);
+              opacity: 0.9;
+            }
           `}</style>
 
           <div>
-            <div style={{ fontFamily: 'var(--font-sans)', fontWeight: '800', fontSize: '1.1rem', letterSpacing: '0.12em', color: 'var(--text-primary)', marginBottom: '12px' }}>
-              KLAPP DEVELOPERS
+            {/* Clickable Logo Image in Footer for Founder Admin Credentials Login */}
+            <div 
+              onClick={(e) => {
+                if (onOpenAdminLogin) {
+                  e.preventDefault();
+                  onOpenAdminLogin();
+                }
+              }}
+              style={{ display: 'inline-block', cursor: 'pointer' }}
+              title="Founder Portal Access"
+            >
+              <img 
+                src="/logo.png" 
+                alt="KLAPP Developers Logo" 
+                className="footer-logo-img" 
+                onError={(e) => { e.target.style.display = 'none'; }}
+              />
+              <div style={{ fontFamily: 'var(--font-sans)', fontWeight: '800', fontSize: '1.1rem', letterSpacing: '0.12em', color: 'var(--text-primary)', marginBottom: '12px' }}>
+                KLAPP DEVELOPERS
+              </div>
             </div>
 
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', lineHeight: '1.6', marginBottom: '16px', maxWidth: '300px' }}>
@@ -95,7 +125,6 @@ export default function Footer({ onOpenPricing, onOpenShowcase }) {
             </ul>
           </div>
 
-
           <div>
             <h4 className="footer-title">Services</h4>
             <ul className="footer-links">
@@ -128,7 +157,9 @@ export default function Footer({ onOpenPricing, onOpenShowcase }) {
         </div>
 
         <div style={{ paddingTop: '24px', borderTop: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-          <div>© 2026 KLAPP Developers. All rights reserved. Knowledge Led Apps & Performance Partners.</div>
+          <div>
+            © 2026 KLAPP Developers. All rights reserved.
+          </div>
           <div>
             <a href="#home" style={{ color: 'var(--text-primary)', textDecoration: 'none', fontWeight: '500' }}>
               <i className="ri-arrow-up-line"></i> Back to Top
