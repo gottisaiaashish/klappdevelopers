@@ -195,6 +195,45 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
     setNewExpense({ title: '', amount: '', category: 'Marketing' });
   };
 
+  // Content Planner Creation State
+  const [showAddContentModal, setShowAddContentModal] = useState(false);
+  const [newContent, setNewContent] = useState({
+    title: '',
+    platform: 'Instagram Reel',
+    date: new Date().toISOString().split('T')[0],
+    notes: ''
+  });
+
+  const handleCreateContent = (e) => {
+    e.preventDefault();
+    if (!newContent.title) return;
+
+    const post = {
+      id: 'CNT-' + Date.now(),
+      title: newContent.title.trim(),
+      platform: newContent.platform,
+      status: userRole === 'MINNI' ? 'READY_FOR_APPROVAL' : 'APPROVED',
+      date: newContent.date,
+      notes: newContent.notes || 'Drafted content post idea',
+      author: userRole === 'MINNI' ? 'Minni' : 'Aashish',
+      approvedBy: userRole === 'AASHISH' ? 'Aashish' : ''
+    };
+
+    const updated = {
+      ...osData,
+      contentPlanner: [post, ...osData.contentPlanner]
+    };
+    syncOSDataToBackend(updated);
+    setNewContent({ title: '', platform: 'Instagram Reel', date: new Date().toISOString().split('T')[0], notes: '' });
+    setShowAddContentModal(false);
+  };
+
+  const handleUpdateContentStatus = (contentId, newStatus) => {
+    const updatedContent = osData.contentPlanner.map(c => c.id === contentId ? { ...c, status: newStatus } : c);
+    const updated = { ...osData, contentPlanner: updatedContent };
+    syncOSDataToBackend(updated);
+  };
+
   // Minni Project Progress Updater
   const handleUpdateProjectProgress = (prjId, newStatus) => {
     const updatedProjects = osData.projects.map(p => p.id === prjId ? { ...p, status: newStatus } : p);
@@ -1171,23 +1210,96 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
             </div>
           )}
 
-          {/* TAB 4: CONTENT PLANNER */}
+          {/* TAB 4: CONTENT PLANNER & SOCIAL PIPELINE */}
           {activeTab === 'content' && (
             <div>
               <div className="os-card">
-                <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '14px' }}>Content & Social Media Workflow</h3>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
+                  <h3 style={{ fontSize: '1.15rem', fontWeight: '800', margin: 0 }}>Content & Social Media Pipeline</h3>
+                  <button 
+                    onClick={() => setShowAddContentModal(!showAddContentModal)}
+                    className="btn-action-outline"
+                    style={{ background: '#ffffff', color: '#18181b', borderColor: '#c8c3b7', fontWeight: '700', boxShadow: '0 2px 6px rgba(0,0,0,0.04)' }}
+                  >
+                    <i className="ri-add-line" style={{ color: '#2563eb' }}></i> + Add Content Post / Reel
+                  </button>
+                </div>
+
+                {/* ADD CONTENT FORM CARD */}
+                {showAddContentModal && (
+                  <div style={{ background: '#faf8f5', border: '1px solid #c8c3b7', borderRadius: '10px', padding: '16px', marginBottom: '20px' }}>
+                    <h4 style={{ fontSize: '0.98rem', fontWeight: '800', marginBottom: '12px' }}>Create New Social Post or Reel Concept</h4>
+                    <form onSubmit={handleCreateContent}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginBottom: '12px' }}>
+                        <div>
+                          <label style={{ fontSize: '0.78rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>Post Title / Headline *</label>
+                          <input type="text" required placeholder="e.g. How we built sub-100ms websites for Indian Brands" value={newContent.title} onChange={(e) => setNewContent({ ...newContent, title: e.target.value })} style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #c8c3b7' }} />
+                        </div>
+
+                        <div>
+                          <label style={{ fontSize: '0.78rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>Platform Format</label>
+                          <select value={newContent.platform} onChange={(e) => setNewContent({ ...newContent, platform: e.target.value })} style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #c8c3b7', background: '#fff', fontSize: '0.85rem', fontWeight: '700' }}>
+                            <option value="Instagram Reel">📸 Instagram Reel</option>
+                            <option value="Instagram Carousel / Post">🖼️ Instagram Carousel / Post</option>
+                            <option value="Instagram Story">📲 Instagram Story Sequence</option>
+                            <option value="LinkedIn Post">💼 LinkedIn Tech Post</option>
+                            <option value="YouTube Short">▶️ YouTube Short</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label style={{ fontSize: '0.78rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>Target Schedule Date</label>
+                          <input type="date" required value={newContent.date} onChange={(e) => setNewContent({ ...newContent, date: e.target.value })} style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #c8c3b7', background: '#fff', fontSize: '0.85rem', fontWeight: '600' }} />
+                        </div>
+                      </div>
+
+                      <div style={{ marginBottom: '12px' }}>
+                        <label style={{ fontSize: '0.78rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>Strategy Notes, Script Hook, or Caption Brief</label>
+                        <textarea rows={3} placeholder="e.g. Show live PageSpeed 100/100 score video recording, hook: 'Why 90% of business websites lose clients due to slow speed'..." value={newContent.notes} onChange={(e) => setNewContent({ ...newContent, notes: e.target.value })} style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #c8c3b7', fontSize: '0.86rem' }}></textarea>
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'flex-end' }}>
+                        <button type="button" onClick={() => setShowAddContentModal(false)} className="btn-action-outline" style={{ background: '#ffffff', color: '#71717a', borderColor: '#c8c3b7', padding: '8px 16px', borderRadius: '8px', fontWeight: '600', fontSize: '0.82rem' }}>
+                          Cancel
+                        </button>
+                        <button type="submit" className="btn-action-outline" style={{ background: '#ffffff', color: '#18181b', borderColor: '#c8c3b7', padding: '8px 20px', borderRadius: '8px', fontWeight: '800', fontSize: '0.82rem', boxShadow: '0 2px 6px rgba(0,0,0,0.04)' }}>
+                          <i className="ri-check-line" style={{ color: '#16a34a', marginRight: '4px' }}></i> Save Post to Pipeline
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                )}
+
+                {/* CONTENT POST LIST */}
                 {osData.contentPlanner.map(cnt => (
                   <div key={cnt.id} style={{ padding: '16px', background: '#faf8f5', border: '1px solid #c8c3b7', borderRadius: '10px', marginBottom: '12px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                      <div style={{ fontWeight: '800', fontSize: '1rem' }}>{cnt.title}</div>
-                      <span className="badge-status status-NEW">{cnt.status}</span>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap', gap: '10px' }}>
+                      <div style={{ fontWeight: '800', fontSize: '1rem', color: '#18181b' }}>{cnt.title}</div>
+                      
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '0.78rem', fontWeight: '700', color: '#71717a' }}>Status:</span>
+                        <select 
+                          value={cnt.status}
+                          onChange={(e) => handleUpdateContentStatus(cnt.id, e.target.value)}
+                          style={{ padding: '4px 8px', borderRadius: '6px', border: '1px solid #c8c3b7', background: '#fff', fontSize: '0.78rem', fontWeight: '700' }}
+                        >
+                          <option value="DRAFT">📝 DRAFT</option>
+                          <option value="READY_FOR_APPROVAL">⏳ READY FOR APPROVAL</option>
+                          <option value="APPROVED">✅ APPROVED</option>
+                          <option value="PUBLISHED">🚀 PUBLISHED / POSTED</option>
+                        </select>
+                      </div>
                     </div>
-                    <p style={{ fontSize: '0.86rem', color: '#52525b', margin: '0 0 12px 0' }}>{cnt.notes}</p>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontSize: '0.78rem', color: '#71717a' }}>Platform: {cnt.platform} • Author: {cnt.author}</span>
+
+                    <p style={{ fontSize: '0.86rem', color: '#52525b', margin: '0 0 12px 0', lineHeight: '1.5' }}>{cnt.notes}</p>
+                    
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+                      <div style={{ fontSize: '0.78rem', color: '#71717a' }}>
+                        Platform: <strong>{cnt.platform}</strong> • Author: <strong>{cnt.author}</strong> {cnt.date ? `• Date: ${cnt.date}` : ''}
+                      </div>
                       {cnt.status === 'READY_FOR_APPROVAL' && userRole === 'AASHISH' && (
-                        <button onClick={() => handleApproveContent(cnt.id)} className="btn-action-outline" style={{ background: '#f0fdf4', color: '#166534', borderColor: '#bbf7d0' }}>
-                          <i className="ri-checkbox-circle-line"></i> Approve Post
+                        <button onClick={() => handleApproveContent(cnt.id)} className="btn-action-outline" style={{ background: '#ffffff', color: '#166534', borderColor: '#bbf7d0', fontSize: '0.78rem', padding: '5px 12px' }}>
+                          <i className="ri-check-line" style={{ color: '#16a34a', marginRight: '4px' }}></i> Approve Post
                         </button>
                       )}
                     </div>
