@@ -1475,9 +1475,9 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                               <button 
                                 onClick={() => handlePublishContent(cnt.id)}
                                 className="btn-action-outline"
-                                style={{ background: '#18181b', color: '#ffffff', borderColor: '#18181b', fontSize: '0.78rem', padding: '5px 12px', fontWeight: '800' }}
+                                style={{ background: '#ffffff', color: '#166534', borderColor: '#bbf7d0', fontSize: '0.78rem', padding: '5px 12px', fontWeight: '700' }}
                               >
-                                🚀 Mark Published (Close Content)
+                                🚀 Published
                               </button>
                             )}
                           </div>
