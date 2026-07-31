@@ -2457,63 +2457,9 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
             </div>
           )}
 
-          {/* TAB 10: SCRATCHPAD & NOTEPAD SUITE */}
+          {/* TAB 10: SCRATCHPAD & STICKY NOTES SUITE */}
           {activeTab === 'notes' && (
             <div>
-              {/* TOP DUAL PERSONAL NOTEPADS ROW */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '20px', marginBottom: '24px' }}>
-                
-                {/* AASHISH NOTEPAD CARD */}
-                <div className="os-card" style={{ background: '#ffffff', border: '1px solid #bfdbfe', marginBottom: 0 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid #eff6ff' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#2563eb', color: '#ffffff', fontWeight: '800', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem' }}>
-                        A
-                      </div>
-                      <h4 style={{ fontSize: '1.05rem', fontWeight: '800', margin: 0, color: '#1e40af' }}>
-                        Aashish Work Scratchpad
-                      </h4>
-                    </div>
-                    <span style={{ fontSize: '0.72rem', color: '#2563eb', fontWeight: '700', background: '#eff6ff', padding: '3px 8px', borderRadius: '5px' }}>
-                      ⚡ Auto-saving live
-                    </span>
-                  </div>
-
-                  <textarea 
-                    rows={8} 
-                    value={osData.aashishPad || ''} 
-                    onChange={(e) => handleUpdateAashishPad(e.target.value)} 
-                    placeholder="Type Aashish's private work notes, technical ideas, or todo list here..."
-                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #d4d4d8', fontSize: '0.88rem', fontFamily: 'inherit', lineHeight: '1.5', background: '#fafafa' }}
-                  ></textarea>
-                </div>
-
-                {/* MINNI NOTEPAD CARD */}
-                <div className="os-card" style={{ background: '#ffffff', border: '1px solid #fbcfe8', marginBottom: 0 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid #fdf2f8' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#ec4899', color: '#ffffff', fontWeight: '800', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem' }}>
-                        M
-                      </div>
-                      <h4 style={{ fontSize: '1.05rem', fontWeight: '800', margin: 0, color: '#be185d' }}>
-                        Minni Work Scratchpad
-                      </h4>
-                    </div>
-                    <span style={{ fontSize: '0.72rem', color: '#db2777', fontWeight: '700', background: '#fdf2f8', padding: '3px 8px', borderRadius: '5px' }}>
-                      ✨ Auto-saving live
-                    </span>
-                  </div>
-
-                  <textarea 
-                    rows={8} 
-                    value={osData.minniPad || ''} 
-                    onChange={(e) => handleUpdateMinniPad(e.target.value)} 
-                    placeholder="Type Minni's creative notes, social media ideas, or client tasks here..."
-                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #d4d4d8', fontSize: '0.88rem', fontFamily: 'inherit', lineHeight: '1.5', background: '#fafafa' }}
-                  ></textarea>
-                </div>
-              </div>
-
               {/* SHARED AGENCY STICKY NOTES SECTION */}
               <div className="os-card">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
