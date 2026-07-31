@@ -114,36 +114,38 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
   const [calendarDate, setCalendarDate] = useState(new Date());
   const [selectedDay, setSelectedDay] = useState(new Date().getDate());
   const [showAddMeetingModal, setShowAddMeetingModal] = useState(false);
-  const [newMeeting, setNewMeeting] = useState({
+  const [newEvent, setNewEvent] = useState({
     title: '',
+    category: 'Meeting', // 'Meeting', 'Deadline', 'Birthday', 'Task'
     time: 'Today, 4:00 PM',
-    client: 'Rahul Sharma',
+    client: 'General',
     attendees: 'Aashish & Minni',
-    link: 'https://meet.google.com/klapp-demo'
+    link: '#'
   });
 
-  const handleCreateMeeting = (e) => {
+  const handleCreateEvent = (e) => {
     e.preventDefault();
-    if (!newMeeting.title) return;
+    if (!newEvent.title) return;
 
-    const mtg = {
-      id: 'MTG-' + Date.now(),
-      title: newMeeting.title.trim(),
-      time: newMeeting.time,
-      client: newMeeting.client,
-      attendees: newMeeting.attendees,
-      type: 'Google Meet',
-      link: newMeeting.link
+    const evt = {
+      id: 'EVT-' + Date.now(),
+      title: newEvent.title.trim(),
+      category: newEvent.category,
+      time: newEvent.time,
+      client: newEvent.client,
+      attendees: newEvent.attendees,
+      type: newEvent.category,
+      link: newEvent.link || '#'
     };
 
     const updated = {
       ...osData,
-      meetings: [mtg, ...osData.meetings]
+      meetings: [evt, ...osData.meetings]
     };
     syncOSDataToBackend(updated);
-    setNewMeeting({ title: '', time: 'Today, 4:00 PM', client: '', attendees: 'Aashish & Minni', link: 'https://meet.google.com/klapp-demo' });
+    setNewEvent({ title: '', category: 'Meeting', time: 'Today, 4:00 PM', client: 'General', attendees: 'Aashish & Minni', link: '#' });
     setShowAddMeetingModal(false);
-    alert('✅ Meeting scheduled & synced to Shared Calendar!');
+    alert(`✅ ${newEvent.category} saved to Shared Calendar!`);
   };
 
   // Scratchpad State
@@ -865,43 +867,57 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                     className="btn-action-outline"
                     style={{ background: '#18181b', color: '#ffffff', borderColor: '#18181b', fontWeight: '700' }}
                   >
-                    <i className="ri-calendar-event-line"></i> + Schedule Meeting
+                    <i className="ri-calendar-event-line"></i> + Add Event / Reminder
                   </button>
                 </div>
               </div>
 
-              {/* SCHEDULE MEETING FORM */}
+              {/* SCHEDULE EVENT FORM */}
               {showAddMeetingModal && (
                 <div className="os-card" style={{ background: '#faf8f5', marginBottom: '20px' }}>
-                  <h4 style={{ fontSize: '1rem', fontWeight: '800', marginBottom: '12px' }}>Schedule New Meeting / Deadline</h4>
-                  <form onSubmit={handleCreateMeeting}>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginBottom: '12px' }}>
+                  <h4 style={{ fontSize: '1rem', fontWeight: '800', marginBottom: '12px' }}>Add Event, Milestone, or Reminder</h4>
+                  <form onSubmit={handleCreateEvent}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px', marginBottom: '12px' }}>
                       <div>
-                        <label style={{ fontSize: '0.78rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>Meeting Title</label>
-                        <input type="text" required placeholder="e.g. Nandhakam Milestone Review" value={newMeeting.title} onChange={(e) => setNewMeeting({ ...newMeeting, title: e.target.value })} style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #c8c3b7' }} />
+                        <label style={{ fontSize: '0.78rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>Category</label>
+                        <select 
+                          value={newEvent.category} 
+                          onChange={(e) => setNewEvent({ ...newEvent, category: e.target.value })}
+                          style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #c8c3b7', background: '#fff', fontSize: '0.85rem', fontWeight: '700' }}
+                        >
+                          <option value="Meeting">🎥 Meeting (Google Meet)</option>
+                          <option value="Deadline">⏳ Project Deadline</option>
+                          <option value="Birthday">🎂 Birthday Reminder</option>
+                          <option value="Task">📝 Personal Task / Note</option>
+                        </select>
                       </div>
+
                       <div>
-                        <label style={{ fontSize: '0.78rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>Time & Day</label>
-                        <input type="text" required placeholder="e.g. Today, 4:00 PM" value={newMeeting.time} onChange={(e) => setNewMeeting({ ...newMeeting, time: e.target.value })} style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #c8c3b7' }} />
+                        <label style={{ fontSize: '0.78rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>Event Title</label>
+                        <input type="text" required placeholder="e.g. Minni Birthday 🎂 / Client Review" value={newEvent.title} onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })} style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #c8c3b7' }} />
                       </div>
+
                       <div>
-                        <label style={{ fontSize: '0.78rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>Google Meet Link</label>
-                        <input type="text" required value={newMeeting.link} onChange={(e) => setNewMeeting({ ...newMeeting, link: e.target.value })} style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #c8c3b7' }} />
+                        <label style={{ fontSize: '0.78rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>Time / Day Note</label>
+                        <input type="text" required placeholder="e.g. All Day / Today, 4:00 PM" value={newEvent.time} onChange={(e) => setNewEvent({ ...newEvent, time: e.target.value })} style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #c8c3b7' }} />
+                      </div>
+
+                      <div>
+                        <label style={{ fontSize: '0.78rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>Meet Link / Note (Optional)</label>
+                        <input type="text" placeholder="https://meet.google.com/..." value={newEvent.link} onChange={(e) => setNewEvent({ ...newEvent, link: e.target.value })} style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #c8c3b7' }} />
                       </div>
                     </div>
-                    <button type="submit" className="btn-action-outline" style={{ background: '#18181b', color: '#fff' }}>Save to Shared Calendar</button>
+                    <button type="submit" className="btn-action-outline" style={{ background: '#18181b', color: '#fff' }}>Save Event to Shared Calendar</button>
                   </form>
                 </div>
               )}
 
               {/* MONTHLY CALENDAR GRID (Sun - Sat) */}
               <div className="os-card">
-                {/* DAY OF WEEK HEADER */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px', textAlign: 'center', fontWeight: '800', fontSize: '0.8rem', color: '#71717a', textTransform: 'uppercase', marginBottom: '10px' }}>
                   <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
                 </div>
 
-                {/* DAYS MATRIX */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px' }}>
                   {(() => {
                     const year = calendarDate.getFullYear();
@@ -948,7 +964,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
 
                           {hasMeeting && (
                             <div style={{ background: '#dbeafe', color: '#1e40af', border: '1px solid #bfdbfe', borderRadius: '4px', padding: '2px 4px', fontSize: '0.68rem', fontWeight: '700', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                              <i className="ri-video-line" style={{ marginRight: '2px' }}></i> Meet
+                              <i className="ri-calendar-event-line" style={{ marginRight: '2px' }}></i> Event
                             </div>
                           )}
                         </div>
@@ -964,7 +980,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', flexWrap: 'wrap', gap: '10px' }}>
                   <h3 style={{ fontSize: '1.05rem', fontWeight: '800', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <i className="ri-calendar-check-line" style={{ color: '#2563eb' }}></i>
-                    Schedule for {calendarDate.toLocaleDateString('en-US', { month: 'long' })} {selectedDay}, {calendarDate.getFullYear()}
+                    Schedule & Reminders for {calendarDate.toLocaleDateString('en-US', { month: 'long' })} {selectedDay}, {calendarDate.getFullYear()}
                   </h3>
                   <span style={{ fontSize: '0.78rem', color: '#71717a', fontWeight: '600' }}>
                     Click any day in calendar grid to view schedule
@@ -973,22 +989,33 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
 
                 {osData.meetings.length === 0 ? (
                   <div style={{ textAlign: 'center', padding: '24px', color: '#71717a', fontSize: '0.88rem' }}>
-                    No meetings scheduled for this date.
+                    No events or reminders scheduled for this date.
                   </div>
                 ) : (
-                  osData.meetings.map(mtg => (
-                    <div key={mtg.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px', background: '#faf8f5', border: '1px solid #c8c3b7', borderRadius: '10px', marginBottom: '10px' }}>
-                      <div>
-                        <div style={{ fontWeight: '800', fontSize: '0.98rem', color: '#18181b' }}>
-                          <i className="ri-video-chat-line" style={{ marginRight: '6px', color: '#2563eb' }}></i> {mtg.title}
+                  osData.meetings.map(evt => {
+                    const cat = evt.category || evt.type || 'Meeting';
+                    const isBday = cat === 'Birthday' || evt.title.toLowerCase().includes('bday') || evt.title.toLowerCase().includes('birthday');
+                    const isDeadline = cat === 'Deadline';
+
+                    return (
+                      <div key={evt.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px', background: isBday ? '#fdf2f8' : (isDeadline ? '#fffbebf' : '#faf8f5'), border: isBday ? '1px solid #fbcfe8' : '1px solid #c8c3b7', borderRadius: '10px', marginBottom: '10px' }}>
+                        <div>
+                          <div style={{ fontWeight: '800', fontSize: '0.98rem', color: isBday ? '#be185d' : '#18181b' }}>
+                            <i className={isBday ? 'ri-cake-2-line' : (isDeadline ? 'ri-timer-line' : 'ri-video-chat-line')} style={{ marginRight: '6px', color: isBday ? '#ec4899' : (isDeadline ? '#d97706' : '#2563eb') }}></i>
+                            {evt.title}
+                          </div>
+                          <div style={{ fontSize: '0.82rem', color: '#71717a', marginTop: '2px' }}>
+                            Category: <strong>{cat}</strong> • Time: {evt.time} • Attendees: {evt.attendees}
+                          </div>
                         </div>
-                        <div style={{ fontSize: '0.82rem', color: '#71717a', marginTop: '2px' }}>Time: {mtg.time} • Attendees: {mtg.attendees} • Client: {mtg.client}</div>
+                        {evt.link && evt.link !== '#' && (
+                          <a href={evt.link} target="_blank" rel="noopener noreferrer" className="btn-action-outline">
+                            Join Meet <i className="ri-external-link-line"></i>
+                          </a>
+                        )}
                       </div>
-                      <a href={mtg.link} target="_blank" rel="noopener noreferrer" className="btn-action-outline">
-                        Join Meet <i className="ri-external-link-line"></i>
-                      </a>
-                    </div>
-                  ))
+                    );
+                  })
                 )}
               </div>
             </div>
