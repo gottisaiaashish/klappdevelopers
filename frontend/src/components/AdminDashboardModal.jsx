@@ -284,6 +284,11 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
     advancePaid: ''
   });
 
+  const [expandedProjectIds, setExpandedProjectIds] = useState({});
+  const toggleExpandProject = (id) => {
+    setExpandedProjectIds(prev => ({ ...prev, [id]: !prev[id] }));
+  };
+
   const handleCreateProject = (e) => {
     e.preventDefault();
     if (!newProject.name || !newProject.budget) return;
@@ -1196,39 +1201,124 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                     );
                   }
 
-                  return filteredProjects.map(prj => (
-                    <div key={prj.id} style={{ padding: '18px', background: '#faf8f5', border: '1px solid #c8c3b7', borderRadius: '12px', marginBottom: '14px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', marginBottom: '10px' }}>
-                        <div>
-                          <div style={{ fontWeight: '800', fontSize: '1.05rem', color: '#18181b' }}>{prj.name}</div>
-                          <div style={{ fontSize: '0.8rem', color: '#71717a', marginTop: '2px' }}>
-                            Client: <strong>{prj.client}</strong> • Service: <strong>{prj.service || 'Web Dev'}</strong> • 📅 Deadline: <strong style={{ color: '#1e40af' }}>{prj.dueDate || 'TBD'}</strong>
+                  return filteredProjects.map(prj => {
+                    const isExpanded = !!expandedProjectIds[prj.id];
+                    const pending = prj.pendingAmount !== undefined ? prj.pendingAmount : Math.max(0, (prj.budget || 0) - (prj.advancePaid || 0));
+
+                    return (
+                      <div key={prj.id} style={{ background: '#faf8f5', border: '1px solid #c8c3b7', borderRadius: '12px', marginBottom: '14px', overflow: 'hidden' }}>
+                        {/* CARD HEADER (CLICKABLE TO TOGGLE ACCORDION) */}
+                        <div 
+                          style={{ padding: '16px 18px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', cursor: 'pointer', background: isExpanded ? '#f4f4f5' : '#faf8f5' }}
+                          onClick={(e) => {
+                            if (e.target.tagName !== 'SELECT' && e.target.tagName !== 'OPTION') {
+                              toggleExpandProject(prj.id);
+                            }
+                          }}
+                        >
+                          <div>
+                            <div style={{ fontWeight: '800', fontSize: '1.05rem', color: '#18181b', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                              <span>{prj.name}</span>
+                              <span style={{ fontSize: '0.74rem', background: isExpanded ? '#18181b' : '#e4e4e7', color: isExpanded ? '#ffffff' : '#3f3f46', padding: '3px 10px', borderRadius: '12px', fontWeight: '700' }}>
+                                {isExpanded ? '▲ Hide Details' : '▼ Click for Full Details'}
+                              </span>
+                            </div>
+                            <div style={{ fontSize: '0.8rem', color: '#71717a', marginTop: '4px' }}>
+                              Client: <strong>{prj.client}</strong> • Service: <strong>{prj.service || 'Web Dev'}</strong> • 📅 Deadline: <strong style={{ color: '#1e40af' }}>{prj.dueDate || 'TBD'}</strong>
+                            </div>
+                          </div>
+
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }} onClick={(e) => e.stopPropagation()}>
+                            <span style={{ fontSize: '0.78rem', fontWeight: '700', color: '#71717a' }}>Status:</span>
+                            <select 
+                              value={prj.status}
+                              onChange={(e) => handleUpdateProjectProgress(prj.id, e.target.value)}
+                              style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid #c8c3b7', background: '#fff', fontSize: '0.78rem', fontWeight: '700' }}
+                            >
+                              <option value="IN_PROGRESS">⚡ In Progress</option>
+                              <option value="REVIEW">🔍 Client Review</option>
+                              <option value="COMPLETED">✅ Completed</option>
+                              <option value="PAUSED">⏸️ Paused</option>
+                            </select>
                           </div>
                         </div>
 
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                          <span style={{ fontSize: '0.78rem', fontWeight: '700', color: '#71717a' }}>Status:</span>
-                          <select 
-                            value={prj.status}
-                            onChange={(e) => handleUpdateProjectProgress(prj.id, e.target.value)}
-                            style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid #c8c3b7', background: '#fff', fontSize: '0.78rem', fontWeight: '700' }}
-                          >
-                            <option value="IN_PROGRESS">⚡ IN_PROGRESS</option>
-                            <option value="REVIEW">🔍 CLIENT REVIEW</option>
-                            <option value="COMPLETED">✅ COMPLETED</option>
-                            <option value="PAUSED">⏸️ PAUSED</option>
-                          </select>
-                        </div>
-                      </div>
+                        {/* ALWAYS SHOWN: SHORT DELIVERABLES SCOPE IF NOT EXPANDED */}
+                        {!isExpanded && prj.requirements && (
+                          <div style={{ padding: '12px 18px', background: '#ffffff', borderTop: '1px solid #e4e4e7' }}>
+                            <p style={{ fontSize: '0.84rem', color: '#3f3f46', margin: '0', lineHeight: '1.4' }}>
+                              <strong>Scope:</strong> {prj.requirements}
+                            </p>
+                          </div>
+                        )}
 
-                      {/* REQUIREMENTS SCOPE */}
-                      {prj.requirements && (
-                        <p style={{ fontSize: '0.86rem', color: '#3f3f46', margin: '0', lineHeight: '1.5', background: '#ffffff', padding: '10px 12px', borderRadius: '8px', border: '1px solid #e4e4e7' }}>
-                          <strong>Deliverables Scope:</strong> {prj.requirements}
-                        </p>
-                      )}
-                    </div>
-                  ));
+                        {/* EXPANDED SECTION: ALL FULL ORDER DETAILS */}
+                        {isExpanded && (
+                          <div style={{ padding: '18px', background: '#ffffff', borderTop: '1px solid #e4e4e7' }}>
+                            <h4 style={{ fontSize: '0.88rem', fontWeight: '800', color: '#18181b', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <i className="ri-file-list-3-line" style={{ color: '#2563eb' }}></i> Full Confirmed Order & Client Metadata
+                            </h4>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px', marginBottom: '14px', background: '#f8fafc', padding: '14px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                              <div>
+                                <span style={{ fontSize: '0.74rem', color: '#64748b', fontWeight: '600', display: 'block' }}>👤 Client Name</span>
+                                <strong style={{ fontSize: '0.88rem', color: '#0f172a' }}>{prj.client}</strong>
+                              </div>
+
+                              <div>
+                                <span style={{ fontSize: '0.74rem', color: '#64748b', fontWeight: '600', display: 'block' }}>📞 Phone Number</span>
+                                <a href={`tel:${prj.phone || ''}`} style={{ fontSize: '0.88rem', color: '#2563eb', fontWeight: '700', textDecoration: 'none' }}>
+                                  {prj.phone || '+91 98765 43210'}
+                                </a>
+                              </div>
+
+                              <div>
+                                <span style={{ fontSize: '0.74rem', color: '#64748b', fontWeight: '600', display: 'block' }}>🛠️ Service Required</span>
+                                <strong style={{ fontSize: '0.88rem', color: '#0f172a' }}>{prj.service || 'Website Development'}</strong>
+                              </div>
+
+                              <div>
+                                <span style={{ fontSize: '0.74rem', color: '#64748b', fontWeight: '600', display: 'block' }}>📅 Deadline Date</span>
+                                <strong style={{ fontSize: '0.88rem', color: '#1e40af' }}>{prj.dueDate || 'TBD'}</strong>
+                              </div>
+
+                              <div>
+                                <span style={{ fontSize: '0.74rem', color: '#64748b', fontWeight: '600', display: 'block' }}>💰 Total Agreed Budget</span>
+                                <strong style={{ fontSize: '0.9rem', color: '#0f172a' }}>₹{(prj.budget || 0).toLocaleString()}</strong>
+                              </div>
+
+                              <div>
+                                <span style={{ fontSize: '0.74rem', color: '#64748b', fontWeight: '600', display: 'block' }}>💵 Advance Paid</span>
+                                <strong style={{ fontSize: '0.9rem', color: '#15803d' }}>₹{(prj.advancePaid || 0).toLocaleString()}</strong>
+                              </div>
+
+                              <div>
+                                <span style={{ fontSize: '0.74rem', color: '#64748b', fontWeight: '600', display: 'block' }}>⏳ Pending Balance</span>
+                                <strong style={{ fontSize: '0.9rem', color: pending > 0 ? '#d97706' : '#15803d' }}>
+                                  {pending > 0 ? `₹${pending.toLocaleString()} Due` : '✓ 100% Paid'}
+                                </strong>
+                              </div>
+
+                              <div>
+                                <span style={{ fontSize: '0.74rem', color: '#64748b', fontWeight: '600', display: 'block' }}>👤 Order Created By</span>
+                                <strong style={{ fontSize: '0.88rem', color: '#0f172a' }}>{prj.owner || 'Aashish'}</strong>
+                              </div>
+                            </div>
+
+                            {/* FULL DELIVERABLES SCOPE */}
+                            <div>
+                              <span style={{ fontSize: '0.76rem', color: '#475569', fontWeight: '700', display: 'block', marginBottom: '6px' }}>
+                                📝 Complete Scope & Requirements Specification:
+                              </span>
+                              <div style={{ fontSize: '0.86rem', color: '#334155', lineHeight: '1.6', background: '#f1f5f9', padding: '12px 14px', borderRadius: '8px', border: '1px solid #cbd5e1', whiteSpace: 'pre-wrap' }}>
+                                {prj.requirements || 'No extra requirements specified.'}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  });
                 })()}
               </div>
             </div>
