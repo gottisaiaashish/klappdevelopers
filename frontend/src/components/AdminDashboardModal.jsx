@@ -560,20 +560,6 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            {/* Quick Role Switcher Toggle */}
-            <button 
-              className="role-switch-btn"
-              onClick={() => {
-                const nextRole = userRole === 'AASHISH' ? 'MINNI' : 'AASHISH';
-                setUserRole(nextRole);
-                sessionStorage.setItem('klapp_admin_avatar', nextRole);
-              }}
-              title="Switch Workspace View"
-            >
-              <i className="ri-swap-line" style={{ color: '#2563eb' }}></i>
-              Switch to {userRole === 'AASHISH' ? 'Minni OS' : 'Aashish OS'}
-            </button>
-
             <button onClick={fetchInquiries} className="btn-action-outline">
               <i className="ri-refresh-line"></i> Refresh
             </button>
