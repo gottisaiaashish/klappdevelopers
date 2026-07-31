@@ -71,7 +71,7 @@ export default function Footer({ onOpenPricing, onOpenShowcase, onOpenAdminLogin
                 }
               }}
               style={{ display: 'inline-block', cursor: 'pointer' }}
-              title="Founder Portal Access"
+              title="Admin Portal Access"
             >
               <img 
                 src="/logo.png" 

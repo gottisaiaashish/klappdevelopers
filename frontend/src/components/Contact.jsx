@@ -190,7 +190,7 @@ export default function Contact() {
                 </h3>
 
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: '1.6', maxWidth: '420px', margin: '0 auto 24px auto' }}>
-                  Thank you for reaching out{form.name ? `, ${form.name}` : ''}! Founder Gotti Aashish & our team will contact you on WhatsApp / Email within 2 hours.
+                  Thank you for reaching out{form.name ? `, ${form.name}` : ''}! Gotti Aashish & our team will contact you on WhatsApp / Email within 2 hours.
                 </p>
 
                 {form.service && (
