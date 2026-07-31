@@ -112,6 +112,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
 
   // Shared Interactive Calendar State
   const [calendarDate, setCalendarDate] = useState(new Date());
+  const [selectedDay, setSelectedDay] = useState(new Date().getDate());
   const [showAddMeetingModal, setShowAddMeetingModal] = useState(false);
   const [newMeeting, setNewMeeting] = useState({
     title: '',
@@ -917,25 +918,29 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
 
                     for (let d = 1; d <= daysInMonth; d++) {
                       const isToday = isCurrentMonth && todayDate.getDate() === d;
+                      const isSelected = selectedDay === d;
                       const hasMeeting = d === todayDate.getDate() || d === 15;
 
                       gridCells.push(
                         <div 
                           key={`day-${d}`} 
+                          onClick={() => setSelectedDay(d)}
                           style={{
                             height: '84px',
                             padding: '8px',
-                            background: isToday ? '#eae6dd' : '#ffffff',
+                            background: isSelected ? '#eff6ff' : (isToday ? '#eae6dd' : '#ffffff'),
                             borderRadius: '8px',
-                            border: isToday ? '2px solid #18181b' : '1px solid #c8c3b7',
+                            border: isSelected ? '2px solid #2563eb' : (isToday ? '2px solid #18181b' : '1px solid #c8c3b7'),
+                            cursor: 'pointer',
                             display: 'flex',
                             flexDirection: 'column',
                             justifyContent: 'space-between',
-                            overflow: 'hidden'
+                            overflow: 'hidden',
+                            transition: 'all 0.15s ease'
                           }}
                         >
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span style={{ fontSize: '0.86rem', fontWeight: isToday ? '800' : '700', color: isToday ? '#18181b' : '#52525b' }}>
+                            <span style={{ fontSize: '0.86rem', fontWeight: (isToday || isSelected) ? '800' : '700', color: isSelected ? '#2563eb' : (isToday ? '#18181b' : '#52525b') }}>
                               {d}
                             </span>
                             {isToday && <span style={{ fontSize: '0.65rem', background: '#18181b', color: '#fff', padding: '1px 5px', borderRadius: '4px', fontWeight: '800' }}>TODAY</span>}
@@ -954,22 +959,37 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                 </div>
               </div>
 
-              {/* SCHEDULED MEETINGS FEED */}
+              {/* SELECTED DATE MEETINGS & EVENTS FEED */}
               <div className="os-card">
-                <h3 style={{ fontSize: '1.05rem', fontWeight: '800', marginBottom: '14px' }}>All Shared Meetings & Milestones</h3>
-                {osData.meetings.map(mtg => (
-                  <div key={mtg.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px', background: '#faf8f5', border: '1px solid #c8c3b7', borderRadius: '10px', marginBottom: '10px' }}>
-                    <div>
-                      <div style={{ fontWeight: '800', fontSize: '0.98rem', color: '#18181b' }}>
-                        <i className="ri-video-chat-line" style={{ marginRight: '6px', color: '#2563eb' }}></i> {mtg.title}
-                      </div>
-                      <div style={{ fontSize: '0.82rem', color: '#71717a', marginTop: '2px' }}>Time: {mtg.time} • Attendees: {mtg.attendees}</div>
-                    </div>
-                    <a href={mtg.link} target="_blank" rel="noopener noreferrer" className="btn-action-outline">
-                      Join Meet <i className="ri-external-link-line"></i>
-                    </a>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', flexWrap: 'wrap', gap: '10px' }}>
+                  <h3 style={{ fontSize: '1.05rem', fontWeight: '800', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <i className="ri-calendar-check-line" style={{ color: '#2563eb' }}></i>
+                    Schedule for {calendarDate.toLocaleDateString('en-US', { month: 'long' })} {selectedDay}, {calendarDate.getFullYear()}
+                  </h3>
+                  <span style={{ fontSize: '0.78rem', color: '#71717a', fontWeight: '600' }}>
+                    Click any day in calendar grid to view schedule
+                  </span>
+                </div>
+
+                {osData.meetings.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: '24px', color: '#71717a', fontSize: '0.88rem' }}>
+                    No meetings scheduled for this date.
                   </div>
-                ))}
+                ) : (
+                  osData.meetings.map(mtg => (
+                    <div key={mtg.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px', background: '#faf8f5', border: '1px solid #c8c3b7', borderRadius: '10px', marginBottom: '10px' }}>
+                      <div>
+                        <div style={{ fontWeight: '800', fontSize: '0.98rem', color: '#18181b' }}>
+                          <i className="ri-video-chat-line" style={{ marginRight: '6px', color: '#2563eb' }}></i> {mtg.title}
+                        </div>
+                        <div style={{ fontSize: '0.82rem', color: '#71717a', marginTop: '2px' }}>Time: {mtg.time} • Attendees: {mtg.attendees} • Client: {mtg.client}</div>
+                      </div>
+                      <a href={mtg.link} target="_blank" rel="noopener noreferrer" className="btn-action-outline">
+                        Join Meet <i className="ri-external-link-line"></i>
+                      </a>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           )}
