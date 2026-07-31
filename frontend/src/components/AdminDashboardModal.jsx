@@ -52,8 +52,8 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
       { id: 'PRJ-102', name: 'Balaji Pharma Billing & GST Portal', client: 'Balaji Pharma', service: 'Business Software', status: 'PLANNING', priority: 'HIGH', dueDate: '2026-08-20', budget: 45000, owner: 'Minni' }
     ],
     meetings: [
-      { id: 'MTG-01', title: 'Nandhakam Project Milestone Review', date: new Date().toISOString().split('T')[0], time: '4:00 PM', client: 'Rahul Sharma', attendees: 'Aashish & Minni', type: 'Google Meet', category: 'Meeting', link: 'https://meet.google.com/klapp-demo' },
-      { id: 'MTG-02', title: 'KLAPP Q3 Agency Growth Strategy', date: new Date(Date.now() + 86400000).toISOString().split('T')[0], time: '11:00 AM', client: 'Internal', attendees: 'Aashish & Minni', type: 'Office Room', category: 'Meeting', link: '#' }
+      { id: 'MTG-01', title: 'Nandhakam Project Milestone Review', date: new Date().toISOString().split('T')[0], time: '4:00 PM', client: 'Rahul Sharma', attendees: 'Aashish & Minni', type: 'Google Meet', category: 'Meeting', createdBy: 'Aashish', link: 'https://meet.google.com/klapp-demo' },
+      { id: 'MTG-02', title: 'KLAPP Q3 Agency Growth Strategy', date: new Date(Date.now() + 86400000).toISOString().split('T')[0], time: '11:00 AM', client: 'Internal', attendees: 'Aashish & Minni', type: 'Office Room', category: 'Meeting', createdBy: 'Minni', link: '#' }
     ],
     contentPlanner: [
       { id: 'CNT-01', title: 'How we built sub-100ms websites for Indian Brands', platform: 'Instagram Reel', status: 'READY_FOR_APPROVAL', date: 'Today, 6:00 PM', notes: 'Video edited, needs Aashish approval before posting', author: 'Minni', approvedBy: '' },
@@ -128,6 +128,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
     time: '16:00',
     client: 'General',
     attendees: 'Aashish & Minni',
+    createdBy: 'Aashish',
     link: '#'
   });
 
@@ -154,6 +155,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
       time: formatTime12h(newEvent.time),
       client: newEvent.client,
       attendees: newEvent.attendees,
+      createdBy: newEvent.createdBy,
       type: newEvent.category,
       link: newEvent.link || '#'
     };
@@ -163,7 +165,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
       meetings: [evt, ...osData.meetings]
     };
     syncOSDataToBackend(updated);
-    setNewEvent({ title: '', category: 'Meeting', date: new Date().toISOString().split('T')[0], time: '16:00', client: 'General', attendees: 'Aashish & Minni', link: '#' });
+    setNewEvent({ title: '', category: 'Meeting', date: new Date().toISOString().split('T')[0], time: '16:00', client: 'General', attendees: 'Aashish & Minni', createdBy: 'Aashish', link: '#' });
     setShowAddMeetingModal(false);
   };
 
@@ -987,7 +989,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                       <div key={mtg.id} style={{ padding: '12px', background: '#faf8f5', border: '1px solid #c8c3b7', borderRadius: '10px', marginBottom: '10px' }}>
                         <div style={{ fontWeight: '800', fontSize: '0.92rem', color: '#18181b' }}>{mtg.title}</div>
                         <div style={{ fontSize: '0.78rem', color: '#71717a', marginTop: '2px' }}>
-                          {mtg.time} • {new Date(mtg.date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} • {mtg.attendees}
+                          {mtg.time} • {new Date(mtg.date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}{mtg.createdBy ? ` • Set by ${mtg.createdBy}` : ` • ${mtg.attendees}`}
                         </div>
                         {mtg.link && mtg.link !== '#' && (
                           <a href={mtg.link} target="_blank" rel="noopener noreferrer" className="btn-action-outline" style={{ marginTop: '8px', fontSize: '0.76rem', padding: '4px 10px' }}>
@@ -1492,6 +1494,18 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                         <label style={{ fontSize: '0.78rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>Meet Link / Note (Optional)</label>
                         <input type="text" placeholder="https://meet.google.com/..." value={newEvent.link} onChange={(e) => setNewEvent({ ...newEvent, link: e.target.value })} style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #c8c3b7' }} />
                       </div>
+
+                      <div>
+                        <label style={{ fontSize: '0.78rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>Set by</label>
+                        <select 
+                          value={newEvent.createdBy} 
+                          onChange={(e) => setNewEvent({ ...newEvent, createdBy: e.target.value })}
+                          style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #c8c3b7', background: '#fff', fontSize: '0.85rem', fontWeight: '700' }}
+                        >
+                          <option value="Aashish">Aashish</option>
+                          <option value="Minni">Minni</option>
+                        </select>
+                      </div>
                     </div>
                     <div style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'flex-end', marginTop: '16px' }}>
                       <button 
@@ -1654,7 +1668,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                             {evt.title}
                           </div>
                           <div style={{ fontSize: '0.82rem', color: '#71717a', marginTop: '2px' }}>
-                            {evt.time} • {evt.date ? new Date(evt.date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }) : 'Today'} • {evt.attendees}
+                            {evt.time} • {evt.date ? new Date(evt.date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }) : 'Today'}{evt.createdBy ? ` • Set by ${evt.createdBy}` : ` • ${evt.attendees}`}
                           </div>
                         </div>
                         {evt.link && evt.link !== '#' && (
