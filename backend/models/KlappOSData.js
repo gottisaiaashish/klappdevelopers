@@ -88,6 +88,18 @@ const KlappOSSchema = new mongoose.Schema({
     title: String,
     completed: { type: Boolean, default: false }
   }],
+  aashishPad: { type: String, default: '• Call Rahul about Gym App proposal\n• Follow up on Nandhakam booking engine payment gateway\n• Draft scope document for medical shop software' },
+  minniPad: { type: String, default: '• Finalize Instagram story graphics for brand launch\n• Client review call with Dr. Balaji\n• Prepare UI mockup options for client feedback' },
+  agencyNotes: [{
+    id: String,
+    title: String,
+    content: String,
+    category: { type: String, default: 'General' },
+    author: String,
+    color: { type: String, default: '#fef08a' },
+    isPinned: { type: Boolean, default: false },
+    updatedAt: String
+  }],
   updatedAt: { type: Date, default: Date.now }
 });
 

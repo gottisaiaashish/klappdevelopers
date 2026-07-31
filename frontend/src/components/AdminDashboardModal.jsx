@@ -407,6 +407,70 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
     syncOSDataToBackend(updated);
   };
 
+  // Notepad Suite States & Handlers
+  const [showAddNoteModal, setShowAddNoteModal] = useState(false);
+  const [newNoteData, setNewNoteData] = useState({
+    title: '',
+    content: '',
+    category: 'Client Operations',
+    color: '#fef08a'
+  });
+  const [noteCategoryFilter, setNoteCategoryFilter] = useState('ALL');
+
+  const handleUpdateAashishPad = (text) => {
+    const updated = { ...osData, aashishPad: text };
+    syncOSDataToBackend(updated);
+  };
+
+  const handleUpdateMinniPad = (text) => {
+    const updated = { ...osData, minniPad: text };
+    syncOSDataToBackend(updated);
+  };
+
+  const handleCreateAgencyNote = (e) => {
+    e.preventDefault();
+    if (!newNoteData.title || !newNoteData.content) return;
+
+    const todayStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    const newNote = {
+      id: 'NTE-' + Date.now(),
+      title: newNoteData.title.trim(),
+      content: newNoteData.content.trim(),
+      category: newNoteData.category,
+      author: userRole === 'MINNI' ? 'Minni' : 'Aashish',
+      color: newNoteData.color,
+      isPinned: false,
+      updatedAt: todayStr
+    };
+
+    const updated = {
+      ...osData,
+      agencyNotes: [newNote, ...(osData.agencyNotes || [])]
+    };
+
+    syncOSDataToBackend(updated);
+    setNewNoteData({ title: '', content: '', category: 'Client Operations', color: '#fef08a' });
+    setShowAddNoteModal(false);
+  };
+
+  const handleTogglePinAgencyNote = (noteId) => {
+    const updatedNotes = (osData.agencyNotes || []).map(n => {
+      if (n.id === noteId) {
+        return { ...n, isPinned: !n.isPinned };
+      }
+      return n;
+    });
+
+    const updated = { ...osData, agencyNotes: updatedNotes };
+    syncOSDataToBackend(updated);
+  };
+
+  const handleDeleteAgencyNote = (noteId) => {
+    const updatedNotes = (osData.agencyNotes || []).filter(n => n.id !== noteId);
+    const updated = { ...osData, agencyNotes: updatedNotes };
+    syncOSDataToBackend(updated);
+  };
+
   // Scratchpad State
   const [scratchpadText, setScratchpadText] = useState(
     localStorage.getItem('klapp_admin_scratchpad') || 
@@ -2393,19 +2457,243 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
             </div>
           )}
 
-          {/* TAB 10: SCRATCHPAD */}
+          {/* TAB 10: SCRATCHPAD & NOTEPAD SUITE */}
           {activeTab === 'notes' && (
-            <div className="os-card">
-              <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '14px' }}>Agency Scratchpad</h3>
-              <textarea 
-                rows={10} 
-                value={scratchpadText} 
-                onChange={(e) => {
-                  setScratchpadText(e.target.value);
-                  localStorage.setItem('klapp_admin_scratchpad', e.target.value);
-                }} 
-                style={{ width: '100%', padding: '14px', borderRadius: '10px', border: '1px solid #c8c3b7', fontSize: '0.92rem', fontFamily: 'monospace' }}
-              ></textarea>
+            <div>
+              {/* TOP DUAL PERSONAL NOTEPADS ROW */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '20px', marginBottom: '24px' }}>
+                
+                {/* AASHISH NOTEPAD CARD */}
+                <div className="os-card" style={{ background: '#ffffff', border: '1px solid #bfdbfe', marginBottom: 0 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid #eff6ff' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#2563eb', color: '#ffffff', fontWeight: '800', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem' }}>
+                        A
+                      </div>
+                      <h4 style={{ fontSize: '1.05rem', fontWeight: '800', margin: 0, color: '#1e40af' }}>
+                        Aashish Work Scratchpad
+                      </h4>
+                    </div>
+                    <span style={{ fontSize: '0.72rem', color: '#2563eb', fontWeight: '700', background: '#eff6ff', padding: '3px 8px', borderRadius: '5px' }}>
+                      ⚡ Auto-saving live
+                    </span>
+                  </div>
+
+                  <textarea 
+                    rows={8} 
+                    value={osData.aashishPad || ''} 
+                    onChange={(e) => handleUpdateAashishPad(e.target.value)} 
+                    placeholder="Type Aashish's private work notes, technical ideas, or todo list here..."
+                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #d4d4d8', fontSize: '0.88rem', fontFamily: 'inherit', lineHeight: '1.5', background: '#fafafa' }}
+                  ></textarea>
+                </div>
+
+                {/* MINNI NOTEPAD CARD */}
+                <div className="os-card" style={{ background: '#ffffff', border: '1px solid #fbcfe8', marginBottom: 0 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', paddingBottom: '8px', borderBottom: '1px solid #fdf2f8' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#ec4899', color: '#ffffff', fontWeight: '800', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem' }}>
+                        M
+                      </div>
+                      <h4 style={{ fontSize: '1.05rem', fontWeight: '800', margin: 0, color: '#be185d' }}>
+                        Minni Work Scratchpad
+                      </h4>
+                    </div>
+                    <span style={{ fontSize: '0.72rem', color: '#db2777', fontWeight: '700', background: '#fdf2f8', padding: '3px 8px', borderRadius: '5px' }}>
+                      ✨ Auto-saving live
+                    </span>
+                  </div>
+
+                  <textarea 
+                    rows={8} 
+                    value={osData.minniPad || ''} 
+                    onChange={(e) => handleUpdateMinniPad(e.target.value)} 
+                    placeholder="Type Minni's creative notes, social media ideas, or client tasks here..."
+                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #d4d4d8', fontSize: '0.88rem', fontFamily: 'inherit', lineHeight: '1.5', background: '#fafafa' }}
+                  ></textarea>
+                </div>
+              </div>
+
+              {/* SHARED AGENCY STICKY NOTES SECTION */}
+              <div className="os-card">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
+                  <div>
+                    <h3 style={{ fontSize: '1.15rem', fontWeight: '800', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <i className="ri-sticky-note-2-line" style={{ color: '#d97706' }}></i>
+                      Shared Agency Sticky Notes & Quick Ideas
+                    </h3>
+                    <p style={{ fontSize: '0.78rem', color: '#71717a', margin: '2px 0 0 0' }}>
+                      Interactive real-time synchronized sticky notes between Aashish and Minni.
+                    </p>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+                    {/* CATEGORY FILTER PILLS */}
+                    <div style={{ display: 'flex', background: '#e4e4e7', padding: '3px', borderRadius: '8px', gap: '2px' }}>
+                      {['ALL', 'Tech & Code', 'Social Media', 'Client Operations'].map(cat => (
+                        <button
+                          key={cat}
+                          onClick={() => setNoteCategoryFilter(cat)}
+                          style={{
+                            padding: '5px 10px',
+                            borderRadius: '6px',
+                            border: 'none',
+                            background: noteCategoryFilter === cat ? '#ffffff' : 'transparent',
+                            color: noteCategoryFilter === cat ? '#18181b' : '#52525b',
+                            fontWeight: '700',
+                            fontSize: '0.75rem',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          {cat === 'ALL' ? 'All Notes' : cat}
+                        </button>
+                      ))}
+                    </div>
+
+                    <button 
+                      onClick={() => setShowAddNoteModal(!showAddNoteModal)}
+                      className="btn-action-outline"
+                      style={{ background: '#ffffff', color: '#18181b', borderColor: '#c8c3b7', fontWeight: '700', boxShadow: '0 2px 6px rgba(0,0,0,0.04)' }}
+                    >
+                      <i className="ri-add-line" style={{ color: '#2563eb', marginRight: '4px' }}></i> Add New Note
+                    </button>
+                  </div>
+                </div>
+
+                {/* ADD NOTE INLINE FORM */}
+                {showAddNoteModal && (
+                  <div style={{ background: '#faf8f5', border: '1px solid #c8c3b7', borderRadius: '12px', padding: '18px', marginBottom: '20px' }}>
+                    <h4 style={{ fontSize: '0.95rem', fontWeight: '800', marginBottom: '12px' }}>Create Shared Sticky Note</h4>
+                    <form onSubmit={handleCreateAgencyNote}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginBottom: '12px' }}>
+                        <div>
+                          <label style={{ fontSize: '0.78rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>Note Title *</label>
+                          <input type="text" required placeholder="" value={newNoteData.title} onChange={(e) => setNewNoteData({ ...newNoteData, title: e.target.value })} style={{ width: '100%', padding: '9px', borderRadius: '8px', border: '1px solid #d4d4d8', fontSize: '0.85rem' }} />
+                        </div>
+
+                        <div>
+                          <label style={{ fontSize: '0.78rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>Category Tag</label>
+                          <select value={newNoteData.category} onChange={(e) => setNewNoteData({ ...newNoteData, category: e.target.value })} style={{ width: '100%', padding: '9px', borderRadius: '8px', border: '1px solid #d4d4d8', fontSize: '0.85rem', fontWeight: '600' }}>
+                            <option value="Client Operations">💼 Client Operations</option>
+                            <option value="Tech & Code">💻 Tech & Code</option>
+                            <option value="Social Media">📸 Social Media</option>
+                            <option value="General">💡 General Idea</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label style={{ fontSize: '0.78rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>Note Color Theme</label>
+                          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '6px' }}>
+                            {[
+                              ['#fef08a', 'Yellow'],
+                              ['#bbf7d0', 'Green'],
+                              ['#bfdbfe', 'Blue'],
+                              ['#fbcfe8', 'Pink'],
+                              ['#e9d5ff', 'Purple']
+                            ].map(([hex, name]) => (
+                              <div 
+                                key={hex}
+                                onClick={() => setNewNoteData({ ...newNoteData, color: hex })}
+                                style={{ 
+                                  width: '24px', 
+                                  height: '24px', 
+                                  borderRadius: '50%', 
+                                  background: hex, 
+                                  border: newNoteData.color === hex ? '2px solid #18181b' : '1px solid #d4d4d8',
+                                  cursor: 'pointer' 
+                                }}
+                                title={name}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div style={{ marginBottom: '14px' }}>
+                        <label style={{ fontSize: '0.78rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>Note Content *</label>
+                        <textarea rows={3} required placeholder="" value={newNoteData.content} onChange={(e) => setNewNoteData({ ...newNoteData, content: e.target.value })} style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #d4d4d8', fontSize: '0.85rem', fontFamily: 'inherit' }}></textarea>
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+                        <button type="button" onClick={() => setShowAddNoteModal(false)} className="btn-action-outline" style={{ background: '#ffffff', color: '#71717a', borderColor: '#d4d4d8', padding: '6px 14px', borderRadius: '8px', fontWeight: '600' }}>Cancel</button>
+                        <button type="submit" className="btn-action-outline" style={{ background: '#ffffff', color: '#166534', borderColor: '#bbf7d0', padding: '6px 18px', borderRadius: '8px', fontWeight: '700' }}>Save Note</button>
+                      </div>
+                    </form>
+                  </div>
+                )}
+
+                {/* STICKY NOTES GRID */}
+                {(() => {
+                  const notesList = (osData.agencyNotes || []).filter(n => {
+                    if (noteCategoryFilter === 'ALL') return true;
+                    return n.category === noteCategoryFilter;
+                  });
+
+                  if (notesList.length === 0) {
+                    return (
+                      <div style={{ textAlign: 'center', padding: '24px', color: '#71717a', fontSize: '0.88rem' }}>
+                        No notes found in this category. Click "+ Add New Note" above to create one!
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '16px' }}>
+                      {notesList.map(nte => (
+                        <div 
+                          key={nte.id} 
+                          style={{ 
+                            background: nte.color || '#fef08a', 
+                            borderRadius: '12px', 
+                            padding: '16px', 
+                            border: '1px solid rgba(0,0,0,0.08)',
+                            boxShadow: '0 4px 10px rgba(0,0,0,0.03)',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justify: 'space-between',
+                            position: 'relative'
+                          }}
+                        >
+                          <div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px', marginBottom: '8px' }}>
+                              <h4 style={{ fontSize: '0.92rem', fontWeight: '800', margin: 0, color: '#18181b' }}>{nte.title}</h4>
+                              <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                                <button 
+                                  onClick={() => handleTogglePinAgencyNote(nte.id)} 
+                                  style={{ border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '0.9rem', opacity: nte.isPinned ? 1 : 0.4 }}
+                                  title={nte.isPinned ? 'Unpin note' : 'Pin note to top'}
+                                >
+                                  📌
+                                </button>
+                                <button 
+                                  onClick={() => handleDeleteAgencyNote(nte.id)} 
+                                  style={{ border: 'none', background: 'transparent', cursor: 'pointer', fontSize: '0.85rem', color: '#ef4444', opacity: 0.7 }}
+                                  title="Delete note"
+                                >
+                                  🗑️
+                                </button>
+                              </div>
+                            </div>
+
+                            <span style={{ fontSize: '0.7rem', fontWeight: '700', background: 'rgba(255,255,255,0.7)', color: '#334155', padding: '2px 6px', borderRadius: '4px', display: 'inline-block', marginBottom: '10px' }}>
+                              {nte.category}
+                            </span>
+
+                            <p style={{ fontSize: '0.85rem', color: '#1e293b', margin: '0 0 12px 0', lineHeight: '1.5', whiteSpace: 'pre-wrap' }}>
+                              {nte.content}
+                            </p>
+                          </div>
+
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '8px', borderTop: '1px solid rgba(0,0,0,0.06)', fontSize: '0.72rem', color: '#475569', fontWeight: '600' }}>
+                            <span>by <strong>{nte.author || 'Agency'}</strong></span>
+                            <span>{nte.updatedAt || 'Recently'}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })()}
+              </div>
             </div>
           )}
 

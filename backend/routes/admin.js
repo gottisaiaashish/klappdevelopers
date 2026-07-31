@@ -168,6 +168,40 @@ const defaultOSState = {
     { id: 'SG-2', title: 'KLAPP Q3 Strategy & Client Review', completed: true },
     { id: 'SG-3', title: 'Daily Night Lead Check & Planning', completed: false },
     { id: 'SG-4', title: 'Review Weekly Content Pipeline & Approvals', completed: true }
+  ],
+  aashishPad: '• Call Rahul about Gym App proposal\n• Follow up on Nandhakam booking engine payment gateway\n• Draft scope document for medical shop software',
+  minniPad: '• Finalize Instagram story graphics for brand launch\n• Client review call with Dr. Balaji\n• Prepare UI mockup options for client feedback',
+  agencyNotes: [
+    {
+      id: 'NTE-1',
+      title: '🚀 Nandhakam E-Commerce Payment Gateway',
+      content: 'Razorpay UPI integration completed. Need to test sub-100ms response time on production server.',
+      category: 'Tech & Code',
+      author: 'Aashish',
+      color: '#bfdbfe',
+      isPinned: true,
+      updatedAt: 'Aug 01, 2026'
+    },
+    {
+      id: 'NTE-2',
+      title: '📸 Brand Campaign Content Strategy',
+      content: 'Prepare 3 high-converting Reels highlighting fast turnarounds for local businesses in Hyderabad.',
+      category: 'Social Media',
+      author: 'Minni',
+      color: '#fbcfe8',
+      isPinned: true,
+      updatedAt: 'Aug 01, 2026'
+    },
+    {
+      id: 'NTE-3',
+      title: '💼 Client Proposal Template Note',
+      content: 'Always include 50% milestone advance requirement and sub-100ms speed guarantee in initial quotes.',
+      category: 'Client Operations',
+      author: 'Aashish',
+      color: '#fef08a',
+      isPinned: false,
+      updatedAt: 'Jul 31, 2026'
+    }
   ]
 };
 
