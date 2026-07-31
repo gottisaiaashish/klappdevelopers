@@ -14,23 +14,35 @@ const defaultOSState = {
       id: 'PRJ-101',
       name: 'Nandhakam E-Commerce & Booking System',
       client: 'Rahul Sharma',
+      phone: '+91 98765 43210',
+      requirements: 'Custom React E-commerce storefront, Payment gateway integration, Admin inventory dashboard',
       service: 'Website Development',
       status: 'IN_PROGRESS',
       priority: 'HIGH',
       dueDate: '2026-08-15',
       budget: 65000,
-      owner: 'Aashish'
+      advancePaid: 35000,
+      pendingAmount: 30000,
+      owner: 'Aashish',
+      lastFollowedUpBy: 'Minni',
+      lastFollowedUpAt: 'Jul 30, 2026'
     },
     {
       id: 'PRJ-102',
       name: 'Balaji Pharma Billing & GST Portal',
       client: 'Balaji Pharma',
+      phone: '+91 91234 56789',
+      requirements: 'GST Invoice generation, PDF export, Monthly sales dashboard & inventory sync',
       service: 'Business Software',
       status: 'PLANNING',
       priority: 'HIGH',
       dueDate: '2026-08-20',
       budget: 45000,
-      owner: 'Minni'
+      advancePaid: 20000,
+      pendingAmount: 25000,
+      owner: 'Minni',
+      lastFollowedUpBy: 'Aashish',
+      lastFollowedUpAt: 'Jul 31, 2026'
     }
   ],
   meetings: [

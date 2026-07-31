@@ -270,6 +270,101 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
     syncOSDataToBackend(updated);
   };
 
+  // Minni & Aashish Confirmed Project Creation State
+  const [showAddProjectModal, setShowAddProjectModal] = useState(false);
+  const [newProject, setNewProject] = useState({
+    name: '',
+    client: '',
+    phone: '',
+    requirements: '',
+    service: 'Website Development',
+    dueDate: new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0],
+    budget: '',
+    advancePaid: ''
+  });
+
+  const handleCreateProject = (e) => {
+    e.preventDefault();
+    if (!newProject.name || !newProject.budget) return;
+
+    const budgetVal = parseFloat(newProject.budget) || 0;
+    const advanceVal = parseFloat(newProject.advancePaid) || 0;
+    const pendingVal = Math.max(0, budgetVal - advanceVal);
+
+    const prj = {
+      id: 'PRJ-' + Date.now(),
+      name: newProject.name.trim(),
+      client: newProject.client.trim() || 'Client',
+      phone: newProject.phone.trim() || '+91 98765 43210',
+      requirements: newProject.requirements.trim() || 'Standard Project Scope',
+      service: newProject.service,
+      status: 'IN_PROGRESS',
+      priority: 'HIGH',
+      dueDate: newProject.dueDate,
+      budget: budgetVal,
+      advancePaid: advanceVal,
+      pendingAmount: pendingVal,
+      owner: userRole === 'MINNI' ? 'Minni' : 'Aashish',
+      lastFollowedUpBy: '',
+      lastFollowedUpAt: ''
+    };
+
+    // AUTO-FEED DEADLINE TO SHARED CALENDAR (MEETINGS)
+    const deadlineMeeting = {
+      id: 'MTG-PRJ-' + Date.now(),
+      title: `🏁 Project Deadline: ${prj.name}`,
+      time: '11:59 PM',
+      client: prj.client,
+      attendees: 'Aashish & Minni',
+      type: 'Project Milestone Deadline',
+      date: prj.dueDate,
+      link: '#'
+    };
+
+    const updated = {
+      ...osData,
+      projects: [prj, ...(osData.projects || [])],
+      meetings: [deadlineMeeting, ...(osData.meetings || [])]
+    };
+
+    syncOSDataToBackend(updated);
+    setNewProject({ name: '', client: '', phone: '', requirements: '', service: 'Website Development', dueDate: new Date(Date.now() + 14 * 86400000).toISOString().split('T')[0], budget: '', advancePaid: '' });
+    setShowAddProjectModal(false);
+  };
+
+  const handleFollowUpCall = (projectId) => {
+    const todayStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    const currentUserName = userRole === 'MINNI' ? 'Minni' : 'Aashish';
+
+    const updatedProjects = (osData.projects || []).map(p => {
+      if (p.id === projectId) {
+        return {
+          ...p,
+          lastFollowedUpBy: currentUserName,
+          lastFollowedUpAt: todayStr
+        };
+      }
+      return p;
+    });
+
+    const updated = { ...osData, projects: updatedProjects };
+    syncOSDataToBackend(updated);
+  };
+
+  const handleUpdateProjectPayment = (projectId, newAdvance) => {
+    const updatedProjects = (osData.projects || []).map(p => {
+      if (p.id === projectId) {
+        const adv = parseFloat(newAdvance) || 0;
+        const pend = Math.max(0, (p.budget || 0) - adv);
+        return { ...p, advancePaid: adv, pendingAmount: pend };
+      }
+      return p;
+    });
+
+    const updated = { ...osData, projects: updatedProjects };
+    syncOSDataToBackend(updated);
+  };
+
   // Minni Project Progress Updater
   const handleUpdateProjectProgress = (prjId, newStatus) => {
     const updatedProjects = osData.projects.map(p => p.id === prjId ? { ...p, status: newStatus } : p);
@@ -921,44 +1016,190 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
             </div>
           )}
 
-          {/* TAB 2: PROJECTS & BOARD */}
+          {/* TAB 2: CONFIRMED PROJECTS & DELIVERABLES BOARD */}
           {activeTab === 'projects' && (
             <div>
-              <div className="os-card" style={{ marginBottom: '20px' }}>
-                <div style={{ marginBottom: '14px' }}>
-                  <h3 style={{ fontSize: '1.1rem', fontWeight: '800', margin: 0 }}>Active KLAPP Projects & Deliverables</h3>
-                </div>
+              {/* TOP FINANCIAL METRICS SUMMARY FOR PROJECTS */}
+              {(() => {
+                const totalProjectsBudget = (osData.projects || []).reduce((acc, p) => acc + (p.budget || 0), 0);
+                const totalAdvance = (osData.projects || []).reduce((acc, p) => acc + (p.advancePaid || 0), 0);
+                const totalPending = (osData.projects || []).reduce((acc, p) => acc + (p.pendingAmount !== undefined ? p.pendingAmount : Math.max(0, (p.budget || 0) - (p.advancePaid || 0))), 0);
 
-                {osData.projects.map(prj => (
-                  <div key={prj.id} style={{ padding: '16px', background: '#faf8f5', border: '1px solid #c8c3b7', borderRadius: '10px', marginBottom: '12px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
-                      <div>
-                        <div style={{ fontWeight: '800', fontSize: '1.05rem', color: '#18181b' }}>{prj.name}</div>
-                        <div style={{ fontSize: '0.82rem', color: '#71717a', marginTop: '2px' }}>Client: <strong>{prj.client}</strong> • Budget: ₹{prj.budget?.toLocaleString()} • Due: {prj.dueDate}</div>
-                      </div>
+                return (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px', marginBottom: '20px' }}>
+                    <div className="os-card" style={{ marginBottom: 0, padding: '16px' }}>
+                      <div style={{ fontSize: '0.74rem', fontWeight: '700', color: '#71717a', textTransform: 'uppercase', marginBottom: '4px' }}>Total Agreed Budget</div>
+                      <div style={{ fontSize: '1.6rem', fontWeight: '800', color: '#18181b' }}>₹{totalProjectsBudget.toLocaleString()}</div>
+                    </div>
 
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        {userRole === 'MINNI' ? (
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <span style={{ fontSize: '0.78rem', fontWeight: '700', color: '#71717a' }}>Update Progress:</span>
-                            <select 
-                              value={prj.status}
-                              onChange={(e) => handleUpdateProjectProgress(prj.id, e.target.value)}
-                              style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid #c8c3b7', background: '#fff', fontSize: '0.8rem', fontWeight: '700' }}
-                            >
-                              <option value="IN_PROGRESS">⚡ IN_PROGRESS</option>
-                              <option value="REVIEW">🔍 CLIENT REVIEW</option>
-                              <option value="COMPLETED">✅ COMPLETED</option>
-                              <option value="PAUSED">⏸️ PAUSED</option>
-                            </select>
-                          </div>
-                        ) : (
-                          <span className={`badge-status status-${prj.status}`}>{prj.status}</span>
-                        )}
-                      </div>
+                    <div className="os-card" style={{ marginBottom: 0, padding: '16px', background: '#f0fdf4', border: '1px solid #bbf7d0' }}>
+                      <div style={{ fontSize: '0.74rem', fontWeight: '700', color: '#166534', textTransform: 'uppercase', marginBottom: '4px' }}>Advance Paid / Received</div>
+                      <div style={{ fontSize: '1.6rem', fontWeight: '800', color: '#15803d' }}>₹{totalAdvance.toLocaleString()}</div>
+                    </div>
+
+                    <div className="os-card" style={{ marginBottom: 0, padding: '16px', background: '#fffbeb', border: '1px solid #fde68a' }}>
+                      <div style={{ fontSize: '0.74rem', fontWeight: '700', color: '#b45309', textTransform: 'uppercase', marginBottom: '4px' }}>Total Pending Amount</div>
+                      <div style={{ fontSize: '1.6rem', fontWeight: '800', color: '#d97706' }}>₹{totalPending.toLocaleString()}</div>
                     </div>
                   </div>
-                ))}
+                );
+              })()}
+
+              <div className="os-card" style={{ marginBottom: '20px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
+                  <h3 style={{ fontSize: '1.15rem', fontWeight: '800', margin: 0 }}>Confirmed KLAPP Projects & Deliverables</h3>
+                  <button 
+                    onClick={() => setShowAddProjectModal(!showAddProjectModal)}
+                    className="btn-action-outline"
+                    style={{ background: '#ffffff', color: '#18181b', borderColor: '#c8c3b7', fontWeight: '700', boxShadow: '0 2px 6px rgba(0,0,0,0.04)' }}
+                  >
+                    <i className="ri-add-line" style={{ color: '#2563eb' }}></i> Add Confirmed Project
+                  </button>
+                </div>
+
+                {/* ADD CONFIRMED PROJECT FORM MODAL/CARD */}
+                {showAddProjectModal && (
+                  <div style={{ background: '#ffffff', border: '1px solid #e4e4e7', borderRadius: '12px', padding: '18px', marginBottom: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
+                    <h4 style={{ fontSize: '0.95rem', fontWeight: '700', color: '#27272a', marginBottom: '14px' }}>Add New Confirmed Project from Leads</h4>
+                    <form onSubmit={handleCreateProject}>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px', marginBottom: '14px' }}>
+                        <div>
+                          <label style={{ fontSize: '0.78rem', fontWeight: '600', color: '#52525b', display: 'block', marginBottom: '5px' }}>Project Title *</label>
+                          <input type="text" required placeholder="" value={newProject.name} onChange={(e) => setNewProject({ ...newProject, name: e.target.value })} style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #d4d4d8', background: '#fff', fontSize: '0.85rem' }} />
+                        </div>
+
+                        <div>
+                          <label style={{ fontSize: '0.78rem', fontWeight: '600', color: '#52525b', display: 'block', marginBottom: '5px' }}>Client Name</label>
+                          <input type="text" required placeholder="" value={newProject.client} onChange={(e) => setNewProject({ ...newProject, client: e.target.value })} style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #d4d4d8', background: '#fff', fontSize: '0.85rem' }} />
+                        </div>
+
+                        <div>
+                          <label style={{ fontSize: '0.78rem', fontWeight: '600', color: '#52525b', display: 'block', marginBottom: '5px' }}>Client Phone Number 📞</label>
+                          <input type="text" placeholder="" value={newProject.phone} onChange={(e) => setNewProject({ ...newProject, phone: e.target.value })} style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #d4d4d8', background: '#fff', fontSize: '0.85rem' }} />
+                        </div>
+
+                        <div>
+                          <label style={{ fontSize: '0.78rem', fontWeight: '600', color: '#52525b', display: 'block', marginBottom: '5px' }}>Agreed Budget (₹) *</label>
+                          <input type="number" required placeholder="" value={newProject.budget} onChange={(e) => setNewProject({ ...newProject, budget: e.target.value })} style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #d4d4d8', background: '#fff', fontSize: '0.85rem' }} />
+                        </div>
+
+                        <div>
+                          <label style={{ fontSize: '0.78rem', fontWeight: '600', color: '#52525b', display: 'block', marginBottom: '5px' }}>Advance Paid / Received (₹)</label>
+                          <input type="number" placeholder="" value={newProject.advancePaid} onChange={(e) => setNewProject({ ...newProject, advancePaid: e.target.value })} style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #d4d4d8', background: '#fff', fontSize: '0.85rem' }} />
+                        </div>
+
+                        <div>
+                          <label style={{ fontSize: '0.78rem', fontWeight: '600', color: '#52525b', display: 'block', marginBottom: '5px' }}>Deadline Date (Auto-syncs to Calendar)</label>
+                          <input type="date" required value={newProject.dueDate} onChange={(e) => setNewProject({ ...newProject, dueDate: e.target.value })} style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #d4d4d8', background: '#fff', fontSize: '0.85rem' }} />
+                        </div>
+                      </div>
+
+                      <div style={{ marginBottom: '14px' }}>
+                        <label style={{ fontSize: '0.78rem', fontWeight: '600', color: '#52525b', display: 'block', marginBottom: '5px' }}>Project Scope & Deliverables Requirements</label>
+                        <textarea rows={3} placeholder="" value={newProject.requirements} onChange={(e) => setNewProject({ ...newProject, requirements: e.target.value })} style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #d4d4d8', background: '#fff', fontSize: '0.85rem', fontFamily: 'inherit' }}></textarea>
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'flex-end' }}>
+                        <button type="button" onClick={() => setShowAddProjectModal(false)} className="btn-action-outline" style={{ background: '#ffffff', color: '#71717a', borderColor: '#d4d4d8', padding: '8px 16px', borderRadius: '8px', fontWeight: '600', fontSize: '0.82rem' }}>
+                          Cancel
+                        </button>
+                        <button type="submit" className="btn-action-outline" style={{ background: '#ffffff', color: '#166534', borderColor: '#bbf7d0', padding: '8px 20px', borderRadius: '8px', fontWeight: '700', fontSize: '0.82rem' }}>
+                          Save Project & Feed to Calendar
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                )}
+
+                {/* CONFIRMED PROJECT LIST CARDS */}
+                {osData.projects.map(prj => {
+                  const pending = prj.pendingAmount !== undefined ? prj.pendingAmount : Math.max(0, (prj.budget || 0) - (prj.advancePaid || 0));
+
+                  return (
+                    <div key={prj.id} style={{ padding: '18px', background: '#faf8f5', border: '1px solid #c8c3b7', borderRadius: '12px', marginBottom: '14px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', marginBottom: '10px' }}>
+                        <div>
+                          <div style={{ fontWeight: '800', fontSize: '1.05rem', color: '#18181b' }}>{prj.name}</div>
+                          <div style={{ fontSize: '0.8rem', color: '#71717a', marginTop: '2px' }}>
+                            Client: <strong>{prj.client}</strong> • Service: <strong>{prj.service || 'Web Dev'}</strong>
+                          </div>
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <span style={{ fontSize: '0.78rem', fontWeight: '700', color: '#71717a' }}>Status:</span>
+                          <select 
+                            value={prj.status}
+                            onChange={(e) => handleUpdateProjectProgress(prj.id, e.target.value)}
+                            style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid #c8c3b7', background: '#fff', fontSize: '0.78rem', fontWeight: '700' }}
+                          >
+                            <option value="IN_PROGRESS">⚡ IN_PROGRESS</option>
+                            <option value="REVIEW">🔍 CLIENT REVIEW</option>
+                            <option value="COMPLETED">✅ COMPLETED</option>
+                            <option value="PAUSED">⏸️ PAUSED</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      {/* FINANCIAL BREAKDOWN & DEADLINE BADGE */}
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '10px', background: '#ffffff', padding: '12px', borderRadius: '8px', border: '1px solid #e4e4e7', marginBottom: '12px' }}>
+                        <div>
+                          <div style={{ fontSize: '0.7rem', color: '#71717a', fontWeight: '700', textTransform: 'uppercase' }}>Total Budget</div>
+                          <div style={{ fontSize: '1rem', fontWeight: '800', color: '#18181b' }}>₹{(prj.budget || 0).toLocaleString()}</div>
+                        </div>
+
+                        <div>
+                          <div style={{ fontSize: '0.7rem', color: '#166534', fontWeight: '700', textTransform: 'uppercase' }}>Advance Paid</div>
+                          <div style={{ fontSize: '1rem', fontWeight: '800', color: '#15803d' }}>₹{(prj.advancePaid || 0).toLocaleString()}</div>
+                        </div>
+
+                        <div>
+                          <div style={{ fontSize: '0.7rem', color: '#b45309', fontWeight: '700', textTransform: 'uppercase' }}>Pending Amount</div>
+                          <div style={{ fontSize: '1rem', fontWeight: '800', color: '#d97706' }}>₹{pending.toLocaleString()}</div>
+                        </div>
+
+                        <div>
+                          <div style={{ fontSize: '0.7rem', color: '#2563eb', fontWeight: '700', textTransform: 'uppercase' }}>Deadline (Calendar Synced)</div>
+                          <div style={{ fontSize: '0.88rem', fontWeight: '800', color: '#1e40af', marginTop: '2px' }}>📅 {prj.dueDate || 'TBD'}</div>
+                        </div>
+                      </div>
+
+                      {/* REQUIREMENTS SCOPE */}
+                      {prj.requirements && (
+                        <p style={{ fontSize: '0.84rem', color: '#52525b', margin: '0 0 12px 0', lineHeight: '1.4' }}>
+                          <strong>Scope Deliverables:</strong> {prj.requirements}
+                        </p>
+                      )}
+
+                      {/* CALL FOLLOW UP TRACKER */}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', paddingTop: '10px', borderTop: '1px solid #c8c3b7' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <i className="ri-phone-fill" style={{ color: '#2563eb' }}></i>
+                          <a href={`tel:${prj.phone || ''}`} style={{ fontSize: '0.82rem', fontWeight: '700', color: '#1d4ed8', textDecoration: 'none' }}>
+                            {prj.phone || '+91 98765 43210'}
+                          </a>
+                          
+                          {prj.lastFollowedUpBy ? (
+                            <span style={{ fontSize: '0.74rem', background: '#dbeafe', color: '#1e40af', padding: '3px 8px', borderRadius: '5px', fontWeight: '700' }}>
+                              ✓ Followed up by {prj.lastFollowedUpBy} ({prj.lastFollowedUpAt || 'Today'})
+                            </span>
+                          ) : (
+                            <span style={{ fontSize: '0.74rem', background: '#f3f4f6', color: '#6b7280', padding: '3px 8px', borderRadius: '5px', fontWeight: '600' }}>
+                              No call logged yet
+                            </span>
+                          )}
+                        </div>
+
+                        <button 
+                          onClick={() => handleFollowUpCall(prj.id)}
+                          className="btn-action-outline"
+                          style={{ background: '#ffffff', color: '#2563eb', borderColor: '#bfdbfe', fontSize: '0.78rem', padding: '5px 12px', fontWeight: '700' }}
+                        >
+                          <i className="ri-phone-line" style={{ color: '#2563eb', marginRight: '4px' }}></i> Log Call Follow Up
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -1663,6 +1904,12 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                         <div style={{ fontSize: '0.76rem', fontWeight: '700', color: '#71717a', textTransform: 'uppercase', marginBottom: '4px' }}>TOTAL EXPENSES</div>
                         <div style={{ fontSize: '1.8rem', fontWeight: '800', color: '#dc2626' }}>₹{totalExpenses.toLocaleString()}</div>
                         <div style={{ fontSize: '0.74rem', color: '#71717a', marginTop: '4px' }}>Shared Expense Logging</div>
+                      </div>
+
+                      <div className="os-card" style={{ marginBottom: 0, background: '#fffbeb', border: '1px solid #fde68a' }}>
+                        <div style={{ fontSize: '0.76rem', fontWeight: '700', color: '#b45309', textTransform: 'uppercase', marginBottom: '4px' }}>PENDING RECEIVABLES</div>
+                        <div style={{ fontSize: '1.8rem', fontWeight: '800', color: '#d97706' }}>₹{((osData.projects || []).reduce((acc, p) => acc + (p.pendingAmount !== undefined ? p.pendingAmount : Math.max(0, (p.budget || 0) - (p.advancePaid || 0))), 0)).toLocaleString()}</div>
+                        <div style={{ fontSize: '0.74rem', color: '#b45309', fontWeight: '600', marginTop: '4px' }}>Client Balance Due</div>
                       </div>
 
                       <div className="os-card" style={{ marginBottom: 0, background: '#f0fdf4', border: '1px solid #bbf7d0' }}>

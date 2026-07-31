@@ -6,12 +6,18 @@ const KlappOSSchema = new mongoose.Schema({
     id: String,
     name: String,
     client: String,
+    phone: String,
+    requirements: String,
     service: String,
     status: { type: String, enum: ['PLANNING', 'IN_PROGRESS', 'REVIEW', 'COMPLETED'], default: 'IN_PROGRESS' },
     priority: { type: String, enum: ['HIGH', 'MEDIUM', 'LOW'], default: 'HIGH' },
     dueDate: String,
     budget: Number,
-    owner: String
+    advancePaid: Number,
+    pendingAmount: Number,
+    owner: String,
+    lastFollowedUpBy: String,
+    lastFollowedUpAt: String
   }],
   meetings: [{
     id: String,
