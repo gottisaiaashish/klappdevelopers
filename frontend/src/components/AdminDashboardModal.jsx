@@ -1268,17 +1268,42 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                   </button>
                 </div>
 
-                {/* 6-DAY MON-SAT WEEKLY GRID */}
+                {/* 6-DAY MON-SAT WEEKLY GRID (STRICT ASIA/KOLKATA TIMEZONE) */}
                 {(() => {
-                  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-                  const todayDayName = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+                  const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                  
+                  // Strict Kolkata Date Calculation
+                  const nowKolkata = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+                  const currentDayIdx = nowKolkata.getDay(); // 0 = Sun, 1 = Mon ... 6 = Sat
+
+                  // Calculate Monday of current week in Kolkata time
+                  const distFromMon = currentDayIdx === 0 ? 6 : currentDayIdx - 1;
+                  const mondayDate = new Date(nowKolkata);
+                  mondayDate.setDate(nowKolkata.getDate() - distFromMon);
+
+                  const weekDays = dayNames.map((dName, idx) => {
+                    const dayDate = new Date(mondayDate);
+                    dayDate.setDate(mondayDate.getDate() + idx);
+
+                    const dateNum = dayDate.getDate();
+                    const isToday = nowKolkata.toDateString() === dayDate.toDateString();
+                    const dayPosts = osData.contentPlanner.filter(c => 
+                      c.dayOfWeek === dName || 
+                      (c.date && new Date(new Date(c.date).toLocaleString('en-US', { timeZone: 'Asia/Kolkata' })).toLocaleDateString('en-US', { weekday: 'long' }) === dName)
+                    );
+
+                    return {
+                      dName,
+                      dateNum,
+                      isToday,
+                      dayPosts
+                    };
+                  });
 
                   return (
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '10px' }}>
-                      {days.map(dName => {
-                        const isToday = todayDayName === dName;
+                      {weekDays.map(({ dName, dateNum, isToday, dayPosts }) => {
                         const isSelected = selectedContentDay === dName;
-                        const dayPosts = osData.contentPlanner.filter(c => c.dayOfWeek === dName || (c.date && new Date(c.date).toLocaleDateString('en-US', { weekday: 'long' }) === dName));
 
                         return (
                           <div 
@@ -1298,7 +1323,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                               {dName.slice(0, 3)}
                             </div>
                             <div style={{ fontSize: '1.2rem', fontWeight: '800', color: '#18181b', margin: '2px 0' }}>
-                              {dayPosts.length}
+                              {dateNum}
                             </div>
                             <div style={{ fontSize: '0.68rem', fontWeight: '700', color: isToday ? '#166534' : '#71717a' }}>
                               {isToday ? '📍 TODAY' : `${dayPosts.length} Ideas`}
