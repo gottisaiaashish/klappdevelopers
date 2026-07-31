@@ -2188,35 +2188,6 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                         </table>
                       </div>
                     </div>
-
-                    {/* PROPOSAL QUOTE GENERATOR */}
-                    <div className="os-card">
-                      <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '14px' }}>Proposal & Quote Generator</h3>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '16px' }}>
-                        <div>
-                          <label style={{ fontSize: '0.8rem', fontWeight: '700', display: 'block', marginBottom: '6px' }}>Package Scope</label>
-                          <select value={calcService} onChange={(e) => setCalcService(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #c8c3b7' }}>
-                            <option value="Starter Web App">Starter Web App (₹25,000 - ₹35,000)</option>
-                            <option value="Custom Business Software">Custom Business Software (₹45,000 - ₹85,000)</option>
-                            <option value="AI Agent & Automation">AI Agent & Automation (₹60,000 - ₹1,50,000)</option>
-                          </select>
-                        </div>
-                        <div>
-                          <label style={{ fontSize: '0.8rem', fontWeight: '700', display: 'block', marginBottom: '6px' }}>Target Budget (₹)</label>
-                          <input type="number" value={calcBudget} onChange={(e) => setCalcBudget(Number(e.target.value))} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #c8c3b7' }} />
-                        </div>
-                      </div>
-
-                      <button 
-                        onClick={() => {
-                          const text = `Hi! KLAPP Developers Quote for ${calcService}:\n• Total Estimate: ₹${calcBudget.toLocaleString()}\n• 50% Milestone Advance\n• Guaranteed Sub-100ms Speed\nWhatsApp: +91 79890 33580`;
-                          navigator.clipboard.writeText(text);
-                        }}
-                        className="btn-action-outline"
-                      >
-                        <i className="ri-file-copy-line"></i> Copy Proposal Quote
-                      </button>
-                    </div>
                   </div>
                 );
               })()}
