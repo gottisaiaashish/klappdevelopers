@@ -67,9 +67,9 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
       { id: 'CNT-02', title: 'KLAPP Developers Behind the Scenes - Coding Session', platform: 'LinkedIn Post', status: 'DRAFT', date: 'Tomorrow, 10:00 AM', notes: 'Drafting tech stack highlights and architecture diagram', author: 'Aashish', approvedBy: '' }
     ],
     tasks: [
-      { id: 'TSK-01', title: 'Complete Razorpay integration testing', assignedTo: 'Aashish', status: 'IN_PROGRESS', dueDate: 'Today', category: 'Development' },
-      { id: 'TSK-02', title: 'Draft Instagram story sequence for new client launch', assignedTo: 'Minni', status: 'DONE', dueDate: 'Today', category: 'Social Media' },
-      { id: 'TSK-03', title: 'Send GST billing proposal PDF to Balaji Pharma', assignedTo: 'Minni', status: 'PENDING', dueDate: 'Today', category: 'Client Operations' }
+      { id: 'TSK-01', title: 'Complete Razorpay integration testing', assignedTo: 'Aashish', status: 'IN_PROGRESS', dueDate: getLocalDateStr(), category: 'Development' },
+      { id: 'TSK-02', title: 'Draft Instagram story sequence for new client launch', assignedTo: 'Minni', status: 'DONE', dueDate: getLocalDateStr(), category: 'Social Media' },
+      { id: 'TSK-03', title: 'Send GST billing proposal PDF to Balaji Pharma', assignedTo: 'Minni', status: 'PENDING', dueDate: getLocalDateStr(), category: 'Client Operations' }
     ],
     disciplineLogs: {
       date: getLocalDateStr(),
@@ -425,6 +425,14 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
     color: '#fef08a'
   });
   const [noteCategoryFilter, setNoteCategoryFilter] = useState('ALL');
+
+  // Task Action Plan States
+  const [showAddTaskForm, setShowAddTaskForm] = useState(false);
+  const [newTaskData, setNewTaskData] = useState({
+    title: '',
+    assignedTo: 'Aashish',
+    dueDate: getLocalDateStr()
+  });
 
   const handleUpdateAashishPad = (text) => {
     const updated = { ...osData, aashishPad: text };
@@ -1010,20 +1018,111 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
 
                 {/* TODAY'S ASSIGNED TASKS */}
                 <div className="os-card" style={{ marginBottom: 0 }}>
-                  <h3 style={{ fontSize: '1.05rem', fontWeight: '800', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <i className="ri-checkbox-circle-fill" style={{ color: '#22c55e' }}></i> Today's Action Plan
-                  </h3>
-                  {osData.tasks.map(tsk => (
-                    <div key={tsk.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px', background: '#faf8f5', border: '1px solid #c8c3b7', borderRadius: '8px', marginBottom: '8px' }}>
-                      <div>
-                        <div style={{ fontWeight: '700', fontSize: '0.86rem' }}>{tsk.title}</div>
-                        <div style={{ fontSize: '0.74rem', color: '#71717a' }}>Assigned: {tsk.assignedTo}</div>
-                      </div>
-                      <span className={tsk.status === 'DONE' ? 'state-badge-done' : 'state-badge-pending'}>
-                        {tsk.status}
-                      </span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                    <h3 style={{ fontSize: '1.05rem', fontWeight: '800', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <i className="ri-checkbox-circle-fill" style={{ color: '#22c55e' }}></i> Today's Action Plan
+                    </h3>
+                    <button 
+                      onClick={() => setShowAddTaskForm(!showAddTaskForm)}
+                      style={{ background: 'none', border: '1px solid #c8c3b7', borderRadius: '7px', cursor: 'pointer', padding: '4px 10px', fontSize: '0.76rem', fontWeight: '700', color: '#18181b', display: 'flex', alignItems: 'center', gap: '4px' }}
+                    >
+                      <i className="ri-add-line" style={{ color: '#22c55e' }}></i> Add Task
+                    </button>
+                  </div>
+
+                  {/* INLINE ADD TASK FORM */}
+                  {showAddTaskForm && (
+                    <div style={{ padding: '12px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '10px', marginBottom: '12px' }}>
+                      <form onSubmit={(e) => {
+                        e.preventDefault();
+                        if (!newTaskData.title.trim()) return;
+                        const task = {
+                          id: 'TSK-' + Date.now(),
+                          title: newTaskData.title.trim(),
+                          assignedTo: newTaskData.assignedTo,
+                          status: 'PENDING',
+                          dueDate: newTaskData.dueDate,
+                          category: 'General'
+                        };
+                        const updated = { ...osData, tasks: [task, ...osData.tasks] };
+                        syncOSDataToBackend(updated);
+                        setNewTaskData({ title: '', assignedTo: 'Aashish', dueDate: getLocalDateStr() });
+                        setShowAddTaskForm(false);
+                      }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr auto auto', gap: '8px', alignItems: 'end' }}>
+                          <div>
+                            <label style={{ fontSize: '0.72rem', fontWeight: '700', display: 'block', marginBottom: '3px' }}>Task Title</label>
+                            <input 
+                              type="text" 
+                              required
+                              placeholder="e.g. Review client proposal PDF" 
+                              value={newTaskData.title} 
+                              onChange={(e) => setNewTaskData({ ...newTaskData, title: e.target.value })}
+                              style={{ width: '100%', padding: '7px 10px', borderRadius: '7px', border: '1px solid #c8c3b7', fontSize: '0.82rem' }}
+                            />
+                          </div>
+                          <div>
+                            <label style={{ fontSize: '0.72rem', fontWeight: '700', display: 'block', marginBottom: '3px' }}>Assign</label>
+                            <select 
+                              value={newTaskData.assignedTo} 
+                              onChange={(e) => setNewTaskData({ ...newTaskData, assignedTo: e.target.value })}
+                              style={{ padding: '7px 10px', borderRadius: '7px', border: '1px solid #c8c3b7', fontSize: '0.82rem', fontWeight: '700' }}
+                            >
+                              <option value="Aashish">Aashish</option>
+                              <option value="Minni">Minni</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label style={{ fontSize: '0.72rem', fontWeight: '700', display: 'block', marginBottom: '3px' }}>Due Date</label>
+                            <input 
+                              type="date" 
+                              value={newTaskData.dueDate} 
+                              onChange={(e) => setNewTaskData({ ...newTaskData, dueDate: e.target.value })}
+                              style={{ padding: '7px 10px', borderRadius: '7px', border: '1px solid #c8c3b7', fontSize: '0.82rem' }}
+                            />
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', gap: '8px', marginTop: '10px', justifyContent: 'flex-end' }}>
+                          <button type="submit" style={{ background: '#18181b', color: '#fff', border: 'none', borderRadius: '7px', padding: '6px 14px', fontSize: '0.78rem', fontWeight: '700', cursor: 'pointer' }}>
+                            <i className="ri-check-line"></i> Add
+                          </button>
+                          <button type="button" onClick={() => setShowAddTaskForm(false)} style={{ background: '#fff', color: '#71717a', border: '1px solid #c8c3b7', borderRadius: '7px', padding: '6px 14px', fontSize: '0.78rem', fontWeight: '700', cursor: 'pointer' }}>
+                            Cancel
+                          </button>
+                        </div>
+                      </form>
                     </div>
-                  ))}
+                  )}
+
+                  {(() => {
+                    const todayStr = getLocalDateStr();
+                    const todayTasks = osData.tasks.filter(tsk => tsk.dueDate === todayStr);
+                    if (todayTasks.length === 0) {
+                      return <div style={{ fontSize: '0.85rem', color: '#71717a', padding: '12px', textAlign: 'center' }}>No tasks assigned for today. Click "+ Add Task" to create one.</div>;
+                    }
+                    return todayTasks.map(tsk => {
+                      const statusCycle = { PENDING: 'IN_PROGRESS', IN_PROGRESS: 'DONE', DONE: 'PENDING' };
+                      return (
+                        <div 
+                          key={tsk.id} 
+                          onClick={() => {
+                            const updatedTasks = osData.tasks.map(t => t.id === tsk.id ? { ...t, status: statusCycle[t.status] } : t);
+                            syncOSDataToBackend({ ...osData, tasks: updatedTasks });
+                          }}
+                          style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px', background: '#faf8f5', border: '1px solid #c8c3b7', borderRadius: '8px', marginBottom: '8px', cursor: 'pointer', transition: 'all 0.15s ease' }}
+                          title="Click to toggle status"
+                        >
+                          <div>
+                            <div style={{ fontWeight: '700', fontSize: '0.86rem', textDecoration: tsk.status === 'DONE' ? 'line-through' : 'none', opacity: tsk.status === 'DONE' ? 0.6 : 1 }}>{tsk.title}</div>
+                            <div style={{ fontSize: '0.74rem', color: '#71717a' }}>Assigned: {tsk.assignedTo}</div>
+                          </div>
+                          <span className={tsk.status === 'DONE' ? 'state-badge-done' : (tsk.status === 'IN_PROGRESS' ? 'state-badge-pending' : 'state-badge-pending')} style={{ background: tsk.status === 'IN_PROGRESS' ? '#fff7ed' : undefined, color: tsk.status === 'IN_PROGRESS' ? '#ea580c' : undefined, borderColor: tsk.status === 'IN_PROGRESS' ? '#ffedd5' : undefined }}>
+                            {tsk.status}
+                          </span>
+                        </div>
+                      );
+                    });
+                  })()}
                 </div>
               </div>
             </div>
