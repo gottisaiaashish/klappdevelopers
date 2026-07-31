@@ -2158,16 +2158,6 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                                         >
                                           + Pay
                                         </button>
-
-                                        <button
-                                          type="button"
-                                          onClick={() => handleMarkFullyPaid(prj.id)}
-                                          className="btn-action-outline"
-                                          style={{ background: '#ffffff', color: '#15803d', borderColor: '#bbf7d0', fontSize: '0.74rem', padding: '4px 8px', fontWeight: '700' }}
-                                          title="Mark this client as 100% fully paid"
-                                        >
-                                          ✓ Full Paid
-                                        </button>
                                       </div>
                                     </td>
 
