@@ -2468,9 +2468,6 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                       <i className="ri-sticky-note-2-line" style={{ color: '#d97706' }}></i>
                       Shared Agency Sticky Notes & Quick Ideas
                     </h3>
-                    <p style={{ fontSize: '0.78rem', color: '#71717a', margin: '2px 0 0 0' }}>
-                      Interactive real-time synchronized sticky notes between Aashish and Minni.
-                    </p>
                   </div>
 
                   <button 
