@@ -572,27 +572,25 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
           {activeTab === 'overview' && (
             <div>
               {/* HERO DYNAMIC GREETING & LIVE TICKING CLOCK */}
-              <div className="os-card" style={{ background: 'linear-gradient(135deg, #18181b 0%, #27272a 100%)', color: '#ffffff', padding: '28px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
+              <div className="os-card" style={{ background: '#ffffff', border: '1px solid #c8c3b7', padding: '24px 28px', boxShadow: '0 4px 14px rgba(0,0,0,0.04)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
                   <div>
-                    <h1 style={{ fontSize: '1.8rem', fontWeight: '800', margin: '0 0 6px 0', letterSpacing: '-0.02em' }}>
+                    <h1 style={{ fontSize: '1.6rem', fontWeight: '800', margin: '0 0 4px 0', color: '#18181b', letterSpacing: '-0.02em' }}>
                       {getGreeting()}
                     </h1>
-                    <p style={{ margin: 0, color: '#a1a1aa', fontSize: '0.92rem' }}>
-                      Welcome to KLAPP Developers Command Center. Here is today's live execution overview.
+                    <p style={{ margin: 0, color: '#71717a', fontSize: '0.88rem', fontWeight: '500' }}>
+                      Welcome to KLAPP Developers Command Center. Here is your live execution overview.
                     </p>
                   </div>
 
                   {/* LIVE TICKING CLOCK & DATE BADGE */}
-                  <div style={{ background: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.15)', padding: '10px 16px', borderRadius: '12px', textAlign: 'right' }}>
-                    <div style={{ fontSize: '0.75rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#38bdf8', marginBottom: '2px' }}>
-                      <i className="ri-time-line" style={{ marginRight: '4px' }}></i> LIVE SYSTEM CLOCK
+                  <div style={{ background: '#faf8f5', border: '1px solid #c8c3b7', padding: '10px 18px', borderRadius: '12px', textAlign: 'right' }}>
+                    <div style={{ fontSize: '1.25rem', fontWeight: '800', color: '#18181b', letterSpacing: '0.02em', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '6px' }}>
+                      <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22c55e', display: 'inline-block' }}></span>
+                      {liveTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })}
                     </div>
-                    <div style={{ fontSize: '1.15rem', fontWeight: '800', color: '#ffffff', fontFamily: 'monospace' }}>
-                      {liveTime.toLocaleTimeString()}
-                    </div>
-                    <div style={{ fontSize: '0.76rem', color: '#d4d4d8', marginTop: '2px' }}>
-                      {liveTime.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' })}
+                    <div style={{ fontSize: '0.78rem', color: '#71717a', fontWeight: '600', marginTop: '2px' }}>
+                      {liveTime.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
                     </div>
                   </div>
                 </div>
