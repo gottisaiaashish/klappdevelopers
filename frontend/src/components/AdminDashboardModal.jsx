@@ -877,9 +877,9 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                   <button 
                     onClick={() => setShowAddMeetingModal(!showAddMeetingModal)}
                     className="btn-action-outline"
-                    style={{ background: '#18181b', color: '#ffffff', borderColor: '#18181b', fontWeight: '700' }}
+                    style={{ background: '#ffffff', color: '#18181b', borderColor: '#c8c3b7', fontWeight: '700', boxShadow: '0 2px 6px rgba(0,0,0,0.04)' }}
                   >
-                    <i className="ri-calendar-event-line"></i> + Add Event / Reminder
+                    <i className="ri-calendar-event-line" style={{ color: '#2563eb' }}></i> + Add Event / Reminder
                   </button>
                 </div>
               </div>
@@ -944,20 +944,20 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                         type="submit" 
                         className="btn-action-outline" 
                         style={{ 
-                          background: '#18181b', 
-                          color: '#ffffff', 
-                          borderColor: '#18181b', 
+                          background: '#ffffff', 
+                          color: '#18181b', 
+                          borderColor: '#c8c3b7', 
                           padding: '9px 20px', 
                           borderRadius: '10px', 
-                          fontWeight: '700', 
+                          fontWeight: '800', 
                           fontSize: '0.85rem',
                           display: 'inline-flex',
                           alignItems: 'center',
                           gap: '6px',
-                          boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                          boxShadow: '0 2px 6px rgba(0,0,0,0.04)'
                         }}
                       >
-                        <i className="ri-check-line" style={{ fontSize: '1rem', color: '#22c55e' }}></i> Save Event
+                        <i className="ri-check-line" style={{ fontSize: '1rem', color: '#16a34a' }}></i> Save Event
                       </button>
 
                       <button 
