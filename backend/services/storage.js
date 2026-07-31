@@ -1,10 +1,11 @@
 const fs = require('fs');
 const path = require('path');
+const mongoose = require('mongoose');
+const Inquiry = require('../models/Inquiry');
 
 const DATA_DIR = path.join(__dirname, '..', 'data');
 const FILE_PATH = path.join(DATA_DIR, 'inquiries.json');
 
-// Ensure data directory and file exist
 function ensureStorage() {
   if (!fs.existsSync(DATA_DIR)) {
     fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -14,9 +15,17 @@ function ensureStorage() {
   }
 }
 
-// Get all inquiries
-function getAllInquiries() {
+async function getAllInquiries() {
   ensureStorage();
+  if (mongoose.connection.readyState === 1) {
+    try {
+      const docs = await Inquiry.find().sort({ createdAt: -1 }).lean();
+      if (docs && docs.length >= 0) return docs;
+    } catch (err) {
+      console.warn('MongoDB fetch fallback to local file:', err.message);
+    }
+  }
+
   try {
     const raw = fs.readFileSync(FILE_PATH, 'utf-8');
     return JSON.parse(raw || '[]');
@@ -26,52 +35,85 @@ function getAllInquiries() {
   }
 }
 
-// Save new inquiry
-function saveInquiry(data) {
+async function saveInquiry(data) {
   ensureStorage();
-  const inquiries = getAllInquiries();
-  
+  const id = 'INQ-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5);
   const newInquiry = {
-    id: 'INQ-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
+    id,
     name: data.name,
-    email: data.email, // Can be work email or WhatsApp number
+    email: data.email,
     service: data.service || 'General Inquiry',
     message: data.message,
-    status: 'NEW', // NEW, CONTACTED, IN_PROGRESS, CLOSED
+    status: 'NEW',
     createdAt: new Date().toISOString(),
     ip: data.ip || '127.0.0.1'
   };
 
-  inquiries.unshift(newInquiry); // Newest first
-  fs.writeFileSync(FILE_PATH, JSON.stringify(inquiries, null, 2), 'utf-8');
+  if (mongoose.connection.readyState === 1) {
+    try {
+      await Inquiry.create(newInquiry);
+    } catch (err) {
+      console.warn('Error saving to MongoDB:', err.message);
+    }
+  }
+
+  try {
+    let inquiries = [];
+    try {
+      const raw = fs.readFileSync(FILE_PATH, 'utf-8');
+      inquiries = JSON.parse(raw || '[]');
+    } catch (e) {}
+    inquiries.unshift(newInquiry);
+    fs.writeFileSync(FILE_PATH, JSON.stringify(inquiries, null, 2), 'utf-8');
+  } catch (err) {}
+
   return newInquiry;
 }
 
-// Delete inquiry by ID
-function deleteInquiry(id) {
+async function deleteInquiry(id) {
   ensureStorage();
-  let inquiries = getAllInquiries();
-  const initialLength = inquiries.length;
-  inquiries = inquiries.filter(inq => inq.id !== id);
-  
-  if (inquiries.length < initialLength) {
+  if (mongoose.connection.readyState === 1) {
+    try {
+      await Inquiry.deleteOne({ id });
+    } catch (err) {}
+  }
+
+  try {
+    let inquiries = [];
+    try {
+      const raw = fs.readFileSync(FILE_PATH, 'utf-8');
+      inquiries = JSON.parse(raw || '[]');
+    } catch (e) {}
+    inquiries = inquiries.filter(inq => inq.id !== id);
     fs.writeFileSync(FILE_PATH, JSON.stringify(inquiries, null, 2), 'utf-8');
     return true;
+  } catch (err) {
+    return false;
   }
-  return false;
 }
 
-// Update inquiry status by ID
-function updateInquiryStatus(id, status) {
+async function updateInquiryStatus(id, status) {
   ensureStorage();
-  const inquiries = getAllInquiries();
-  const target = inquiries.find(inq => inq.id === id);
-  if (target) {
-    target.status = status;
-    target.updatedAt = new Date().toISOString();
-    fs.writeFileSync(FILE_PATH, JSON.stringify(inquiries, null, 2), 'utf-8');
-    return target;
+  if (mongoose.connection.readyState === 1) {
+    try {
+      await Inquiry.updateOne({ id }, { status, updatedAt: new Date().toISOString() });
+    } catch (err) {}
   }
+
+  try {
+    let inquiries = [];
+    try {
+      const raw = fs.readFileSync(FILE_PATH, 'utf-8');
+      inquiries = JSON.parse(raw || '[]');
+    } catch (e) {}
+    const target = inquiries.find(inq => inq.id === id);
+    if (target) {
+      target.status = status;
+      target.updatedAt = new Date().toISOString();
+      fs.writeFileSync(FILE_PATH, JSON.stringify(inquiries, null, 2), 'utf-8');
+      return target;
+    }
+  } catch (err) {}
   return null;
 }
 

@@ -6,7 +6,6 @@ const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'gottiaashish';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || '04160416';
 const ADMIN_SECRET_KEY = process.env.ADMIN_SECRET_KEY || 'klapp_admin_secret_2026';
 
-// Helper middleware to authenticate admin token
 function requireAdminAuth(req, res, next) {
   const token = req.headers['authorization'] || req.headers['x-admin-token'] || req.query.token;
   if (token === `Bearer ${ADMIN_SECRET_KEY}` || token === ADMIN_SECRET_KEY || token === 'klapp_admin_token_04160416') {
@@ -18,11 +17,6 @@ function requireAdminAuth(req, res, next) {
   });
 }
 
-/**
- * @route   POST /api/admin/login
- * @desc    Authenticate Gotti Aashish (Founder Admin)
- * @access  Public
- */
 router.post('/login', (req, res) => {
   const { username, password } = req.body;
 
@@ -40,7 +34,7 @@ router.post('/login', (req, res) => {
       admin: {
         username: ADMIN_USERNAME,
         name: 'Gotti Aashish',
-        role: 'Founder & Lead Architect'
+        role: 'Lead Architect'
       }
     });
   }
@@ -51,15 +45,9 @@ router.post('/login', (req, res) => {
   });
 });
 
-/**
- * @route   GET /api/admin/inquiries
- * @desc    Fetch all client inquiries for admin dashboard
- * @access  Protected
- */
-router.get('/inquiries', requireAdminAuth, (req, res) => {
-  const inquiries = storage.getAllInquiries();
+router.get('/inquiries', requireAdminAuth, async (req, res) => {
+  const inquiries = await storage.getAllInquiries();
   
-  // Calculate summary metrics
   const total = inquiries.length;
   const newLeads = inquiries.filter(i => i.status === 'NEW').length;
   const contacted = inquiries.filter(i => i.status === 'CONTACTED').length;
@@ -77,12 +65,7 @@ router.get('/inquiries', requireAdminAuth, (req, res) => {
   });
 });
 
-/**
- * @route   PATCH /api/admin/inquiry/:id
- * @desc    Update inquiry status
- * @access  Protected
- */
-router.patch('/inquiry/:id', requireAdminAuth, (req, res) => {
+router.patch('/inquiry/:id', requireAdminAuth, async (req, res) => {
   const { status } = req.body;
   const validStatuses = ['NEW', 'CONTACTED', 'IN_PROGRESS', 'CLOSED'];
 
@@ -93,7 +76,7 @@ router.patch('/inquiry/:id', requireAdminAuth, (req, res) => {
     });
   }
 
-  const updated = storage.updateInquiryStatus(req.params.id, status);
+  const updated = await storage.updateInquiryStatus(req.params.id, status);
   if (!updated) {
     return res.status(404).json({
       success: false,
@@ -108,13 +91,8 @@ router.patch('/inquiry/:id', requireAdminAuth, (req, res) => {
   });
 });
 
-/**
- * @route   DELETE /api/admin/inquiry/:id
- * @desc    Delete inquiry record
- * @access  Protected
- */
-router.delete('/inquiry/:id', requireAdminAuth, (req, res) => {
-  const deleted = storage.deleteInquiry(req.params.id);
+router.delete('/inquiry/:id', requireAdminAuth, async (req, res) => {
+  const deleted = await storage.deleteInquiry(req.params.id);
   if (!deleted) {
     return res.status(404).json({
       success: false,

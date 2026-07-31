@@ -12,7 +12,6 @@ router.post('/', async (req, res) => {
   try {
     const { name, email, service, message } = req.body;
 
-    // Input Validation
     if (!name || typeof name !== 'string' || !name.trim()) {
       return res.status(400).json({
         success: false,
@@ -36,7 +35,7 @@ router.post('/', async (req, res) => {
 
     const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '127.0.0.1';
 
-    const inquiry = storage.saveInquiry({
+    const inquiry = await storage.saveInquiry({
       name: name.trim(),
       email: email.trim(),
       service: service ? service.trim() : 'Website Development',
@@ -44,7 +43,6 @@ router.post('/', async (req, res) => {
       ip: clientIp
     });
 
-    // Dispatch background notification
     notifier.notifyNewInquiry(inquiry);
 
     return res.status(201).json({
@@ -65,9 +63,9 @@ router.post('/', async (req, res) => {
 /**
  * @route   GET /api/inquiry
  * @desc    Get all submitted inquiries (Admin API)
- * @access  Protected (Requires admin_key parameter or header)
+ * @access  Protected
  */
-router.get('/', (req, res) => {
+router.get('/', async (req, res) => {
   const adminKey = req.headers['x-admin-key'] || req.query.admin_key;
   const expectedKey = process.env.ADMIN_SECRET_KEY || 'klapp_admin_secret_2026';
 
@@ -78,7 +76,7 @@ router.get('/', (req, res) => {
     });
   }
 
-  const inquiries = storage.getAllInquiries();
+  const inquiries = await storage.getAllInquiries();
   return res.json({
     success: true,
     count: inquiries.length,
@@ -88,10 +86,10 @@ router.get('/', (req, res) => {
 
 /**
  * @route   PATCH /api/inquiry/:id
- * @desc    Update inquiry status (NEW, CONTACTED, IN_PROGRESS, CLOSED)
+ * @desc    Update inquiry status
  * @access  Protected
  */
-router.patch('/:id', (req, res) => {
+router.patch('/:id', async (req, res) => {
   const adminKey = req.headers['x-admin-key'] || req.query.admin_key;
   const expectedKey = process.env.ADMIN_SECRET_KEY || 'klapp_admin_secret_2026';
 
@@ -103,7 +101,7 @@ router.patch('/:id', (req, res) => {
   }
 
   const { status } = req.body;
-  const updated = storage.updateInquiryStatus(req.params.id, status);
+  const updated = await storage.updateInquiryStatus(req.params.id, status);
 
   if (!updated) {
     return res.status(404).json({
@@ -123,7 +121,7 @@ router.patch('/:id', (req, res) => {
  * @desc    Delete inquiry by ID
  * @access  Protected
  */
-router.delete('/:id', (req, res) => {
+router.delete('/:id', async (req, res) => {
   const adminKey = req.headers['x-admin-key'] || req.query.admin_key;
   const expectedKey = process.env.ADMIN_SECRET_KEY || 'klapp_admin_secret_2026';
 
@@ -134,7 +132,7 @@ router.delete('/:id', (req, res) => {
     });
   }
 
-  const deleted = storage.deleteInquiry(req.params.id);
+  const deleted = await storage.deleteInquiry(req.params.id);
   if (!deleted) {
     return res.status(404).json({
       success: false,

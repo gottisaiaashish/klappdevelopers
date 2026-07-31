@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const mongoose = require('mongoose');
 require('dotenv').config();
 
 const inquiryRoutes = require('./routes/inquiry');
@@ -9,6 +10,16 @@ const adminRoutes = require('./routes/admin');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// MongoDB Connection Setup
+const MONGODB_URI = process.env.MONGODB_URI;
+if (MONGODB_URI) {
+  mongoose.connect(MONGODB_URI)
+    .then(() => console.log('✅ Connected to MongoDB Atlas Database!'))
+    .catch((err) => console.error('❌ MongoDB Connection Error:', err.message));
+} else {
+  console.log('ℹ️ MONGODB_URI not set. Operating in local JSON storage mode.');
+}
 
 // CORS Configuration
 const allowedOrigins = [
