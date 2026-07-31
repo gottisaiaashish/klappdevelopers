@@ -430,7 +430,6 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
   const [showAddTaskForm, setShowAddTaskForm] = useState(false);
   const [newTaskData, setNewTaskData] = useState({
     title: '',
-    assignedTo: 'Aashish',
     dueDate: getLocalDateStr()
   });
 
@@ -1039,17 +1038,17 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                         const task = {
                           id: 'TSK-' + Date.now(),
                           title: newTaskData.title.trim(),
-                          assignedTo: newTaskData.assignedTo,
+                          assignedTo: userRole === 'AASHISH' ? 'Aashish' : 'Minni',
                           status: 'PENDING',
                           dueDate: newTaskData.dueDate,
                           category: 'General'
                         };
                         const updated = { ...osData, tasks: [task, ...osData.tasks] };
                         syncOSDataToBackend(updated);
-                        setNewTaskData({ title: '', assignedTo: 'Aashish', dueDate: getLocalDateStr() });
+                        setNewTaskData({ title: '', dueDate: getLocalDateStr() });
                         setShowAddTaskForm(false);
                       }}>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr auto auto', gap: '8px', alignItems: 'end' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '8px', alignItems: 'end' }}>
                           <div>
                             <label style={{ fontSize: '0.72rem', fontWeight: '700', display: 'block', marginBottom: '3px' }}>Task Title</label>
                             <input 
@@ -1060,17 +1059,6 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                               onChange={(e) => setNewTaskData({ ...newTaskData, title: e.target.value })}
                               style={{ width: '100%', padding: '7px 10px', borderRadius: '7px', border: '1px solid #c8c3b7', fontSize: '0.82rem' }}
                             />
-                          </div>
-                          <div>
-                            <label style={{ fontSize: '0.72rem', fontWeight: '700', display: 'block', marginBottom: '3px' }}>Assign</label>
-                            <select 
-                              value={newTaskData.assignedTo} 
-                              onChange={(e) => setNewTaskData({ ...newTaskData, assignedTo: e.target.value })}
-                              style={{ padding: '7px 10px', borderRadius: '7px', border: '1px solid #c8c3b7', fontSize: '0.82rem', fontWeight: '700' }}
-                            >
-                              <option value="Aashish">Aashish</option>
-                              <option value="Minni">Minni</option>
-                            </select>
                           </div>
                           <div>
                             <label style={{ fontSize: '0.72rem', fontWeight: '700', display: 'block', marginBottom: '3px' }}>Due Date</label>
