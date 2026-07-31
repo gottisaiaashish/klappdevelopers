@@ -63,6 +63,7 @@ const KlappOSSchema = new mongoose.Schema({
       contentPlanning: { type: Boolean, default: false },
       sleep11pm: { type: Boolean, default: false },
       wake7am: { type: Boolean, default: false },
+      waterGoal: { type: Boolean, default: false },
       mood: { type: String, default: '✨ Creative' }
     }
   },

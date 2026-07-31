@@ -103,6 +103,7 @@ const defaultOSState = {
       contentPlanning: true,
       sleep11pm: true,
       wake7am: true,
+      waterGoal: true,
       mood: '✨ Creative Surge'
     }
   },

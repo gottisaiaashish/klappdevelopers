@@ -888,7 +888,8 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                     ['clientFollowups', 'Client Follow-ups'],
                     ['contentPlanning', 'Content Planning'],
                     ['sleep11pm', 'Sleep Before 11 PM'],
-                    ['wake7am', 'Wake Before 7 AM']
+                    ['wake7am', 'Wake Before 7 AM'],
+                    ['waterGoal', 'Water Goal (3L)']
                   ].map(([key, label]) => {
                     const done = osData.disciplineLogs.minni[key];
                     return (
