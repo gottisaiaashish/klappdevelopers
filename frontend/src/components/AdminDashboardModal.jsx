@@ -887,15 +887,18 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                           style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #c8c3b7', background: '#fff', fontSize: '0.85rem', fontWeight: '700' }}
                         >
                           <option value="Meeting">🎥 Meeting (Google Meet)</option>
-                          <option value="Deadline">⏳ Project Deadline</option>
-                          <option value="Birthday">🎂 Birthday Reminder</option>
-                          <option value="Task">📝 Personal Task / Note</option>
+                          <option value="Deadline">⏳ Project Deadline & Sprint</option>
+                          <option value="Birthday">🎂 Birthday & Celebration</option>
+                          <option value="Payment">💳 Client Invoice & Payment Due</option>
+                          <option value="Launch">🚀 Product & Feature Launch</option>
+                          <option value="Marketing">📢 Marketing & Social Post</option>
+                          <option value="Task">📝 Personal Task & Reminder</option>
                         </select>
                       </div>
 
                       <div>
                         <label style={{ fontSize: '0.78rem', fontWeight: '700', display: 'block', marginBottom: '4px' }}>Event Title</label>
-                        <input type="text" required placeholder="e.g. Minni Birthday 🎂 / Client Review" value={newEvent.title} onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })} style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #c8c3b7' }} />
+                        <input type="text" required placeholder="e.g. Client Milestone Review / Sprint Demo" value={newEvent.title} onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })} style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #c8c3b7' }} />
                       </div>
 
                       <div>
@@ -1020,14 +1023,32 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
 
                   return selectedEvents.map(evt => {
                     const cat = evt.category || evt.type || 'Meeting';
-                    const isBday = cat === 'Birthday' || evt.title.toLowerCase().includes('bday') || evt.title.toLowerCase().includes('birthday');
-                    const isDeadline = cat === 'Deadline';
+                    
+                    let bg = '#faf8f5';
+                    let border = '1px solid #c8c3b7';
+                    let titleColor = '#18181b';
+                    let iconClass = 'ri-video-chat-line';
+                    let iconColor = '#2563eb';
+
+                    if (cat === 'Birthday' || evt.title.toLowerCase().includes('bday') || evt.title.toLowerCase().includes('birthday')) {
+                      bg = '#fdf2f8'; border = '1px solid #fbcfe8'; titleColor = '#be185d'; iconClass = 'ri-cake-2-line'; iconColor = '#ec4899';
+                    } else if (cat === 'Deadline') {
+                      bg = '#fffbe6'; border = '1px solid #fef08a'; titleColor = '#854d0e'; iconClass = 'ri-timer-line'; iconColor = '#d97706';
+                    } else if (cat === 'Payment') {
+                      bg = '#f0fdf4'; border = '1px solid #bbf7d0'; titleColor = '#166534'; iconClass = 'ri-money-dollar-circle-line'; iconColor = '#16a34a';
+                    } else if (cat === 'Launch') {
+                      bg = '#faf5ff'; border = '1px solid #e9d5ff'; titleColor = '#6b21a8'; iconClass = 'ri-rocket-line'; iconColor = '#9333ea';
+                    } else if (cat === 'Marketing') {
+                      bg = '#fff7ed'; border = '1px solid #ffedd5'; titleColor = '#9a3412'; iconClass = 'ri-megaphone-line'; iconColor = '#ea580c';
+                    } else if (cat === 'Task') {
+                      bg = '#f8fafc'; border = '1px solid #cbd5e1'; titleColor = '#334155'; iconClass = 'ri-checkbox-circle-line'; iconColor = '#64748b';
+                    }
 
                     return (
-                      <div key={evt.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px', background: isBday ? '#fdf2f8' : (isDeadline ? '#fffbebf' : '#faf8f5'), border: isBday ? '1px solid #fbcfe8' : '1px solid #c8c3b7', borderRadius: '10px', marginBottom: '10px' }}>
+                      <div key={evt.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px', background: bg, border: border, borderRadius: '10px', marginBottom: '10px' }}>
                         <div>
-                          <div style={{ fontWeight: '800', fontSize: '0.98rem', color: isBday ? '#be185d' : '#18181b' }}>
-                            <i className={isBday ? 'ri-cake-2-line' : (isDeadline ? 'ri-timer-line' : 'ri-video-chat-line')} style={{ marginRight: '6px', color: isBday ? '#ec4899' : (isDeadline ? '#d97706' : '#2563eb') }}></i>
+                          <div style={{ fontWeight: '800', fontSize: '0.98rem', color: titleColor }}>
+                            <i className={iconClass} style={{ marginRight: '6px', color: iconColor }}></i>
                             {evt.title}
                           </div>
                           <div style={{ fontSize: '0.82rem', color: '#71717a', marginTop: '2px' }}>
