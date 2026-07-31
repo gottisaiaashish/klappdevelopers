@@ -1470,8 +1470,8 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                               👍 Minni {cnt.minniLiked ? 'Approved ✅' : 'Approve'}
                             </button>
 
-                            {/* MINNI FINAL PUBLISH & CLOSE BUTTON */}
-                            {userRole === 'MINNI' && !isPublished && (
+                            {/* MINNI FINAL PUBLISH & CLOSE BUTTON (ONLY SHOWN WHEN BOTH APPROVED) */}
+                            {userRole === 'MINNI' && !isPublished && isBothLiked && (
                               <button 
                                 onClick={() => handlePublishContent(cnt.id)}
                                 className="btn-action-outline"
