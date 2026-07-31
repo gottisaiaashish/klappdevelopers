@@ -239,6 +239,9 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
   const [selectedContentDay, setSelectedContentDay] = useState('ALL');
 
   const handleToggleContentLike = (contentId, person) => {
+    if (person === 'aashish' && userRole !== 'AASHISH') return;
+    if (person === 'minni' && userRole !== 'MINNI') return;
+
     const updatedPlanner = osData.contentPlanner.map(item => {
       if (item.id === contentId) {
         const aashishLiked = person === 'aashish' ? !item.aashishLiked : item.aashishLiked;
@@ -1427,10 +1430,11 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                             Platform: <strong>{cnt.platform}</strong> • Author: <strong>{cnt.author}</strong> • Scheduled: <strong>{cnt.dayOfWeek || 'Weekly'} ({cnt.date || 'TBD'})</strong>
                           </div>
 
-                          {/* DUAL LIKE / APPROVAL BUTTONS */}
+                          {/* DUAL LIKE / APPROVAL BUTTONS (ONLY OWN USER CAN TOGGLE OWN APPROVAL) */}
                           <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
                             <button 
-                              onClick={() => handleToggleContentLike(cnt.id, 'aashish')}
+                              onClick={() => userRole === 'AASHISH' && handleToggleContentLike(cnt.id, 'aashish')}
+                              disabled={userRole !== 'AASHISH'}
                               className="btn-action-outline"
                               style={{ 
                                 background: cnt.aashishLiked ? '#dbeafe' : '#ffffff', 
@@ -1438,14 +1442,18 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                                 borderColor: cnt.aashishLiked ? '#93c5fd' : '#c8c3b7',
                                 fontSize: '0.78rem',
                                 padding: '5px 10px',
-                                fontWeight: '700'
+                                fontWeight: '700',
+                                opacity: userRole === 'AASHISH' ? 1 : 0.75,
+                                cursor: userRole === 'AASHISH' ? 'pointer' : 'not-allowed'
                               }}
+                              title={userRole === 'AASHISH' ? 'Click to toggle Aashish approval' : 'Aashish approval status'}
                             >
                               👍 Aashish {cnt.aashishLiked ? 'Approved ✅' : 'Approve'}
                             </button>
 
                             <button 
-                              onClick={() => handleToggleContentLike(cnt.id, 'minni')}
+                              onClick={() => userRole === 'MINNI' && handleToggleContentLike(cnt.id, 'minni')}
+                              disabled={userRole !== 'MINNI'}
                               className="btn-action-outline"
                               style={{ 
                                 background: cnt.minniLiked ? '#fce7f3' : '#ffffff', 
@@ -1453,8 +1461,11 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                                 borderColor: cnt.minniLiked ? '#fbcfe8' : '#c8c3b7',
                                 fontSize: '0.78rem',
                                 padding: '5px 10px',
-                                fontWeight: '700'
+                                fontWeight: '700',
+                                opacity: userRole === 'MINNI' ? 1 : 0.75,
+                                cursor: userRole === 'MINNI' ? 'pointer' : 'not-allowed'
                               }}
+                              title={userRole === 'MINNI' ? 'Click to toggle Minni approval' : 'Minni approval status'}
                             >
                               👍 Minni {cnt.minniLiked ? 'Approved ✅' : 'Approve'}
                             </button>
