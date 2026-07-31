@@ -147,7 +147,6 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
     syncOSDataToBackend(updated);
     setNewEvent({ title: '', category: 'Meeting', date: new Date().toISOString().split('T')[0], time: '4:00 PM', client: 'General', attendees: 'Aashish & Minni', link: '#' });
     setShowAddMeetingModal(false);
-    alert(`✅ ${newEvent.category} saved for ${newEvent.date}!`);
   };
 
   // Scratchpad State
@@ -948,7 +947,11 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                     for (let d = 1; d <= daysInMonth; d++) {
                       const isToday = isCurrentMonth && todayDate.getDate() === d;
                       const isSelected = selectedDay === d;
-                      const hasMeeting = d === todayDate.getDate() || d === 15;
+                      const dayEvents = osData.meetings.filter(evt => {
+                        if (!evt.date) return d === 31;
+                        const dayNum = parseInt(evt.date.split('-').pop() || evt.date);
+                        return dayNum === d;
+                      });
 
                       gridCells.push(
                         <div 
@@ -975,9 +978,9 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                             {isToday && <span style={{ fontSize: '0.65rem', background: '#18181b', color: '#fff', padding: '1px 5px', borderRadius: '4px', fontWeight: '800' }}>TODAY</span>}
                           </div>
 
-                          {hasMeeting && (
-                            <div style={{ background: '#dbeafe', color: '#1e40af', border: '1px solid #bfdbfe', borderRadius: '4px', padding: '2px 4px', fontSize: '0.68rem', fontWeight: '700', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                              <i className="ri-calendar-event-line" style={{ marginRight: '2px' }}></i> Event
+                          {dayEvents.length > 0 && (
+                            <div style={{ background: dayEvents[0].category === 'Birthday' ? '#fce7f3' : '#dbeafe', color: dayEvents[0].category === 'Birthday' ? '#be185d' : '#1e40af', border: dayEvents[0].category === 'Birthday' ? '1px solid #fbcfe8' : '1px solid #bfdbfe', borderRadius: '4px', padding: '2px 4px', fontSize: '0.68rem', fontWeight: '700', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                              <i className={dayEvents[0].category === 'Birthday' ? 'ri-cake-2-line' : 'ri-calendar-event-line'} style={{ marginRight: '2px' }}></i> {dayEvents[0].title}
                             </div>
                           )}
                         </div>
@@ -1000,12 +1003,22 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                   </span>
                 </div>
 
-                {osData.meetings.length === 0 ? (
-                  <div style={{ textAlign: 'center', padding: '24px', color: '#71717a', fontSize: '0.88rem' }}>
-                    No events or reminders scheduled for this date.
-                  </div>
-                ) : (
-                  osData.meetings.map(evt => {
+                {(() => {
+                  const selectedEvents = osData.meetings.filter(evt => {
+                    if (!evt.date) return selectedDay === 31;
+                    const dayNum = parseInt(evt.date.split('-').pop() || evt.date);
+                    return dayNum === selectedDay;
+                  });
+
+                  if (selectedEvents.length === 0) {
+                    return (
+                      <div style={{ textAlign: 'center', padding: '28px', color: '#71717a', fontSize: '0.88rem' }}>
+                        No events or reminders scheduled for {calendarDate.toLocaleDateString('en-US', { month: 'long' })} {selectedDay}, {calendarDate.getFullYear()}.
+                      </div>
+                    );
+                  }
+
+                  return selectedEvents.map(evt => {
                     const cat = evt.category || evt.type || 'Meeting';
                     const isBday = cat === 'Birthday' || evt.title.toLowerCase().includes('bday') || evt.title.toLowerCase().includes('birthday');
                     const isDeadline = cat === 'Deadline';
@@ -1018,7 +1031,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                             {evt.title}
                           </div>
                           <div style={{ fontSize: '0.82rem', color: '#71717a', marginTop: '2px' }}>
-                            Category: <strong>{cat}</strong> • Time: {evt.time} • Attendees: {evt.attendees}
+                            Category: <strong>{cat}</strong> • Time: {evt.time} • Date: {evt.date || 'Jul 31'} • Attendees: {evt.attendees}
                           </div>
                         </div>
                         {evt.link && evt.link !== '#' && (
@@ -1028,8 +1041,8 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                         )}
                       </div>
                     );
-                  })
-                )}
+                  });
+                })()}
               </div>
             </div>
           )}
