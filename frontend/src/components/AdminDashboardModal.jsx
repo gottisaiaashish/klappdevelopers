@@ -2,18 +2,48 @@ import React, { useState, useEffect } from 'react';
 import { API_BASE_URL } from '../config/api';
 
 export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
-  // Active Workspace Role: 'AASHISH' (Founder) vs 'MINNI' (Operations)
+  // Active User Role: 'AASHISH' vs 'MINNI'
   const [userRole, setUserRole] = useState(
     sessionStorage.getItem('klapp_admin_avatar') || 'AASHISH'
   );
 
-  const [activeTab, setActiveTab] = useState('inquiries'); // 'inquiries', 'projects', 'calendar', 'content', 'revenue', 'discipline', 'competition', 'reminders', 'addLead', 'notes'
+  const [activeTab, setActiveTab] = useState('overview'); // 'overview', 'inquiries', 'projects', 'calendar', 'content', 'revenue', 'discipline', 'competition', 'reminders', 'addLead', 'notes'
   const [inquiries, setInquiries] = useState([]);
   const [metrics, setMetrics] = useState({ total: 0, newLeads: 0, contacted: 0, closed: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
+
+  // Live Clock Ticking Engine (Updates every 1 second)
+  const [liveTime, setLiveTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setLiveTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const getGreeting = () => {
+    const hour = liveTime.getHours();
+    const name = userRole === 'AASHISH' ? 'Aashish' : 'Minni';
+    let greetingPrefix = 'Good Morning';
+    let emoji = '👋';
+
+    if (hour >= 12 && hour < 17) {
+      greetingPrefix = 'Good Afternoon';
+      emoji = '☀️';
+    } else if (hour >= 17 && hour < 22) {
+      greetingPrefix = 'Good Evening';
+      emoji = '🌙';
+    } else if (hour >= 22 || hour < 5) {
+      greetingPrefix = 'Good Night';
+      emoji = '🌌';
+    }
+
+    return `${greetingPrefix}, ${name} ${emoji}`;
+  };
 
   // KLAPP OS Synced Global State
   const [osData, setOsData] = useState({
@@ -22,7 +52,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
       { id: 'PRJ-102', name: 'Balaji Pharma Billing & GST Portal', client: 'Balaji Pharma', service: 'Business Software', status: 'PLANNING', priority: 'HIGH', dueDate: '2026-08-20', budget: 45000, owner: 'Minni' }
     ],
     meetings: [
-      { id: 'MTG-01', title: 'Nandhakam Project Milestone Review', time: 'Tomorrow, 4:00 PM', client: 'Rahul Sharma', attendees: 'Aashish & Minni', type: 'Google Meet', link: 'https://meet.google.com/klapp-demo' },
+      { id: 'MTG-01', title: 'Nandhakam Project Milestone Review', time: 'Today, 4:00 PM', client: 'Rahul Sharma', attendees: 'Aashish & Minni', type: 'Google Meet', link: 'https://meet.google.com/klapp-demo' },
       { id: 'MTG-02', title: 'KLAPP Q3 Agency Growth Strategy', time: 'Friday, 11:00 AM', client: 'Internal', attendees: 'Aashish & Minni', type: 'Office Room', link: '#' }
     ],
     contentPlanner: [
@@ -79,8 +109,6 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
   // Proposal Calculator State
   const [calcService, setCalcService] = useState('Starter Web App');
   const [calcBudget, setCalcBudget] = useState(35000);
-  const [calcAddonWhatsapp, setCalcAddonWhatsapp] = useState(false);
-  const [calcAddonMarketing, setCalcAddonMarketing] = useState(false);
 
   // Scratchpad State
   const [scratchpadText, setScratchpadText] = useState(
@@ -282,19 +310,6 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
           text-transform: uppercase;
         }
 
-        .role-indicator-badge {
-          background: ${userRole === 'AASHISH' ? '#18181b' : '#ec4899'};
-          color: #ffffff;
-          padding: 6px 12px;
-          border-radius: 10px;
-          font-size: 0.76rem;
-          font-weight: 700;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          margin-bottom: 20px;
-        }
-
         .sidebar-nav-list {
           display: flex;
           flex-direction: column;
@@ -441,24 +456,6 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
         }
         .state-badge-done { background: #dcfce7; color: #15803d; padding: 2px 8px; border-radius: 6px; font-weight: 700; font-size: 0.74rem; }
         .state-badge-pending { background: #fef3c7; color: #b45309; padding: 2px 8px; border-radius: 6px; font-weight: 700; font-size: 0.74rem; }
-
-        .role-switch-btn {
-          background: #ffffff;
-          border: 1px solid #c8c3b7;
-          padding: 6px 12px;
-          border-radius: 8px;
-          font-size: 0.8rem;
-          font-weight: 700;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          color: #18181b;
-          transition: background 0.2s ease;
-        }
-        .role-switch-btn:hover {
-          background: #eae6dd;
-        }
       `}</style>
 
       {/* LEFT SIDEBAR NAVIGATION */}
@@ -469,15 +466,12 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
             <span className="sidebar-title">KLAPP OS</span>
           </div>
 
-          {/* Active User Workspace Indicator */}
-          <div className="role-indicator-badge">
-            <span>
-              <i className="ri-user-star-line" style={{ marginRight: '6px' }}></i>
-              {userRole === 'AASHISH' ? 'Founder OS (Aashish)' : 'Operations OS (Minni)'}
-            </span>
-          </div>
-
           <nav className="sidebar-nav-list">
+            <button className={`sidebar-nav-btn ${activeTab === 'overview' ? 'active' : ''}`} onClick={() => setActiveTab('overview')}>
+              <span><i className="ri-home-4-line" style={{ marginRight: '8px' }}></i> Home Overview</span>
+              <span className="sidebar-badge" style={{ background: '#18181b', color: '#fff' }}>HQ</span>
+            </button>
+
             <button className={`sidebar-nav-btn ${activeTab === 'inquiries' ? 'active' : ''}`} onClick={() => setActiveTab('inquiries')}>
               <span><i className="ri-inbox-line" style={{ marginRight: '8px' }}></i> Inquiries & CRM</span>
               <span className="sidebar-badge">{inquiries.length}</span>
@@ -546,6 +540,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
         <header className="admin-header-bar">
           <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
             <h2 style={{ fontSize: '1.2rem', fontWeight: '800', margin: 0, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              {activeTab === 'overview' && 'Command Center Overview'}
               {activeTab === 'inquiries' && 'Inquiries & Client CRM'}
               {activeTab === 'projects' && 'Projects & Deliverables Board'}
               {activeTab === 'calendar' && 'Shared Calendar & Meetings'}
@@ -573,10 +568,105 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
         {/* WORKSPACE CONTENT */}
         <div className="main-workspace">
 
+          {/* TAB 0: HOME OVERVIEW (DEFAULT LANDING PAGE) */}
+          {activeTab === 'overview' && (
+            <div>
+              {/* HERO DYNAMIC GREETING & LIVE TICKING CLOCK */}
+              <div className="os-card" style={{ background: 'linear-gradient(135deg, #18181b 0%, #27272a 100%)', color: '#ffffff', padding: '28px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
+                  <div>
+                    <h1 style={{ fontSize: '1.8rem', fontWeight: '800', margin: '0 0 6px 0', letterSpacing: '-0.02em' }}>
+                      {getGreeting()}
+                    </h1>
+                    <p style={{ margin: 0, color: '#a1a1aa', fontSize: '0.92rem' }}>
+                      Welcome to KLAPP Developers Command Center. Here is today's live execution overview.
+                    </p>
+                  </div>
+
+                  {/* LIVE TICKING CLOCK & DATE BADGE */}
+                  <div style={{ background: 'rgba(255, 255, 255, 0.1)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.15)', padding: '10px 16px', borderRadius: '12px', textAlign: 'right' }}>
+                    <div style={{ fontSize: '0.75rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#38bdf8', marginBottom: '2px' }}>
+                      <i className="ri-time-line" style={{ marginRight: '4px' }}></i> LIVE SYSTEM CLOCK
+                    </div>
+                    <div style={{ fontSize: '1.15rem', fontWeight: '800', color: '#ffffff', fontFamily: 'monospace' }}>
+                      {liveTime.toLocaleTimeString()}
+                    </div>
+                    <div style={{ fontSize: '0.76rem', color: '#d4d4d8', marginTop: '2px' }}>
+                      {liveTime.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' })}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* QUICK METRICS GRID */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px', marginBottom: '20px' }}>
+                <div className="os-card" style={{ marginBottom: 0 }}>
+                  <div style={{ fontSize: '0.76rem', fontWeight: '700', color: '#71717a', textTransform: 'uppercase', marginBottom: '4px' }}>CLIENT LEADS</div>
+                  <div style={{ fontSize: '1.8rem', fontWeight: '800', color: '#18181b' }}>{inquiries.length}</div>
+                  <div style={{ fontSize: '0.76rem', color: '#166534', fontWeight: '600', marginTop: '4px' }}>{metrics.newLeads} New Unread</div>
+                </div>
+
+                <div className="os-card" style={{ marginBottom: 0 }}>
+                  <div style={{ fontSize: '0.76rem', fontWeight: '700', color: '#71717a', textTransform: 'uppercase', marginBottom: '4px' }}>ACTIVE PROJECTS</div>
+                  <div style={{ fontSize: '1.8rem', fontWeight: '800', color: '#18181b' }}>{osData.projects.length}</div>
+                  <div style={{ fontSize: '0.76rem', color: '#2563eb', fontWeight: '600', marginTop: '4px' }}>In Active Sprint</div>
+                </div>
+
+                <div className="os-card" style={{ marginBottom: 0 }}>
+                  <div style={{ fontSize: '0.76rem', fontWeight: '700', color: '#71717a', textTransform: 'uppercase', marginBottom: '4px' }}>SCHEDULED MEETINGS</div>
+                  <div style={{ fontSize: '1.8rem', fontWeight: '800', color: '#18181b' }}>{osData.meetings.length}</div>
+                  <div style={{ fontSize: '0.76rem', color: '#d97706', fontWeight: '600', marginTop: '4px' }}>Next: Milestone Review</div>
+                </div>
+
+                <div className="os-card" style={{ marginBottom: 0 }}>
+                  <div style={{ fontSize: '0.76rem', fontWeight: '700', color: '#71717a', textTransform: 'uppercase', marginBottom: '4px' }}>TODAY DISCIPLINE</div>
+                  <div style={{ fontSize: '1.8rem', fontWeight: '800', color: '#22c55e' }}>100%</div>
+                  <div style={{ fontSize: '0.76rem', color: '#166534', fontWeight: '600', marginTop: '4px' }}>Active Streak 🔥</div>
+                </div>
+              </div>
+
+              {/* TODAY'S AGENDA GRID */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>
+                {/* TODAY'S SCHEDULED MEETINGS */}
+                <div className="os-card" style={{ marginBottom: 0 }}>
+                  <h3 style={{ fontSize: '1.05rem', fontWeight: '800', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <i className="ri-calendar-todo-fill" style={{ color: '#2563eb' }}></i> Today's Meetings & Schedule
+                  </h3>
+                  {osData.meetings.map(mtg => (
+                    <div key={mtg.id} style={{ padding: '12px', background: '#faf8f5', border: '1px solid #c8c3b7', borderRadius: '10px', marginBottom: '10px' }}>
+                      <div style={{ fontWeight: '800', fontSize: '0.92rem', color: '#18181b' }}>{mtg.title}</div>
+                      <div style={{ fontSize: '0.78rem', color: '#71717a', marginTop: '2px' }}>{mtg.time} • {mtg.attendees}</div>
+                      <a href={mtg.link} target="_blank" rel="noopener noreferrer" className="btn-action-outline" style={{ marginTop: '8px', fontSize: '0.76rem', padding: '4px 10px' }}>
+                        Join Meet <i className="ri-arrow-right-line"></i>
+                      </a>
+                    </div>
+                  ))}
+                </div>
+
+                {/* TODAY'S ASSIGNED TASKS */}
+                <div className="os-card" style={{ marginBottom: 0 }}>
+                  <h3 style={{ fontSize: '1.05rem', fontWeight: '800', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <i className="ri-checkbox-circle-fill" style={{ color: '#22c55e' }}></i> Today's Action Plan
+                  </h3>
+                  {osData.tasks.map(tsk => (
+                    <div key={tsk.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px', background: '#faf8f5', border: '1px solid #c8c3b7', borderRadius: '8px', marginBottom: '8px' }}>
+                      <div>
+                        <div style={{ fontWeight: '700', fontSize: '0.86rem' }}>{tsk.title}</div>
+                        <div style={{ fontSize: '0.74rem', color: '#71717a' }}>Assigned: {tsk.assignedTo}</div>
+                      </div>
+                      <span className={tsk.status === 'DONE' ? 'state-badge-done' : 'state-badge-pending'}>
+                        {tsk.status}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* TAB 1: INQUIRIES & CRM */}
           {activeTab === 'inquiries' && (
             <div>
-              {/* Search & Status Filter Row */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '14px', marginBottom: '20px' }}>
                 <input 
                   type="text" 
