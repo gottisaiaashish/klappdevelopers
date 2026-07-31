@@ -1400,16 +1400,16 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                           {/* MUTUAL APPROVAL BADGE */}
                           <div>
                             {isPublished ? (
-                              <span style={{ background: '#166534', color: '#ffffff', padding: '4px 10px', borderRadius: '6px', fontSize: '0.76rem', fontWeight: '800' }}>
-                                🚀 PUBLISHED & CLOSED ✅
+                              <span style={{ background: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0', padding: '4px 10px', borderRadius: '6px', fontSize: '0.76rem', fontWeight: '700' }}>
+                                ✓ Published
                               </span>
                             ) : isBothLiked ? (
-                              <span style={{ background: '#0284c7', color: '#ffffff', padding: '4px 10px', borderRadius: '6px', fontSize: '0.76rem', fontWeight: '800' }}>
-                                ✅ MUTUALLY APPROVED (Ready To Post)
+                              <span style={{ background: '#eff6ff', color: '#1d4ed8', border: '1px solid #bfdbfe', padding: '4px 10px', borderRadius: '6px', fontSize: '0.76rem', fontWeight: '700' }}>
+                                ✓ Ready To Post (2/2)
                               </span>
                             ) : (
-                              <span style={{ background: '#fef3c7', color: '#b45309', padding: '4px 10px', borderRadius: '6px', fontSize: '0.76rem', fontWeight: '800' }}>
-                                ⏳ Needs Both Approvals ({cnt.aashishLiked ? 1 : 0} + {cnt.minniLiked ? 1 : 0}/2)
+                              <span style={{ background: '#fffbeb', color: '#b45309', border: '1px solid #fde68a', padding: '4px 10px', borderRadius: '6px', fontSize: '0.76rem', fontWeight: '700' }}>
+                                ⏳ Pending Approvals ({cnt.aashishLiked ? 1 : 0} + {cnt.minniLiked ? 1 : 0}/2)
                               </span>
                             )}
                           </div>
