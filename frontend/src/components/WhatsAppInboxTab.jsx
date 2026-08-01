@@ -78,7 +78,7 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
 
   useEffect(() => {
     fetchChats();
-    const interval = setInterval(fetchChats, 2000); // 2s fast polling for live chat
+    const interval = setInterval(fetchChats, 5000); // 5s polling — sufficient for live team chat
     return () => clearInterval(interval);
   }, []);
 
