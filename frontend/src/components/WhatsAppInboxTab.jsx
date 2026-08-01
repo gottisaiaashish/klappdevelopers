@@ -2,54 +2,84 @@ import React, { useState, useEffect, useRef } from 'react';
 import { API_BASE_URL } from '../config/api';
 
 export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
-  const [chat, setChat] = useState(null);
+  const [chats, setChats] = useState([]);
+  const [activePhone, setActivePhone] = useState('');
   const [messageText, setMessageText] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [hoveredMsgId, setHoveredMsgId] = useState(null);
-  const [isChatOpen, setIsChatOpen] = useState(true);
+
+  // New Contact / Team Member Modal State
+  const [showNewChatModal, setShowNewChatModal] = useState(false);
+  const [newContactName, setNewContactName] = useState('');
+  const [newContactPhone, setNewContactPhone] = useState('');
+
   const messagesEndRef = useRef(null);
-
   const isAashish = String(currentUser).toUpperCase().includes('AASHISH');
-
-  // Direct 1-on-1 Contact Info depending on who is logged in
-  const contactName = isAashish ? 'Manashvini (Minni)' : 'Gotti Aashish';
-  const contactRole = isAashish ? 'Klapp Growth & Operations Lead' : 'Klapp Co-Founder & Tech Lead';
-  const contactAvatarChar = isAashish ? 'M' : 'A';
-  const contactPhone = isAashish ? '917989033580' : '918247758835';
 
   const emojiList = ['❤️', '👍', '🔥', '😂', '😮', '🙏', '✨', '⚡', '💯', '🎯', '🤝', '💼', '🚀', '🥳'];
   const reactionOptions = ['❤️', '👍', '🔥', '😂', '😮', '🙏'];
 
-  const fetchChat = async () => {
+  const fetchChats = async () => {
     try {
       const res = await fetch(`${API_BASE_URL}/api/whatsapp/chats`);
       const data = await res.json();
-      if (data.success && Array.isArray(data.chats) && data.chats.length > 0) {
-        setChat(data.chats[0]);
+      if (data.success && Array.isArray(data.chats)) {
+        setChats(data.chats);
+        if (!activePhone && data.chats.length > 0) {
+          setActivePhone(data.chats[0].phone);
+        }
       }
     } catch (err) {
-      console.error('Failed to load team chat:', err);
+      console.error('Failed to load chats:', err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchChat();
-    const interval = setInterval(fetchChat, 2000); // 2s fast polling
+    fetchChats();
+    const interval = setInterval(fetchChats, 2000); // 2s fast polling for live chat
     return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
+    if (!activePhone) return;
+    fetch(`${API_BASE_URL}/api/whatsapp/read`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone: activePhone })
+    }).catch(() => {});
+  }, [activePhone]);
+
+  useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [chat?.messages]);
+  }, [chats, activePhone]);
+
+  const activeChat = chats.find(c => c.phone === activePhone) || chats[0];
+
+  // Dynamic Contact Name for Aashish vs Minni
+  const getDisplayContactName = (c) => {
+    if (!c) return 'Contact';
+    if (c.phone === '917989033580' || c.phone === 'KLAPP-TEAM-AASHISH-MINNI') {
+      return isAashish ? 'Manashvini (Minni)' : 'Gotti Aashish';
+    }
+    return c.contactName || `Contact (${c.phone})`;
+  };
+
+  const getDisplayContactRole = (c) => {
+    if (!c) return 'Team Member';
+    if (c.phone === '917989033580' || c.phone === 'KLAPP-TEAM-AASHISH-MINNI') {
+      return isAashish ? 'Klapp Growth & Operations Lead' : 'Klapp Co-Founder & Tech Lead';
+    }
+    return c.serviceInterest || 'Klapp Team Member';
+  };
 
   const handleSendMessage = async (e) => {
     if (e) e.preventDefault();
-    if (!messageText.trim() || sending) return;
+    if (!messageText.trim() || !activePhone || sending) return;
 
     const textToSend = messageText.trim();
     setMessageText('');
@@ -61,13 +91,15 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          phone: activePhone,
           text: textToSend,
-          sender: currentUser
+          sender: currentUser,
+          contactName: activeChat ? getDisplayContactName(activeChat) : 'Contact'
         })
       });
       const data = await res.json();
       if (data.success && data.chat) {
-        setChat(data.chat);
+        setChats(prev => prev.map(c => c.phone === activePhone ? data.chat : c));
       }
     } catch (err) {
       console.error('Error sending message:', err);
@@ -76,16 +108,52 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
     }
   };
 
+  const handleStartNewChat = async (e) => {
+    e.preventDefault();
+    if (!newContactPhone.trim()) return;
+
+    let cleanPhone = newContactPhone.trim().replace(/\D/g, '');
+    if (cleanPhone.length === 10) cleanPhone = '91' + cleanPhone;
+    if (!cleanPhone) cleanPhone = 'TEAM-' + Date.now();
+
+    const nameToSet = newContactName.trim() || `Team Member (${cleanPhone})`;
+
+    setShowNewChatModal(false);
+    setNewContactName('');
+    setNewContactPhone('');
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/whatsapp/send`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phone: cleanPhone,
+          text: 'Hi! Added to Klapp Messenger.',
+          sender: currentUser,
+          contactName: nameToSet
+        })
+      });
+      const data = await res.json();
+      if (data.success && data.chat) {
+        setChats(prev => [data.chat, ...prev.filter(c => c.phone !== cleanPhone)]);
+        setActivePhone(cleanPhone);
+      }
+    } catch (err) {
+      console.error('Error adding new contact:', err);
+    }
+  };
+
   const handleClearChat = async () => {
-    if (!window.confirm('Are you sure you want to clear all chat messages?')) return;
+    if (!activePhone || !window.confirm('Are you sure you want to clear this chat history?')) return;
     try {
       const res = await fetch(`${API_BASE_URL}/api/whatsapp/clear`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: activePhone })
       });
       const data = await res.json();
       if (data.success) {
-        setChat(prev => ({ ...prev, messages: [], lastMessage: 'Chat cleared' }));
+        setChats(prev => prev.map(c => c.phone === activePhone ? { ...c, messages: [], lastMessage: 'Chat cleared' } : c));
       }
     } catch (err) {
       console.error('Error clearing chat:', err);
@@ -94,9 +162,9 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
 
   const handleReactToMessage = async (msgTargetId, emoji) => {
     // Instant optimistic local update for 0ms feedback
-    setChat(prev => {
-      if (!prev || !prev.messages) return prev;
-      const updatedMsgs = prev.messages.map((m, idx) => {
+    setChats(prev => prev.map(c => {
+      if (c.phone !== activePhone || !c.messages) return c;
+      const updatedMsgs = c.messages.map((m, idx) => {
         const idMatches = m.id === msgTargetId || String(idx) === String(msgTargetId);
         if (idMatches) {
           return {
@@ -106,14 +174,15 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
         }
         return m;
       });
-      return { ...prev, messages: updatedMsgs };
-    });
+      return { ...c, messages: updatedMsgs };
+    }));
 
     try {
       await fetch(`${API_BASE_URL}/api/whatsapp/react`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          phone: activePhone,
           messageId: msgTargetId,
           emoji: emoji,
           sender: currentUser
@@ -128,21 +197,10 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
     setMessageText(prev => prev + emoji);
   };
 
-  const handleSelectContact = () => {
-    setIsChatOpen(true);
-    // Mark chat as read
-    fetch(`${API_BASE_URL}/api/whatsapp/read`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' }
-    }).catch(() => {});
-  };
-
-  const matchesSearch = contactName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    contactPhone.includes(searchQuery);
-
-  // Check if last message was from the other person to show unread dot
-  const lastMsg = chat?.messages && chat.messages.length > 0 ? chat.messages[chat.messages.length - 1] : null;
-  const hasUnreadDot = lastMsg && ((isAashish && lastMsg.sender === 'MINNI') || (!isAashish && lastMsg.sender === 'AASHISH'));
+  const filteredChats = chats.filter(c => {
+    const name = getDisplayContactName(c).toLowerCase();
+    return name.includes(searchQuery.toLowerCase()) || c.phone.includes(searchQuery);
+  });
 
   return (
     <div className="wa-direct-wrapper">
@@ -156,6 +214,7 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
           overflow: hidden;
           font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
           color: #1e293b;
+          position: relative;
         }
 
         /* SIDEBAR */
@@ -179,10 +238,13 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
         .wa-search-bar {
           padding: 8px 12px;
           border-bottom: 1px solid #f1f5f9;
+          display: flex;
+          gap: 8px;
+          align-items: center;
         }
 
         .wa-search-input {
-          width: 100%;
+          flex: 1;
           padding: 7px 12px 7px 32px;
           background: #f8fafc;
           border: 1px solid #e2e8f0;
@@ -195,6 +257,25 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
         .wa-search-input:focus {
           border-color: #16a34a;
           background: #ffffff;
+        }
+
+        .wa-add-contact-btn {
+          width: 32px;
+          height: 32px;
+          border-radius: 8px;
+          background: #16a34a;
+          color: #ffffff;
+          border: none;
+          font-size: 1.1rem;
+          font-weight: 700;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: background 0.2s;
+        }
+        .wa-add-contact-btn:hover {
+          background: #15803d;
         }
 
         .wa-contact-card {
@@ -215,13 +296,13 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
         }
 
         .wa-avatar {
-          width: 44px;
-          height: 44px;
+          width: 42px;
+          height: 42px;
           border-radius: 50%;
-          background: ${isAashish ? '#ec4899' : '#2563eb'};
+          background: #2563eb;
           color: #ffffff;
           font-weight: 800;
-          font-size: 1.05rem;
+          font-size: 1rem;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -463,7 +544,74 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
           opacity: 0.5;
           cursor: not-allowed;
         }
+
+        /* MODAL */
+        .wa-modal-overlay {
+          position: absolute;
+          top: 0; left: 0; width: 100%; height: 100%;
+          background: rgba(15, 23, 42, 0.4);
+          backdrop-filter: blur(4px);
+          z-index: 100;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 20px;
+          box-sizing: border-box;
+        }
+        .wa-modal-card {
+          background: #ffffff;
+          border: 1px solid #e2e8f0;
+          border-radius: 12px;
+          width: 100%;
+          max-width: 420px;
+          padding: 24px;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
       `}</style>
+
+      {/* NEW CONTACT MODAL */}
+      {showNewChatModal && (
+        <div className="wa-modal-overlay">
+          <div className="wa-modal-card">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <span style={{ fontWeight: '700', fontSize: '1rem', color: '#0f172a' }}>Add Team Member / Contact</span>
+              <button onClick={() => setShowNewChatModal(false)} style={{ background: 'none', border: 'none', color: '#64748b', fontSize: '1.2rem', cursor: 'pointer' }}>✕</button>
+            </div>
+
+            <form onSubmit={handleStartNewChat}>
+              <div style={{ marginBottom: '12px' }}>
+                <label style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: '600' }}>Contact Name *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Rahul - Developer"
+                  value={newContactName}
+                  onChange={e => setNewContactName(e.target.value)}
+                  style={{ width: '100%', padding: '9px 12px', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '0.84rem', marginTop: '4px', outline: 'none', boxSizing: 'border-box' }}
+                  autoFocus
+                />
+              </div>
+
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: '600' }}>Phone / Contact ID *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. 9876543210 or DEV-RAHUL"
+                  value={newContactPhone}
+                  onChange={e => setNewContactPhone(e.target.value)}
+                  style={{ width: '100%', padding: '9px 12px', border: '1px solid #cbd5e1', borderRadius: '8px', fontSize: '0.84rem', marginTop: '4px', outline: 'none', boxSizing: 'border-box' }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                <button type="button" onClick={() => setShowNewChatModal(false)} style={{ background: '#f1f5f9', border: '1px solid #cbd5e1', padding: '8px 16px', borderRadius: '8px', fontSize: '0.82rem', fontWeight: '600', cursor: 'pointer' }}>Cancel</button>
+                <button type="submit" style={{ background: '#16a34a', color: '#ffffff', border: 'none', padding: '8px 18px', borderRadius: '8px', fontSize: '0.82rem', fontWeight: '700', cursor: 'pointer' }}>Add Contact</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* LEFT SIDEBAR */}
       <div className="wa-sidebar">
@@ -474,70 +622,99 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
           </div>
 
           <button
-            onClick={fetchChat}
+            onClick={fetchChats}
             style={{ width: '30px', height: '30px', borderRadius: '6px', border: '1px solid #e2e8f0', background: '#ffffff', color: '#64748b', cursor: 'pointer' }}
-            title="Refresh Chat"
+            title="Refresh Inbox"
           >
             <i className="ri-refresh-line"></i>
           </button>
         </div>
 
         <div className="wa-search-bar">
-          <div style={{ position: 'relative' }}>
+          <div style={{ position: 'relative', flex: 1 }}>
             <i className="ri-search-line" style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', fontSize: '0.8rem' }}></i>
             <input
               type="text"
-              placeholder="Search chats, messages, contacts..."
+              placeholder="Search contacts..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               className="wa-search-input"
             />
           </div>
+
+          <button
+            onClick={() => setShowNewChatModal(true)}
+            className="wa-add-contact-btn"
+            title="Add New Team Member / Contact"
+          >
+            +
+          </button>
         </div>
 
         <div style={{ flex: 1, overflowY: 'auto' }}>
-          {matchesSearch && (
-            <div
-              onClick={handleSelectContact}
-              className={`wa-contact-card ${isChatOpen ? 'active' : ''}`}
-            >
-              <div className="wa-avatar">
-                {contactAvatarChar}
-              </div>
-              <div className="wa-contact-info">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span className="wa-contact-name">{contactName}</span>
-                  <span style={{ fontSize: '0.68rem', color: '#94a3b8' }}>
-                    {chat?.lastMessageTime ? new Date(chat.lastMessageTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Now'}
-                  </span>
-                </div>
-                <div className="wa-last-msg">
-                  {chat?.lastMessage || 'Start conversation...'}
-                </div>
-              </div>
-              {hasUnreadDot && <div className="wa-unread-dot" title="New Message"></div>}
+          {loading ? (
+            <div style={{ padding: '24px', textAlign: 'center', fontSize: '0.8rem', color: '#94a3b8' }}>
+              <i className="ri-loader-4-line animate-spin" style={{ color: '#16a34a', marginRight: '6px' }}></i> Loading contacts...
             </div>
+          ) : filteredChats.length === 0 ? (
+            <div style={{ padding: '28px', textAlign: 'center', fontSize: '0.82rem', color: '#94a3b8' }}>
+              No contacts. Click <strong style={{ color: '#16a34a' }}>+</strong> to add a team member!
+            </div>
+          ) : (
+            filteredChats.map(c => {
+              const isActive = c.phone === activePhone;
+              const displayName = getDisplayContactName(c);
+              const avatarChar = displayName.charAt(0).toUpperCase();
+
+              // Unread dot check
+              const lastMsg = c.messages && c.messages.length > 0 ? c.messages[c.messages.length - 1] : null;
+              const isUnread = c.unreadCount > 0 || (lastMsg && ((isAashish && lastMsg.sender === 'MINNI') || (!isAashish && lastMsg.sender === 'AASHISH')));
+
+              return (
+                <div
+                  key={c.phone}
+                  onClick={() => setActivePhone(c.phone)}
+                  className={`wa-contact-card ${isActive ? 'active' : ''}`}
+                >
+                  <div className="wa-avatar" style={{ background: c.phone === '917989033580' || c.phone === 'KLAPP-TEAM-AASHISH-MINNI' ? (isAashish ? '#ec4899' : '#2563eb') : '#0284c7' }}>
+                    {avatarChar}
+                  </div>
+                  <div className="wa-contact-info">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span className="wa-contact-name">{displayName}</span>
+                      <span style={{ fontSize: '0.68rem', color: '#94a3b8' }}>
+                        {c.lastMessageTime ? new Date(c.lastMessageTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
+                      </span>
+                    </div>
+                    <div className="wa-last-msg">
+                      {c.lastMessage || 'Start conversation...'}
+                    </div>
+                  </div>
+                  {isUnread && <div className="wa-unread-dot" title="New Message"></div>}
+                </div>
+              );
+            })
           )}
         </div>
       </div>
 
       {/* RIGHT MAIN CHAT WINDOW */}
       <div className="wa-main">
-        {isChatOpen ? (
+        {activeChat ? (
           <>
             {/* Header */}
             <div className="wa-header">
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <div className="wa-avatar" style={{ width: '38px', height: '38px', fontSize: '0.95rem' }}>
-                  {contactAvatarChar}
+                <div className="wa-avatar" style={{ width: '38px', height: '38px', fontSize: '0.95rem', background: activeChat.phone === '917989033580' || activeChat.phone === 'KLAPP-TEAM-AASHISH-MINNI' ? (isAashish ? '#ec4899' : '#2563eb') : '#0284c7' }}>
+                  {getDisplayContactName(activeChat).charAt(0).toUpperCase()}
                 </div>
                 <div>
                   <div style={{ fontWeight: '700', fontSize: '0.92rem', color: '#0f172a' }}>
-                    {contactName}
+                    {getDisplayContactName(activeChat)}
                   </div>
                   <div style={{ fontSize: '0.74rem', color: '#16a34a', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px' }}>
                     <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#16a34a' }}></span>
-                    {contactRole}
+                    {getDisplayContactRole(activeChat)}
                   </div>
                 </div>
               </div>
@@ -559,9 +736,9 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
                 <div style={{ padding: '40px', textAlign: 'center', color: '#94a3b8', fontSize: '0.82rem' }}>
                   <i className="ri-loader-4-line animate-spin" style={{ color: '#16a34a', marginRight: '6px' }}></i> Loading conversation...
                 </div>
-              ) : chat && chat.messages && chat.messages.length > 0 ? (
-                chat.messages.map((m, idx) => {
-                  const isMyMsg = (isAashish && m.sender === 'AASHISH') || (!isAashish && m.sender === 'MINNI');
+              ) : activeChat.messages && activeChat.messages.length > 0 ? (
+                activeChat.messages.map((m, idx) => {
+                  const isMyMsg = (isAashish && m.sender === 'AASHISH') || (!isAashish && m.sender === 'MINNI') || (m.sender === currentUser);
                   const msgTargetId = m.id || idx;
                   const isHovered = hoveredMsgId === msgTargetId;
 
@@ -607,7 +784,7 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
                 })
               ) : (
                 <div style={{ padding: '40px', textAlign: 'center', color: '#94a3b8', fontSize: '0.82rem' }}>
-                  No messages yet with {contactName}. Type below to send a message!
+                  No messages yet with {getDisplayContactName(activeChat)}. Type below to send a message!
                 </div>
               )}
               <div ref={messagesEndRef} />
@@ -642,7 +819,7 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
 
               <input
                 type="text"
-                placeholder={`Type a message to ${contactName}...`}
+                placeholder={`Type a message to ${getDisplayContactName(activeChat)}...`}
                 value={messageText}
                 onChange={e => setMessageText(e.target.value)}
                 className="wa-composer-input"

@@ -843,7 +843,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
             </button>
 
             <button className={`sidebar-nav-btn ${activeTab === 'whatsapp' ? 'active' : ''}`} onClick={() => setActiveTab('whatsapp')} style={{ borderColor: '#2563eb' }}>
-              <span><i className="ri-chat-smile-2-fill" style={{ marginRight: '8px', color: '#2563eb' }}></i> Team Live Chat</span>
+              <span><i className="ri-chat-smile-2-fill" style={{ marginRight: '8px', color: '#2563eb' }}></i> Klapp Messenger</span>
               <span className="sidebar-badge" style={{ background: '#2563eb', color: '#fff', fontWeight: 'bold' }}>Live</span>
             </button>
 
@@ -902,7 +902,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
             <strong style={{ color: '#0f172a', fontWeight: '800' }}>
               {activeTab === 'overview' && 'Dashboard Overview'}
               {activeTab === 'inquiries' && 'Inquiries & Client CRM'}
-              {activeTab === 'whatsapp' && 'Team Live Chat (Aashish ↔ Minni)'}
+              {activeTab === 'whatsapp' && 'Klapp Messenger & Live Team Inbox'}
               {activeTab === 'projects' && 'Projects & Deliverables Board'}
               {activeTab === 'calendar' && 'Shared Calendar & Meetings'}
               {activeTab === 'content' && 'Content Planner & Social Workflow'}

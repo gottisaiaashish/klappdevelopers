@@ -3,51 +3,63 @@ const router = express.Router();
 const mongoose = require('mongoose');
 const WhatsAppChatModel = require('../models/WhatsAppChat');
 
-// In-memory fallback if MongoDB is offline
+// In-memory fallback map if MongoDB is offline
 const memoryChatsMap = new Map();
 
-const TEAM_CHAT_PHONE = 'KLAPP-TEAM-AASHISH-MINNI';
+// Helper to format phone / contactId
+function formatPhone(phone) {
+  if (!phone) return 'DEFAULT';
+  return String(phone).trim();
+}
 
-// Default initial team chat if database is empty
-const defaultTeamChat = {
-  phone: TEAM_CHAT_PHONE,
-  contactName: 'Aashish & Minni (Klapp Team Chat)',
-  unreadCount: 0,
-  statusTag: 'TEAM',
-  assignedTo: 'TEAM',
-  lastMessage: 'Welcome to Klapp OS Internal Live Team Chat!',
-  lastMessageTime: new Date().toISOString(),
-  messages: [
+// Initial default seed contacts for Aashish & Minni
+function getDefaultSeedChats() {
+  return [
     {
-      id: 'MSG-INIT-1',
-      sender: 'AASHISH',
-      text: 'Hey Minni! Internal live team messenger is active now in Klapp OS. We can chat here anytime!',
-      timestamp: new Date(Date.now() - 10 * 60000).toISOString(),
-      status: 'DELIVERED'
-    },
-    {
-      id: 'MSG-INIT-2',
-      sender: 'MINNI',
-      text: 'Awesome Aashish! Super clean & fast without any external apps!',
-      timestamp: new Date(Date.now() - 5 * 60000).toISOString(),
-      status: 'DELIVERED'
+      phone: '917989033580',
+      contactName: 'Manashvini (Minni)',
+      email: 'minni@klappdevelopers.in',
+      serviceInterest: 'Klapp Growth & Operations Lead',
+      statusTag: 'TEAM',
+      unreadCount: 0,
+      assignedTo: 'AASHISH',
+      lastMessage: 'Welcome to Klapp OS Messenger!',
+      lastMessageTime: new Date().toISOString(),
+      messages: [
+        {
+          id: 'MSG-INIT-1',
+          sender: 'AASHISH',
+          text: 'Hey Minni! Klapp Messenger is active. We can chat here anytime!',
+          timestamp: new Date(Date.now() - 10 * 60000).toISOString(),
+          status: 'DELIVERED'
+        },
+        {
+          id: 'MSG-INIT-2',
+          sender: 'MINNI',
+          text: 'Awesome Aashish! Super clean & fast 1-on-1 team chat!',
+          timestamp: new Date(Date.now() - 5 * 60000).toISOString(),
+          status: 'DELIVERED'
+        }
+      ]
     }
-  ]
-};
+  ];
+}
 
-memoryChatsMap.set(TEAM_CHAT_PHONE, defaultTeamChat);
+// Initialize seed data into memory if empty
+if (memoryChatsMap.size === 0) {
+  getDefaultSeedChats().forEach(c => memoryChatsMap.set(c.phone, c));
+}
 
 /**
  * GET /api/whatsapp/chats
- * Fetch internal team chats (Aashish ↔ Minni)
+ * Get all active contacts and team chat threads
  */
 router.get('/chats', async (req, res) => {
   try {
     if (mongoose.connection.readyState === 1 && WhatsAppChatModel) {
       let chats = await WhatsAppChatModel.find().sort({ lastMessageTime: -1 });
       if (chats.length === 0) {
-        const created = await WhatsAppChatModel.create(defaultTeamChat);
-        chats = [created];
+        chats = await WhatsAppChatModel.insertMany(getDefaultSeedChats());
       }
       return res.json({ success: true, chats });
     } else {
@@ -57,25 +69,27 @@ router.get('/chats', async (req, res) => {
       return res.json({ success: true, chats });
     }
   } catch (err) {
-    console.error('Error fetching internal team chats:', err);
+    console.error('Error fetching chats:', err);
     return res.status(500).json({ success: false, error: err.message });
   }
 });
 
 /**
  * POST /api/whatsapp/send
- * Send internal chat message between Aashish & Minni
+ * Send message to a specific contact chat thread
  */
 router.post('/send', async (req, res) => {
   try {
-    const { text, sender } = req.body;
+    const { phone, text, sender, contactName } = req.body;
     if (!text || !text.trim()) {
       return res.status(400).json({ success: false, error: 'Message text is required.' });
     }
 
+    const targetPhone = formatPhone(phone || '917989033580');
     const senderRole = (sender && sender.toUpperCase().includes('MINNI')) ? 'MINNI' : 'AASHISH';
+
     const newMsg = {
-      id: 'MSG-TEAM-' + Date.now(),
+      id: 'MSG-' + Date.now(),
       sender: senderRole,
       text: text.trim(),
       timestamp: new Date().toISOString(),
@@ -86,52 +100,74 @@ router.post('/send', async (req, res) => {
 
     if (mongoose.connection.readyState === 1 && WhatsAppChatModel) {
       updatedChat = await WhatsAppChatModel.findOneAndUpdate(
-        { phone: TEAM_CHAT_PHONE },
+        { phone: targetPhone },
         {
-          $setOnInsert: { contactName: 'Aashish & Minni (Klapp Team Chat)' },
+          $setOnInsert: {
+            contactName: contactName || (senderRole === 'AASHISH' ? 'Manashvini (Minni)' : 'Gotti Aashish')
+          },
           $set: {
             lastMessage: text.trim(),
             lastMessageTime: new Date()
           },
+          $inc: { unreadCount: 1 },
           $push: { messages: newMsg }
         },
         { upsert: true, new: true }
       );
     } else {
-      let chat = memoryChatsMap.get(TEAM_CHAT_PHONE) || defaultTeamChat;
+      let chat = memoryChatsMap.get(targetPhone);
+      if (!chat) {
+        chat = {
+          phone: targetPhone,
+          contactName: contactName || (senderRole === 'AASHISH' ? 'Manashvini (Minni)' : 'Gotti Aashish'),
+          unreadCount: 0,
+          statusTag: 'TEAM',
+          assignedTo: senderRole,
+          lastMessage: text.trim(),
+          lastMessageTime: new Date().toISOString(),
+          messages: []
+        };
+      }
       chat.messages.push(newMsg);
       chat.lastMessage = text.trim();
       chat.lastMessageTime = new Date().toISOString();
-      memoryChatsMap.set(TEAM_CHAT_PHONE, chat);
+      chat.unreadCount = (chat.unreadCount || 0) + 1;
+      memoryChatsMap.set(targetPhone, chat);
       updatedChat = chat;
     }
 
     return res.json({ success: true, message: 'Message sent!', chat: updatedChat });
   } catch (err) {
-    console.error('Error sending team message:', err);
+    console.error('Error sending message:', err);
     return res.status(500).json({ success: false, error: err.message });
   }
 });
 
 /**
  * POST /api/whatsapp/clear
- * Clear all chat messages
+ * Clear chat history for a specific contact
  */
 router.post('/clear', async (req, res) => {
   try {
+    const { phone } = req.body;
+    const targetPhone = formatPhone(phone || '917989033580');
+
     if (mongoose.connection.readyState === 1 && WhatsAppChatModel) {
       await WhatsAppChatModel.updateOne(
-        { phone: TEAM_CHAT_PHONE },
-        { $set: { messages: [], lastMessage: 'Chat cleared', lastMessageTime: new Date() } }
+        { phone: targetPhone },
+        { $set: { messages: [], lastMessage: 'Chat cleared', lastMessageTime: new Date(), unreadCount: 0 } }
       );
     }
-    const chat = memoryChatsMap.get(TEAM_CHAT_PHONE) || defaultTeamChat;
-    chat.messages = [];
-    chat.lastMessage = 'Chat cleared';
-    chat.lastMessageTime = new Date().toISOString();
-    memoryChatsMap.set(TEAM_CHAT_PHONE, chat);
 
-    return res.json({ success: true, chat });
+    const chat = memoryChatsMap.get(targetPhone);
+    if (chat) {
+      chat.messages = [];
+      chat.lastMessage = 'Chat cleared';
+      chat.lastMessageTime = new Date().toISOString();
+      chat.unreadCount = 0;
+    }
+
+    return res.json({ success: true });
   } catch (err) {
     return res.status(500).json({ success: false, error: err.message });
   }
@@ -139,23 +175,24 @@ router.post('/clear', async (req, res) => {
 
 /**
  * POST /api/whatsapp/react
- * Add or update emoji reaction on a message
+ * Add or update emoji reaction on a message in a specific chat
  */
 router.post('/react', async (req, res) => {
   try {
-    const { messageId, emoji, sender } = req.body;
-    if (!messageId || !emoji) {
-      return res.status(400).json({ success: false, error: 'messageId and emoji required.' });
+    const { phone, messageId, emoji, sender } = req.body;
+    if (!emoji) {
+      return res.status(400).json({ success: false, error: 'Emoji is required.' });
     }
 
+    const targetPhone = formatPhone(phone || '917989033580');
     const senderRole = (sender && sender.toUpperCase().includes('MINNI')) ? 'MINNI' : 'AASHISH';
     let updatedChat = null;
 
     if (mongoose.connection.readyState === 1 && WhatsAppChatModel) {
-      const chatDoc = await WhatsAppChatModel.findOne({ phone: TEAM_CHAT_PHONE });
+      const chatDoc = await WhatsAppChatModel.findOne({ phone: targetPhone });
       if (chatDoc && chatDoc.messages) {
         let msg = chatDoc.messages.find(m => String(m.id) === String(messageId) || String(m._id) === String(messageId));
-        if (!msg && !isNaN(messageId)) {
+        if (!msg && messageId !== undefined && !isNaN(messageId)) {
           msg = chatDoc.messages[Number(messageId)];
         }
         if (msg) {
@@ -169,19 +206,42 @@ router.post('/react', async (req, res) => {
     }
 
     if (!updatedChat) {
-      const chat = memoryChatsMap.get(TEAM_CHAT_PHONE) || defaultTeamChat;
-      let msg = chat.messages.find(m => String(m.id) === String(messageId));
-      if (!msg && !isNaN(messageId)) {
-        msg = chat.messages[Number(messageId)];
+      const chat = memoryChatsMap.get(targetPhone);
+      if (chat && chat.messages) {
+        let msg = chat.messages.find(m => String(m.id) === String(messageId));
+        if (!msg && messageId !== undefined && !isNaN(messageId)) {
+          msg = chat.messages[Number(messageId)];
+        }
+        if (msg) {
+          msg.reaction = msg.reaction === emoji ? null : emoji;
+          msg.reactionBy = senderRole;
+        }
+        updatedChat = chat;
       }
-      if (msg) {
-        msg.reaction = msg.reaction === emoji ? null : emoji;
-        msg.reactionBy = senderRole;
-      }
-      updatedChat = chat;
     }
 
     return res.json({ success: true, chat: updatedChat });
+  } catch (err) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+/**
+ * POST /api/whatsapp/read
+ * Reset unread counter for a contact
+ */
+router.post('/read', async (req, res) => {
+  try {
+    const { phone } = req.body;
+    const targetPhone = formatPhone(phone || '917989033580');
+
+    if (mongoose.connection.readyState === 1 && WhatsAppChatModel) {
+      await WhatsAppChatModel.updateOne({ phone: targetPhone }, { $set: { unreadCount: 0 } });
+    }
+    const chat = memoryChatsMap.get(targetPhone);
+    if (chat) chat.unreadCount = 0;
+
+    return res.json({ success: true });
   } catch (err) {
     return res.status(500).json({ success: false, error: err.message });
   }
