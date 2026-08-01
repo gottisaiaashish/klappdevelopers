@@ -842,9 +842,9 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
               <span className="sidebar-badge">{inquiries.length}</span>
             </button>
 
-            <button className={`sidebar-nav-btn ${activeTab === 'whatsapp' ? 'active' : ''}`} onClick={() => setActiveTab('whatsapp')} style={{ borderColor: '#25D366' }}>
-              <span><i className="ri-whatsapp-fill" style={{ marginRight: '8px', color: '#25D366' }}></i> WhatsApp Inbox</span>
-              <span className="sidebar-badge" style={{ background: '#25D366', color: '#000', fontWeight: 'bold' }}>Live</span>
+            <button className={`sidebar-nav-btn ${activeTab === 'whatsapp' ? 'active' : ''}`} onClick={() => setActiveTab('whatsapp')} style={{ borderColor: '#2563eb' }}>
+              <span><i className="ri-chat-smile-2-fill" style={{ marginRight: '8px', color: '#2563eb' }}></i> Team Live Chat</span>
+              <span className="sidebar-badge" style={{ background: '#2563eb', color: '#fff', fontWeight: 'bold' }}>Live</span>
             </button>
 
             <button className={`sidebar-nav-btn ${activeTab === 'content' ? 'active' : ''}`} onClick={() => setActiveTab('content')}>
@@ -902,7 +902,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
             <strong style={{ color: '#0f172a', fontWeight: '800' }}>
               {activeTab === 'overview' && 'Dashboard Overview'}
               {activeTab === 'inquiries' && 'Inquiries & Client CRM'}
-              {activeTab === 'whatsapp' && 'Official WhatsApp Shared Live Inbox'}
+              {activeTab === 'whatsapp' && 'Team Live Chat (Aashish ↔ Minni)'}
               {activeTab === 'projects' && 'Projects & Deliverables Board'}
               {activeTab === 'calendar' && 'Shared Calendar & Meetings'}
               {activeTab === 'content' && 'Content Planner & Social Workflow'}
