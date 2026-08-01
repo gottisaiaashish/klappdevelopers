@@ -131,27 +131,42 @@ router.post('/send', async (req, res) => {
  */
 router.post('/inbound', async (req, res) => {
   try {
-    let rawPhone = req.body.phone || req.body.from;
-    let msgText = req.body.text || req.body.message;
+    console.log('📥 INBOUND WEBHOOK HIT WITH BODY:', JSON.stringify(req.body));
+
+    let rawPhone = req.body.phone || req.body.from || req.body.to || req.body.chat_id;
+    let msgText = req.body.text || req.body.message || req.body.body || req.body.content;
     let cName = req.body.contactName || req.body.name;
     const mediaUrl = req.body.mediaUrl || null;
 
-    // Parse Periskope webhook event structure: { event: "message.created", data: { ... } }
+    // Parse Periskope nested structures: { event: "message.created", data: { ... } }
     if (req.body && req.body.data) {
       const d = req.body.data;
+      if (typeof d === 'string') msgText = msgText || d;
+
       if (d.message) {
-        msgText = d.message.text || d.message.body || msgText;
-        if (req.body.event === 'message.deleted') {
-          msgText = '🚫 This message was un-sent / deleted';
-        }
+        msgText = d.message.text || d.message.body || d.message.content || msgText;
         if (d.message.chat) {
-          rawPhone = d.message.chat.phone || d.message.chat.id || rawPhone;
-          cName = d.message.chat.name || cName;
+          rawPhone = d.message.chat.phone || d.message.chat.id || d.message.chat.phone_number || rawPhone;
+          cName = d.message.chat.name || d.message.chat.contact_name || cName;
         }
         if (d.message.sender) {
-          rawPhone = rawPhone || d.message.sender.phone;
+          rawPhone = rawPhone || d.message.sender.phone || d.message.sender.phone_number;
           cName = cName || d.message.sender.name;
         }
+      }
+      if (d.chat) {
+        rawPhone = rawPhone || d.chat.phone || d.chat.id || d.chat.phone_number;
+        cName = cName || d.chat.name;
+      }
+      if (d.sender) {
+        rawPhone = rawPhone || d.sender.phone || d.sender.phone_number;
+        cName = cName || d.sender.name;
+      }
+      if (d.phone || d.from) {
+        rawPhone = rawPhone || d.phone || d.from;
+      }
+      if (d.text || d.body || d.content) {
+        msgText = msgText || d.text || d.body || d.content;
       }
     }
 
