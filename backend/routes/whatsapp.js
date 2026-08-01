@@ -57,29 +57,12 @@ if (memoryChatsMap.size === 0) {
 router.get('/chats', async (req, res) => {
   try {
     if (mongoose.connection.readyState === 1 && WhatsAppChatModel) {
-      // Clean up old temporary test records
-      await WhatsAppChatModel.deleteMany({
-        $or: [
-          { contactName: { $regex: /Live Test/i } },
-          { phone: 'KLAPP-TEAM-AASHISH-MINNI' },
-          { phone: '918247758835' }
-        ]
-      });
-
       let chats = await WhatsAppChatModel.find().sort({ lastMessageTime: -1 });
       if (chats.length === 0) {
         chats = await WhatsAppChatModel.insertMany(getDefaultSeedChats());
       }
       return res.json({ success: true, chats });
     } else {
-      memoryChatsMap.delete('KLAPP-TEAM-AASHISH-MINNI');
-      memoryChatsMap.delete('918247758835');
-      for (const [k, v] of memoryChatsMap.entries()) {
-        if (v.contactName && v.contactName.includes('Live Test')) {
-          memoryChatsMap.delete(k);
-        }
-      }
-
       const chats = Array.from(memoryChatsMap.values()).sort(
         (a, b) => new Date(b.lastMessageTime) - new Date(a.lastMessageTime)
       );
@@ -136,16 +119,19 @@ router.post('/send', async (req, res) => {
     let updatedChat = null;
 
     if (mongoose.connection.readyState === 1 && WhatsAppChatModel) {
+      const updateData = {
+        lastMessage: text.trim(),
+        lastMessageTime: new Date()
+      };
+      if (contactName) updateData.contactName = contactName;
+
       updatedChat = await WhatsAppChatModel.findOneAndUpdate(
         { phone: targetPhone },
         {
           $setOnInsert: {
             contactName: contactName || (senderRole === 'AASHISH' ? 'Manashvini (Minni)' : 'Gotti Aashish')
           },
-          $set: {
-            lastMessage: text.trim(),
-            lastMessageTime: new Date()
-          },
+          $set: updateData,
           $inc: { unreadCount: 1 },
           $push: { messages: newMsg }
         },
@@ -165,6 +151,7 @@ router.post('/send', async (req, res) => {
           messages: []
         };
       }
+      if (contactName) chat.contactName = contactName;
       chat.messages.push(newMsg);
       chat.lastMessage = text.trim();
       chat.lastMessageTime = new Date().toISOString();

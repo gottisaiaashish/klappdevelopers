@@ -217,12 +217,8 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
   };
 
   const filteredChats = chats.filter(c => {
-    const isLiveTest = c.contactName && c.contactName.includes('Live Test');
-    const isTempPhone = c.phone === '918247758835' || c.phone === 'KLAPP-TEAM-AASHISH-MINNI';
-    if (isLiveTest || isTempPhone) return false;
-
     const name = getDisplayContactName(c).toLowerCase();
-    return name.includes(searchQuery.toLowerCase()) || c.phone.includes(searchQuery);
+    return name.includes(searchQuery.toLowerCase()) || (c.phone && c.phone.includes(searchQuery));
   });
 
   return (
