@@ -43,9 +43,17 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
               }
             });
 
+            // Sort by timestamp so messages appear in correct order
+            combinedMsgs.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+            // Always derive lastMessage from the actual last message in the thread
+            const lastMsg = combinedMsgs.length > 0 ? combinedMsgs[combinedMsgs.length - 1] : null;
+
             return {
               ...serverChat,
-              messages: combinedMsgs
+              messages: combinedMsgs,
+              lastMessage: lastMsg ? lastMsg.text : (serverChat.lastMessage === 'Chat cleared' ? '' : serverChat.lastMessage),
+              lastMessageTime: lastMsg ? lastMsg.timestamp : serverChat.lastMessageTime
             };
           });
         });
@@ -230,7 +238,8 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
       });
       const data = await res.json();
       if (data.success) {
-        setChats(prev => prev.map(c => (c.phone === targetPhone || c.phone === activePhone) ? { ...c, messages: [], lastMessage: 'Chat cleared' } : c));
+        // lastMessage = '' so sidebar shows 'Start conversation...' instead of 'Chat cleared'
+        setChats(prev => prev.map(c => (c.phone === targetPhone || c.phone === activePhone) ? { ...c, messages: [], lastMessage: '' } : c));
       }
     } catch (err) {
       console.error('Error clearing chat:', err);
@@ -786,7 +795,9 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
                       </span>
                     </div>
                     <div className="wa-last-msg">
-                      {c.lastMessage || 'Start conversation...'}
+                      {(c.messages && c.messages.length > 0)
+                        ? c.messages[c.messages.length - 1].text
+                        : (c.lastMessage && c.lastMessage !== 'Chat cleared' ? c.lastMessage : 'Start conversation...')}
                     </div>
                   </div>
                   {isUnread && <div className="wa-unread-dot" title="New Message"></div>}

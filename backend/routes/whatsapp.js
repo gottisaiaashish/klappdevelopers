@@ -196,14 +196,14 @@ router.post('/clear', async (req, res) => {
     if (mongoose.connection.readyState === 1 && WhatsAppChatModel) {
       await WhatsAppChatModel.updateOne(
         { phone: targetPhone },
-        { $set: { messages: [], lastMessage: 'Chat cleared', lastMessageTime: new Date(), unreadCount: 0 } }
+        { $set: { messages: [], lastMessage: '', lastMessageTime: new Date(), unreadCount: 0 } }
       );
     }
 
     const chat = memoryChatsMap.get(targetPhone);
     if (chat) {
       chat.messages = [];
-      chat.lastMessage = 'Chat cleared';
+      chat.lastMessage = '';
       chat.lastMessageTime = new Date().toISOString();
       chat.unreadCount = 0;
     }
