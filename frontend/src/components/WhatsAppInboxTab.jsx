@@ -683,7 +683,10 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
             filteredChats.map(c => {
               const isActive = c.phone === activePhone;
               const displayName = getDisplayContactName(c);
-              const avatarChar = displayName.charAt(0).toUpperCase();
+
+              const isTeamMain = c.phone === '917989033580' || c.phone === 'KLAPP-TEAM-AASHISH-MINNI';
+              const avatarIcon = isTeamMain ? (isAashish ? '✨' : '⚡') : '👤';
+              const avatarGradient = isTeamMain ? (isAashish ? 'linear-gradient(135deg, #ec4899, #f43f5e)' : 'linear-gradient(135deg, #2563eb, #3b82f6)') : 'linear-gradient(135deg, #0284c7, #0ea5e9)';
 
               // Unread dot check
               const lastMsg = c.messages && c.messages.length > 0 ? c.messages[c.messages.length - 1] : null;
@@ -695,8 +698,8 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
                   onClick={() => setActivePhone(c.phone)}
                   className={`wa-contact-card ${isActive ? 'active' : ''}`}
                 >
-                  <div className="wa-avatar" style={{ background: c.phone === '917989033580' || c.phone === 'KLAPP-TEAM-AASHISH-MINNI' ? (isAashish ? '#ec4899' : '#2563eb') : '#0284c7' }}>
-                    {avatarChar}
+                  <div className="wa-avatar" style={{ background: avatarGradient, boxShadow: '0 2px 6px rgba(0,0,0,0.12)' }}>
+                    {avatarIcon}
                   </div>
                   <div className="wa-contact-info">
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -733,8 +736,8 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
             {/* Header */}
             <div className="wa-header">
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <div className="wa-avatar" style={{ width: '38px', height: '38px', fontSize: '0.95rem', background: activeChat.phone === '917989033580' || activeChat.phone === 'KLAPP-TEAM-AASHISH-MINNI' ? (isAashish ? '#ec4899' : '#2563eb') : '#0284c7' }}>
-                  {getDisplayContactName(activeChat).charAt(0).toUpperCase()}
+                <div className="wa-avatar" style={{ width: '38px', height: '38px', fontSize: '1rem', background: (activeChat.phone === '917989033580' || activeChat.phone === 'KLAPP-TEAM-AASHISH-MINNI') ? (isAashish ? 'linear-gradient(135deg, #ec4899, #f43f5e)' : 'linear-gradient(135deg, #2563eb, #3b82f6)') : 'linear-gradient(135deg, #0284c7, #0ea5e9)' }}>
+                  {(activeChat.phone === '917989033580' || activeChat.phone === 'KLAPP-TEAM-AASHISH-MINNI') ? (isAashish ? '✨' : '⚡') : '👤'}
                 </div>
                 <div>
                   <div style={{ fontWeight: '700', fontSize: '0.92rem', color: '#0f172a' }}>
