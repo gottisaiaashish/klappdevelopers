@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { API_BASE_URL } from '../config/api';
+import WhatsAppInboxTab from './WhatsAppInboxTab';
 
 export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
   // Helper: get today's date string in LOCAL timezone (IST) as YYYY-MM-DD
@@ -838,6 +839,11 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
               <span className="sidebar-badge">{inquiries.length}</span>
             </button>
 
+            <button className={`sidebar-nav-btn ${activeTab === 'whatsapp' ? 'active' : ''}`} onClick={() => setActiveTab('whatsapp')} style={{ borderColor: '#25D366' }}>
+              <span><i className="ri-whatsapp-fill" style={{ marginRight: '8px', color: '#25D366' }}></i> WhatsApp Inbox</span>
+              <span className="sidebar-badge" style={{ background: '#25D366', color: '#000', fontWeight: 'bold' }}>Live</span>
+            </button>
+
             <button className={`sidebar-nav-btn ${activeTab === 'content' ? 'active' : ''}`} onClick={() => setActiveTab('content')}>
               <span><i className="ri-instagram-line" style={{ marginRight: '8px' }}></i> Content Planner</span>
               <span className="sidebar-badge">{osData.contentPlanner.length}</span>
@@ -890,6 +896,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
             <h2 style={{ fontSize: '1.2rem', fontWeight: '800', margin: 0, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
               {activeTab === 'overview' && 'Command Center Overview'}
               {activeTab === 'inquiries' && 'Inquiries & Client CRM'}
+              {activeTab === 'whatsapp' && 'Official WhatsApp Shared Live Inbox'}
               {activeTab === 'projects' && 'Projects & Deliverables Board'}
               {activeTab === 'calendar' && 'Shared Calendar & Meetings'}
               {activeTab === 'content' && 'Content Planner & Social Workflow'}
@@ -915,6 +922,11 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
 
         {/* WORKSPACE CONTENT */}
         <div className="main-workspace">
+
+          {/* WHATSAPP SHARED INBOX TAB */}
+          {activeTab === 'whatsapp' && (
+            <WhatsAppInboxTab currentUser={userRole} />
+          )}
 
           {/* TAB 0: HOME OVERVIEW (DEFAULT LANDING PAGE) */}
           {activeTab === 'overview' && (

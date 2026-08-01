@@ -43,7 +43,21 @@ Time    : ${inquiry.createdAt}
     } catch (err) {
       console.warn('⚠️ SMTP notification failed (check .env settings):', err.message);
     }
-  }
+  // Auto-feed new inquiry into WhatsApp Shared Inbox
+  try {
+    const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+    const port = process.env.PORT || 5000;
+    fetch(`http://localhost:${port}/api/whatsapp/inbound`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        phone: inquiry.email || '918247758835',
+        contactName: inquiry.name,
+        text: `🔥 New Web Form Inquiry (${inquiry.service}): "${inquiry.message}"`,
+        message: inquiry.message
+      })
+    }).catch(e => console.warn('Local WhatsApp auto-feed notice:', e.message));
+  } catch (e) {}
 }
 
 module.exports = {

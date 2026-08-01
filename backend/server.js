@@ -10,6 +10,7 @@ require('dotenv').config();
 const inquiryRoutes = require('./routes/inquiry');
 const aiRoutes = require('./routes/ai');
 const adminRoutes = require('./routes/admin');
+const whatsappRoutes = require('./routes/whatsapp');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -71,6 +72,7 @@ app.get('/api/health', (req, res) => {
 app.use('/api/inquiry', inquiryRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/whatsapp', whatsappRoutes);
 
 // Root route welcome
 app.get('/', (req, res) => {
