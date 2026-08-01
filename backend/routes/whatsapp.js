@@ -205,19 +205,17 @@ router.post('/react', async (req, res) => {
       }
     }
 
-    if (!updatedChat) {
-      const chat = memoryChatsMap.get(targetPhone);
-      if (chat && chat.messages) {
-        let msg = chat.messages.find(m => String(m.id) === String(messageId));
-        if (!msg && messageId !== undefined && !isNaN(messageId)) {
-          msg = chat.messages[Number(messageId)];
-        }
-        if (msg) {
-          msg.reaction = msg.reaction === emoji ? null : emoji;
-          msg.reactionBy = senderRole;
-        }
-        updatedChat = chat;
+    const memChat = memoryChatsMap.get(targetPhone);
+    if (memChat && memChat.messages) {
+      let msg = memChat.messages.find(m => String(m.id) === String(messageId));
+      if (!msg && messageId !== undefined && !isNaN(messageId)) {
+        msg = memChat.messages[Number(messageId)];
       }
+      if (msg) {
+        msg.reaction = msg.reaction === emoji ? null : emoji;
+        msg.reactionBy = senderRole;
+      }
+      if (!updatedChat) updatedChat = memChat;
     }
 
     return res.json({ success: true, chat: updatedChat });
