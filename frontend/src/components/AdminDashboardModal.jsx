@@ -54,55 +54,41 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
 
   // KLAPP OS Synced Global State
   const [osData, setOsData] = useState({
-    projects: [
-      { id: 'PRJ-101', name: 'Nandhakam E-Commerce & Booking System', client: 'Rahul Sharma', service: 'Website Development', status: 'IN_PROGRESS', priority: 'HIGH', dueDate: '2026-08-15', budget: 65000, owner: 'Aashish' },
-      { id: 'PRJ-102', name: 'Balaji Pharma Billing & GST Portal', client: 'Balaji Pharma', service: 'Business Software', status: 'PLANNING', priority: 'HIGH', dueDate: '2026-08-20', budget: 45000, owner: 'Minni' }
-    ],
-    meetings: [
-      { id: 'MTG-01', title: 'Nandhakam Project Milestone Review', date: getLocalDateStr(), time: '4:00 PM', client: 'Rahul Sharma', attendees: 'Aashish & Minni', type: 'Google Meet', category: 'Meeting', createdBy: 'Aashish', link: 'https://meet.google.com/klapp-demo' },
-      { id: 'MTG-02', title: 'KLAPP Q3 Agency Growth Strategy', date: getLocalDateStr(new Date(Date.now() + 86400000)), time: '11:00 AM', client: 'Internal', attendees: 'Aashish & Minni', type: 'Office Room', category: 'Meeting', createdBy: 'Minni', link: '#' }
-    ],
-    contentPlanner: [
-      { id: 'CNT-01', title: 'How we built sub-100ms websites for Indian Brands', platform: 'Instagram Reel', status: 'READY_FOR_APPROVAL', date: 'Today, 6:00 PM', notes: 'Video edited, needs Aashish approval before posting', author: 'Minni', approvedBy: '' },
-      { id: 'CNT-02', title: 'KLAPP Developers Behind the Scenes - Coding Session', platform: 'LinkedIn Post', status: 'DRAFT', date: 'Tomorrow, 10:00 AM', notes: 'Drafting tech stack highlights and architecture diagram', author: 'Aashish', approvedBy: '' }
-    ],
-    tasks: [
-      { id: 'TSK-01', title: 'Complete Razorpay integration testing', assignedTo: 'Aashish', status: 'IN_PROGRESS', dueDate: getLocalDateStr(), category: 'Development' },
-      { id: 'TSK-02', title: 'Draft Instagram story sequence for new client launch', assignedTo: 'Minni', status: 'DONE', dueDate: getLocalDateStr(), category: 'Social Media' },
-      { id: 'TSK-03', title: 'Send GST billing proposal PDF to Balaji Pharma', assignedTo: 'Minni', status: 'PENDING', dueDate: getLocalDateStr(), category: 'Client Operations' }
-    ],
+    projects: [],
+    meetings: [],
+    contentPlanner: [],
+    tasks: [],
     disciplineLogs: {
       date: getLocalDateStr(),
       aashish: {
-        attendance: true,
-        waterGoal: true,
-        gym: true,
-        protein: true,
-        coding: true,
-        dinner9pm: true,
-        nightLeadCheck: true,
-        sleep11pm: true,
+        attendance: false,
+        waterGoal: false,
+        gym: false,
+        protein: false,
+        coding: false,
+        dinner9pm: false,
+        nightLeadCheck: false,
+        sleep11pm: false,
         mood: '⚡ High Energy'
       },
       minni: {
-        attendance: true,
-        waterGoal: true,
-        instaPost1: true,
-        instaPost2: true,
-        storiesCompleted: true,
-        scheduleNextDayPosts: true,
-        coding: true,
-        dinner9pm: true,
-        sleep11pm: true,
+        attendance: false,
+        waterGoal: false,
+        instaPost1: false,
+        instaPost2: false,
+        storiesCompleted: false,
+        scheduleNextDayPosts: false,
+        coding: false,
+        dinner9pm: false,
+        sleep11pm: false,
         mood: '✨ Creative Surge'
       }
     },
-    sharedGoals: [
-      { id: 'SG-1', title: 'Coding Together (React & Node.js System Architecture)', completed: true },
-      { id: 'SG-2', title: 'KLAPP Q3 Strategy & Client Review', completed: true },
-      { id: 'SG-3', title: 'Daily Night Planning & Discipline Review', completed: false },
-      { id: 'SG-4', title: 'Review Weekly Content Pipeline & Approvals', completed: true }
-    ]
+    expenses: [],
+    sharedGoals: [],
+    aashishPad: '',
+    minniPad: '',
+    agencyNotes: []
   });
 
   // Manual Lead Form State
@@ -489,8 +475,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
 
   // Scratchpad State
   const [scratchpadText, setScratchpadText] = useState(
-    localStorage.getItem('klapp_admin_scratchpad') || 
-    "• Call Rahul about Gym App proposal\n• Follow up on Nandhakam booking engine payment gateway\n• Draft scope document for medical shop software"
+    localStorage.getItem('klapp_admin_scratchpad') || ""
   );
 
   // Fetch Inquiries & Sync KLAPP OS State from MongoDB Atlas

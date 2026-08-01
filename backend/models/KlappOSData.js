@@ -88,8 +88,8 @@ const KlappOSSchema = new mongoose.Schema({
     title: String,
     completed: { type: Boolean, default: false }
   }],
-  aashishPad: { type: String, default: '• Call Rahul about Gym App proposal\n• Follow up on Nandhakam booking engine payment gateway\n• Draft scope document for medical shop software' },
-  minniPad: { type: String, default: '• Finalize Instagram story graphics for brand launch\n• Client review call with Dr. Balaji\n• Prepare UI mockup options for client feedback' },
+  aashishPad: { type: String, default: '' },
+  minniPad: { type: String, default: '' },
   agencyNotes: [{
     id: String,
     title: String,

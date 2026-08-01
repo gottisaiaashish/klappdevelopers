@@ -9,200 +9,41 @@ const ADMIN_SECRET_KEY = process.env.ADMIN_SECRET_KEY || 'klapp_admin_secret_202
 // Default initial state fallback if database is fresh
 const defaultOSState = {
   key: 'klapp_os_global_state',
-  projects: [
-    {
-      id: 'PRJ-101',
-      name: 'Nandhakam E-Commerce & Booking System',
-      client: 'Rahul Sharma',
-      phone: '+91 98765 43210',
-      requirements: 'Custom React E-commerce storefront, Payment gateway integration, Admin inventory dashboard',
-      service: 'Website Development',
-      status: 'IN_PROGRESS',
-      priority: 'HIGH',
-      dueDate: '2026-08-15',
-      budget: 65000,
-      advancePaid: 35000,
-      pendingAmount: 30000,
-      owner: 'Aashish',
-      lastFollowedUpBy: 'Minni',
-      lastFollowedUpAt: 'Jul 30, 2026'
-    },
-    {
-      id: 'PRJ-102',
-      name: 'Balaji Pharma Billing & GST Portal',
-      client: 'Balaji Pharma',
-      phone: '+91 91234 56789',
-      requirements: 'GST Invoice generation, PDF export, Monthly sales dashboard & inventory sync',
-      service: 'Business Software',
-      status: 'PLANNING',
-      priority: 'HIGH',
-      dueDate: '2026-08-20',
-      budget: 45000,
-      advancePaid: 20000,
-      pendingAmount: 25000,
-      owner: 'Minni',
-      lastFollowedUpBy: 'Aashish',
-      lastFollowedUpAt: 'Jul 31, 2026'
-    },
-    {
-      id: 'PRJ-103',
-      name: 'CyberCity Gym & Fitness App',
-      client: 'Vikram Reddy',
-      phone: '+91 99887 76655',
-      requirements: 'Member workout tracker, Biometric attendance sync, Automated renewal SMS notifications',
-      service: 'Mobile & Web App',
-      status: 'IN_PROGRESS',
-      priority: 'HIGH',
-      dueDate: '2026-08-25',
-      budget: 85000,
-      advancePaid: 40000,
-      pendingAmount: 45000,
-      owner: 'Aashish',
-      lastFollowedUpBy: '',
-      lastFollowedUpAt: ''
-    },
-    {
-      id: 'PRJ-104',
-      name: 'Royal Grand Banquet & Catering Booking Portal',
-      client: 'Anish Kothari',
-      phone: '+91 98490 12345',
-      requirements: 'Interactive hall booking calendar, Custom catering menu builder & advance deposit payment gateway',
-      service: 'Custom Web Application',
-      status: 'REVIEW',
-      priority: 'HIGH',
-      dueDate: '2026-08-28',
-      budget: 95000,
-      advancePaid: 50000,
-      pendingAmount: 45000,
-      owner: 'Minni',
-      lastFollowedUpBy: 'Minni',
-      lastFollowedUpAt: 'Aug 01, 2026'
-    }
-  ],
-  meetings: [
-    {
-      id: 'MTG-01',
-      title: 'Nandhakam Project Milestone Review',
-      time: 'Tomorrow, 4:00 PM',
-      client: 'Rahul Sharma',
-      attendees: 'Aashish & Minni',
-      type: 'Google Meet',
-      link: 'https://meet.google.com/klapp-demo'
-    },
-    {
-      id: 'MTG-02',
-      title: 'KLAPP Q3 Agency Growth Strategy',
-      time: 'Friday, 11:00 AM',
-      client: 'Internal',
-      attendees: 'Aashish & Minni',
-      type: 'Office Strategy Room',
-      link: '#'
-    }
-  ],
-  contentPlanner: [
-    {
-      id: 'CNT-01',
-      title: 'How we built sub-100ms websites for Indian Brands',
-      platform: 'Instagram Reel',
-      status: 'APPROVED',
-      date: new Date().toISOString().split('T')[0],
-      dayOfWeek: 'Thursday',
-      notes: 'Show live PageSpeed 100/100 recording and architecture breakdown',
-      author: 'Minni',
-      approvedBy: 'Aashish & Minni',
-      aashishLiked: true,
-      minniLiked: true
-    },
-    {
-      id: 'CNT-02',
-      title: 'KLAPP Developers Behind the Scenes - Coding Session',
-      platform: 'LinkedIn Post',
-      status: 'DRAFT',
-      date: new Date(Date.now() + 86400000).toISOString().split('T')[0],
-      dayOfWeek: 'Friday',
-      notes: 'Drafting tech stack highlights and architecture diagram',
-      author: 'Aashish',
-      approvedBy: '',
-      aashishLiked: true,
-      minniLiked: false
-    }
-  ],
-  tasks: [
-    { id: 'TSK-01', title: 'Complete Razorpay integration testing', assignedTo: 'Aashish', status: 'IN_PROGRESS', dueDate: 'Today', category: 'Development' },
-    { id: 'TSK-02', title: 'Draft Instagram story sequence for new client launch', assignedTo: 'Minni', status: 'DONE', dueDate: 'Today', category: 'Social Media' },
-    { id: 'TSK-03', title: 'Send GST billing proposal PDF to Balaji Pharma', assignedTo: 'Minni', status: 'PENDING', dueDate: 'Today', category: 'Client Operations' }
-  ],
+  projects: [],
+  meetings: [],
+  contentPlanner: [],
+  tasks: [],
   disciplineLogs: {
     date: new Date().toISOString().split('T')[0],
     aashish: {
-      attendance: true,
-      waterGoal: true,
-      gym: true,
-      protein: true,
-      coding: true,
-      dinner9pm: true,
-      nightLeadCheck: true,
-      sleep11pm: true,
+      attendance: false,
+      waterGoal: false,
+      gym: false,
+      protein: false,
+      coding: false,
+      dinner9pm: false,
+      nightLeadCheck: false,
+      sleep11pm: false,
       mood: '⚡ High Energy'
     },
     minni: {
-      attendance: true,
-      waterGoal: true,
-      instaPost1: true,
-      instaPost2: true,
-      storiesCompleted: true,
-      scheduleNextDayPosts: true,
-      coding: true,
-      dinner9pm: true,
-      sleep11pm: true,
+      attendance: false,
+      waterGoal: false,
+      instaPost1: false,
+      instaPost2: false,
+      storiesCompleted: false,
+      scheduleNextDayPosts: false,
+      coding: false,
+      dinner9pm: false,
+      sleep11pm: false,
       mood: '✨ Creative Surge'
     }
   },
-  expenses: [
-    { id: 'EXP-1', title: 'MongoDB Atlas Database Hosting', amount: 1500, category: 'Infrastructure', addedBy: 'Aashish', date: 'Jul 28' },
-    { id: 'EXP-2', title: 'Canva Pro & Content Design Tools', amount: 800, category: 'Tools', addedBy: 'Minni', date: 'Jul 29' },
-    { id: 'EXP-3', title: 'Instagram Campaign Ad Budget', amount: 2000, category: 'Marketing', addedBy: 'Minni', date: 'Jul 30' }
-  ],
-  sharedGoals: [
-    { id: 'SG-1', title: 'Joint Coding Session (8:00 PM - 9:30 PM)', completed: true },
-    { id: 'SG-2', title: 'KLAPP Q3 Strategy & Client Review', completed: true },
-    { id: 'SG-3', title: 'Daily Night Lead Check & Planning', completed: false },
-    { id: 'SG-4', title: 'Review Weekly Content Pipeline & Approvals', completed: true }
-  ],
-  aashishPad: '• Call Rahul about Gym App proposal\n• Follow up on Nandhakam booking engine payment gateway\n• Draft scope document for medical shop software',
-  minniPad: '• Finalize Instagram story graphics for brand launch\n• Client review call with Dr. Balaji\n• Prepare UI mockup options for client feedback',
-  agencyNotes: [
-    {
-      id: 'NTE-1',
-      title: '🚀 Nandhakam E-Commerce Payment Gateway',
-      content: 'Razorpay UPI integration completed. Need to test sub-100ms response time on production server.',
-      category: 'Tech & Code',
-      author: 'Aashish',
-      color: '#bfdbfe',
-      isPinned: true,
-      updatedAt: 'Aug 01, 2026'
-    },
-    {
-      id: 'NTE-2',
-      title: '📸 Brand Campaign Content Strategy',
-      content: 'Prepare 3 high-converting Reels highlighting fast turnarounds for local businesses in Hyderabad.',
-      category: 'Social Media',
-      author: 'Minni',
-      color: '#fbcfe8',
-      isPinned: true,
-      updatedAt: 'Aug 01, 2026'
-    },
-    {
-      id: 'NTE-3',
-      title: '💼 Client Proposal Template Note',
-      content: 'Always include 50% milestone advance requirement and sub-100ms speed guarantee in initial quotes.',
-      category: 'Client Operations',
-      author: 'Aashish',
-      color: '#fef08a',
-      isPinned: false,
-      updatedAt: 'Jul 31, 2026'
-    }
-  ]
+  expenses: [],
+  sharedGoals: [],
+  aashishPad: '',
+  minniPad: '',
+  agencyNotes: []
 };
 
 function requireAdminAuth(req, res, next) {
