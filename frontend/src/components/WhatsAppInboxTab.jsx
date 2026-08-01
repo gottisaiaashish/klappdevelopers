@@ -4,13 +4,18 @@ import { API_BASE_URL } from '../config/api';
 export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
   const [chat, setChat] = useState(null);
   const [messageText, setMessageText] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const messagesEndRef = useRef(null);
 
   const isAashish = String(currentUser).toUpperCase().includes('AASHISH');
-  const userDisplayName = isAashish ? '⚡ Gotti Aashish' : '✨ Manashvini (Minni)';
-  const otherDisplayName = isAashish ? '✨ Manashvini (Minni)' : '⚡ Gotti Aashish';
+
+  // Direct 1-on-1 Contact Info depending on who is logged in
+  const contactName = isAashish ? 'Manashvini (Minni)' : 'Gotti Aashish';
+  const contactRole = isAashish ? 'Klapp Growth & Operations Lead' : 'Klapp Co-Founder & Tech Lead';
+  const contactAvatarChar = isAashish ? 'M' : 'A';
+  const contactPhone = isAashish ? '917989033580' : '918247758835';
 
   const fetchChat = async () => {
     try {
@@ -28,7 +33,7 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
 
   useEffect(() => {
     fetchChat();
-    const interval = setInterval(fetchChat, 2500); // 2.5s fast polling for live chat feel
+    const interval = setInterval(fetchChat, 2000); // 2s fast polling for live chat
     return () => clearInterval(interval);
   }, []);
 
@@ -64,10 +69,13 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
     }
   };
 
+  const matchesSearch = contactName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    contactPhone.includes(searchQuery);
+
   return (
-    <div className="team-chat-wrapper">
+    <div className="wa-direct-wrapper">
       <style>{`
-        .team-chat-wrapper {
+        .wa-direct-wrapper {
           width: 100%;
           height: 100%;
           background: #ffffff;
@@ -79,65 +87,102 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
         }
 
         /* SIDEBAR */
-        .team-sidebar {
-          width: 300px;
-          min-width: 300px;
-          background: #f8fafc;
+        .wa-sidebar {
+          width: 320px;
+          min-width: 320px;
+          background: #ffffff;
           border-right: 1px solid #e2e8f0;
           display: flex;
           flex-direction: column;
         }
 
-        .team-sidebar-header {
-          padding: 16px 18px;
-          border-bottom: 1px solid #e2e8f0;
+        .wa-sidebar-top {
+          padding: 12px 14px;
+          border-bottom: 1px solid #f1f5f9;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+
+        .wa-search-bar {
+          padding: 8px 12px;
+          border-bottom: 1px solid #f1f5f9;
+        }
+
+        .wa-search-input {
+          width: 100%;
+          padding: 7px 12px 7px 32px;
+          background: #f8fafc;
+          border: 1px solid #e2e8f0;
+          border-radius: 8px;
+          font-size: 0.8rem;
+          color: #1e293b;
+          outline: none;
+          box-sizing: border-box;
+        }
+        .wa-search-input:focus {
+          border-color: #16a34a;
           background: #ffffff;
         }
 
-        .team-channel-card {
-          padding: 14px 16px;
-          background: #f0fdf4;
-          border-left: 4px solid #16a34a;
+        .wa-contact-card {
+          padding: 14px;
+          border-bottom: 1px solid #f1f5f9;
           display: flex;
-          align-items: center;
+          align-items: flex-start;
           gap: 12px;
           cursor: pointer;
+          background: #f0fdf4;
+          border-left: 4px solid #16a34a;
         }
 
-        .team-avatar-group {
-          position: relative;
+        .wa-avatar {
           width: 44px;
           height: 44px;
-        }
-
-        .team-avatar {
-          width: 28px;
-          height: 28px;
           border-radius: 50%;
-          background: #2563eb;
+          background: ${isAashish ? '#ec4899' : '#2563eb'};
           color: #ffffff;
           font-weight: 800;
-          font-size: 0.72rem;
+          font-size: 1.05rem;
           display: flex;
           align-items: center;
           justify-content: center;
-          position: absolute;
-          border: 2px solid #ffffff;
+          flex-shrink: 0;
         }
 
-        .team-avatar-1 { top: 0; left: 0; background: #2563eb; }
-        .team-avatar-2 { bottom: 0; right: 0; background: #ec4899; }
+        .wa-contact-info {
+          flex: 1;
+          min-width: 0;
+        }
+
+        .wa-contact-name {
+          font-weight: 700;
+          font-size: 0.88rem;
+          color: #0f172a;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .wa-last-msg {
+          font-size: 0.78rem;
+          color: #64748b;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          margin-top: 3px;
+        }
 
         /* MAIN CHAT WINDOW */
-        .team-main {
+        .wa-main {
           flex: 1;
           display: flex;
           flex-direction: column;
           background: #f8fafc;
         }
 
-        .team-header {
-          padding: 14px 24px;
+        .wa-header {
+          padding: 12px 20px;
           background: #ffffff;
           border-bottom: 1px solid #e2e8f0;
           display: flex;
@@ -145,169 +190,175 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
           justify-content: space-between;
         }
 
-        .team-stream {
+        .wa-stream {
           flex: 1;
           overflow-y: auto;
-          padding: 24px;
+          padding: 20px;
           display: flex;
           flex-direction: column;
-          gap: 14px;
+          gap: 12px;
           background: #f8fafc;
         }
 
-        .team-bubble {
+        .wa-bubble {
           max-width: 65%;
-          padding: 12px 16px;
-          font-size: 0.88rem;
+          padding: 10px 14px;
+          font-size: 0.86rem;
           line-height: 1.45;
           position: relative;
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+          box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
 
-        .team-bubble-my {
+        .wa-bubble-my {
           align-self: flex-end;
           background: #dcfce7;
           color: #064e3b;
-          border-radius: 14px 0 14px 14px;
+          border-radius: 12px 0 12px 12px;
           border: 1px solid #bbf7d0;
         }
 
-        .team-bubble-other {
+        .wa-bubble-other {
           align-self: flex-start;
           background: #ffffff;
           color: #1e293b;
-          border-radius: 0 14px 14px 14px;
+          border-radius: 0 12px 12px 12px;
           border: 1px solid #e2e8f0;
         }
 
-        .team-sender-name {
-          font-size: 0.72rem;
-          font-weight: 800;
-          display: block;
-          margin-bottom: 4px;
-        }
-
-        .team-composer {
-          padding: 14px 24px;
+        .wa-composer {
+          padding: 12px 20px;
           background: #ffffff;
           border-top: 1px solid #e2e8f0;
           display: flex;
           align-items: center;
-          gap: 12px;
+          gap: 10px;
         }
 
-        .team-composer-input {
+        .wa-composer-input {
           flex: 1;
-          padding: 12px 18px;
+          padding: 11px 16px;
           background: #f8fafc;
           border: 1px solid #cbd5e1;
-          border-radius: 10px;
-          font-size: 0.88rem;
+          border-radius: 8px;
+          font-size: 0.86rem;
           color: #0f172a;
           outline: none;
         }
-        .team-composer-input:focus {
+        .wa-composer-input:focus {
           border-color: #16a34a;
           background: #ffffff;
         }
 
-        .team-send-btn {
+        .wa-send-btn {
           background: #16a34a;
           color: #ffffff;
           font-weight: 700;
           border: none;
-          padding: 12px 24px;
-          border-radius: 10px;
+          padding: 11px 20px;
+          border-radius: 8px;
           cursor: pointer;
-          font-size: 0.88rem;
+          font-size: 0.86rem;
           display: flex;
           align-items: center;
           gap: 6px;
           transition: background 0.2s;
         }
-        .team-send-btn:hover {
+        .wa-send-btn:hover {
           background: #15803d;
         }
-        .team-send-btn:disabled {
+        .wa-send-btn:disabled {
           opacity: 0.5;
           cursor: not-allowed;
         }
       `}</style>
 
       {/* LEFT SIDEBAR */}
-      <div className="team-sidebar">
-        <div className="team-sidebar-header">
-          <div style={{ fontWeight: '800', fontSize: '0.94rem', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <i className="ri-chat-smile-2-fill" style={{ color: '#16a34a' }}></i> Team Live Messenger
-          </div>
-          <div style={{ fontSize: '0.74rem', color: '#64748b', marginTop: '2px' }}>
-            Internal Private Channel (Aashish ↔ Minni)
-          </div>
-        </div>
-
-        <div className="team-channel-card">
-          <div className="team-avatar-group">
-            <div className="team-avatar team-avatar-1">A</div>
-            <div className="team-avatar team-avatar-2">M</div>
-          </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontWeight: '800', fontSize: '0.86rem', color: '#0f172a' }}>
-              Aashish & Minni Chat
-            </div>
-            <div style={{ fontSize: '0.75rem', color: '#16a34a', fontWeight: '600', marginTop: '2px' }}>
-              🟢 Live Connected
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* RIGHT MAIN CHAT AREA */}
-      <div className="team-main">
-        {/* Header Bar */}
-        <div className="team-header">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div className="team-avatar-group" style={{ width: '40px', height: '40px' }}>
-              <div className="team-avatar team-avatar-1" style={{ width: '26px', height: '26px' }}>A</div>
-              <div className="team-avatar team-avatar-2" style={{ width: '26px', height: '26px' }}>M</div>
-            </div>
-            <div>
-              <div style={{ fontWeight: '800', fontSize: '0.95rem', color: '#0f172a' }}>
-                Klapp OS Team Messenger
-              </div>
-              <div style={{ fontSize: '0.76rem', color: '#64748b' }}>
-                You are logged in as <strong style={{ color: '#2563eb' }}>{userDisplayName}</strong>
-              </div>
-            </div>
+      <div className="wa-sidebar">
+        <div className="wa-sidebar-top">
+          <div style={{ fontWeight: '700', fontSize: '0.9rem', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <i className="ri-phone-line" style={{ color: '#64748b' }}></i>
+            <span>Inbox</span>
           </div>
 
           <button
             onClick={fetchChat}
-            style={{ background: '#f1f5f9', border: '1px solid #cbd5e1', color: '#334155', padding: '6px 14px', borderRadius: '8px', fontSize: '0.78rem', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+            style={{ width: '30px', height: '30px', borderRadius: '6px', border: '1px solid #e2e8f0', background: '#ffffff', color: '#64748b', cursor: 'pointer' }}
+            title="Refresh Chat"
           >
-            <i className="ri-refresh-line"></i> Refresh
+            <i className="ri-refresh-line"></i>
           </button>
         </div>
 
-        {/* Message Stream */}
-        <div className="team-stream">
+        <div className="wa-search-bar">
+          <div style={{ position: 'relative' }}>
+            <i className="ri-search-line" style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', fontSize: '0.8rem' }}></i>
+            <input
+              type="text"
+              placeholder="Search chats, messages, contacts..."
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              className="wa-search-input"
+            />
+          </div>
+        </div>
+
+        <div style={{ flex: 1, overflowY: 'auto' }}>
+          {matchesSearch && (
+            <div className="wa-contact-card">
+              <div className="wa-avatar">
+                {contactAvatarChar}
+              </div>
+              <div className="wa-contact-info">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span className="wa-contact-name">{contactName}</span>
+                  <span style={{ fontSize: '0.68rem', color: '#94a3b8' }}>
+                    {chat?.lastMessageTime ? new Date(chat.lastMessageTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Now'}
+                  </span>
+                </div>
+                <div className="wa-last-msg">
+                  {chat?.lastMessage || 'Start conversation...'}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* RIGHT MAIN CHAT WINDOW */}
+      <div className="wa-main">
+        {/* Header */}
+        <div className="wa-header">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div className="wa-avatar" style={{ width: '38px', height: '38px', fontSize: '0.95rem' }}>
+              {contactAvatarChar}
+            </div>
+            <div>
+              <div style={{ fontWeight: '700', fontSize: '0.92rem', color: '#0f172a' }}>
+                {contactName}
+              </div>
+              <div style={{ fontSize: '0.74rem', color: '#16a34a', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#16a34a' }}></span>
+                {contactRole}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Stream */}
+        <div className="wa-stream">
           {loading ? (
-            <div style={{ padding: '40px', textAlign: 'center', color: '#64748b', fontSize: '0.85rem' }}>
-              <i className="ri-loader-4-line animate-spin" style={{ color: '#16a34a', marginRight: '6px' }}></i> Loading live chat...
+            <div style={{ padding: '40px', textAlign: 'center', color: '#94a3b8', fontSize: '0.82rem' }}>
+              <i className="ri-loader-4-line animate-spin" style={{ color: '#16a34a', marginRight: '6px' }}></i> Loading conversation...
             </div>
           ) : chat && chat.messages && chat.messages.length > 0 ? (
             chat.messages.map((m, idx) => {
               const isMyMsg = (isAashish && m.sender === 'AASHISH') || (!isAashish && m.sender === 'MINNI');
-              const senderLabel = m.sender === 'AASHISH' ? '⚡ Gotti Aashish' : '✨ Manashvini (Minni)';
-              const senderColor = m.sender === 'AASHISH' ? '#2563eb' : '#db2777';
 
               return (
                 <div
                   key={m.id || idx}
-                  className={`team-bubble ${isMyMsg ? 'team-bubble-my' : 'team-bubble-other'}`}
+                  className={`wa-bubble ${isMyMsg ? 'wa-bubble-my' : 'wa-bubble-other'}`}
                 >
-                  <span className="team-sender-name" style={{ color: isMyMsg ? '#047857' : senderColor }}>
-                    {senderLabel}
-                  </span>
                   <div style={{ whitespace: 'pre-wrap' }}>{m.text}</div>
                   <div style={{ fontSize: '0.65rem', color: isMyMsg ? '#047857' : '#94a3b8', textAlign: 'right', marginTop: '4px' }}>
                     {new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -317,26 +368,26 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
               );
             })
           ) : (
-            <div style={{ padding: '40px', textAlign: 'center', color: '#64748b', fontSize: '0.85rem' }}>
-              No messages yet. Type below to send a message to {otherDisplayName}!
+            <div style={{ padding: '40px', textAlign: 'center', color: '#94a3b8', fontSize: '0.82rem' }}>
+              No messages yet with {contactName}. Type below to send a message!
             </div>
           )}
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Message Composer */}
-        <form onSubmit={handleSendMessage} className="team-composer">
+        {/* Composer */}
+        <form onSubmit={handleSendMessage} className="wa-composer">
           <input
             type="text"
-            placeholder={`Type a message to ${otherDisplayName}...`}
+            placeholder={`Type a message to ${contactName}...`}
             value={messageText}
             onChange={e => setMessageText(e.target.value)}
-            className="team-composer-input"
+            className="wa-composer-input"
           />
           <button
             type="submit"
             disabled={!messageText.trim() || sending}
-            className="team-send-btn"
+            className="wa-send-btn"
           >
             Send ➢
           </button>
