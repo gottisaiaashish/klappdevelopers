@@ -79,19 +79,48 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
 
   const handleSendMessage = async (e) => {
     if (e) e.preventDefault();
-    if (!messageText.trim() || !activePhone || sending) return;
+    const targetPhone = activePhone || (activeChat ? activeChat.phone : '917989033580');
+    if (!messageText.trim() || !targetPhone || sending) return;
 
     const textToSend = messageText.trim();
     setMessageText('');
     setShowEmojiPicker(false);
     setSending(true);
 
+    const senderRole = (currentUser && currentUser.toUpperCase().includes('MINNI')) ? 'MINNI' : 'AASHISH';
+    const optMsg = {
+      id: 'MSG-TEMP-' + Date.now(),
+      sender: senderRole,
+      text: textToSend,
+      timestamp: new Date().toISOString(),
+      status: 'DELIVERED'
+    };
+
+    // 0ms Optimistic UI update so message appears instantly
+    setChats(prev => {
+      const exists = prev.some(c => c.phone === targetPhone);
+      if (exists) {
+        return prev.map(c => {
+          if (c.phone === targetPhone) {
+            return {
+              ...c,
+              lastMessage: textToSend,
+              lastMessageTime: new Date().toISOString(),
+              messages: [...(c.messages || []), optMsg]
+            };
+          }
+          return c;
+        });
+      }
+      return prev;
+    });
+
     try {
       const res = await fetch(`${API_BASE_URL}/api/whatsapp/send`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          phone: activePhone,
+          phone: targetPhone,
           text: textToSend,
           sender: currentUser,
           contactName: activeChat ? getDisplayContactName(activeChat) : 'Contact'
@@ -99,7 +128,13 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
       });
       const data = await res.json();
       if (data.success && data.chat) {
-        setChats(prev => prev.map(c => c.phone === activePhone ? data.chat : c));
+        setChats(prev => {
+          const exists = prev.some(c => c.phone === targetPhone || c.phone === data.chat.phone);
+          if (exists) {
+            return prev.map(c => (c.phone === targetPhone || c.phone === data.chat.phone) ? data.chat : c);
+          }
+          return [data.chat, ...prev];
+        });
       }
     } catch (err) {
       console.error('Error sending message:', err);
