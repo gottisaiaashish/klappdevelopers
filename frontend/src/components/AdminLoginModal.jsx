@@ -10,11 +10,6 @@ export default function AdminLoginModal({ isOpen, onClose, onSuccessLogin }) {
 
   if (!isOpen) return null;
 
-  const handleSelectRoleShortcut = (selectedUser) => {
-    setUsername(selectedUser);
-    setPassword('04160416');
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -248,34 +243,7 @@ export default function AdminLoginModal({ isOpen, onClose, onSuccessLogin }) {
         </button>
 
         <h3 className="minimal-title">KLAPP OS Sign In</h3>
-        <p className="minimal-sub">Access Founder or Operations Workspace</p>
-
-        {/* Quick Role Shortcuts */}
-        <div className="role-shortcuts">
-          <button 
-            type="button" 
-            className="role-btn"
-            onClick={() => handleSelectRoleShortcut('gottiaashish')}
-          >
-            <div className="role-avatar-dot" style={{ background: '#2563eb' }}>A</div>
-            <div>
-              <div style={{ fontWeight: 700 }}>Aashish</div>
-              <div style={{ fontSize: '0.68rem', color: '#a1a1aa' }}>Founder</div>
-            </div>
-          </button>
-
-          <button 
-            type="button" 
-            className="role-btn"
-            onClick={() => handleSelectRoleShortcut('manashvini')}
-          >
-            <div className="role-avatar-dot" style={{ background: '#ec4899' }}>M</div>
-            <div>
-              <div style={{ fontWeight: 700 }}>Manashvini</div>
-              <div style={{ fontSize: '0.68rem', color: '#a1a1aa' }}>Operations</div>
-            </div>
-          </button>
-        </div>
+        <p className="minimal-sub">Enter your credentials to access KLAPP OS</p>
 
         {errorMsg && (
           <div className="error-alert-box">
@@ -292,7 +260,7 @@ export default function AdminLoginModal({ isOpen, onClose, onSuccessLogin }) {
                 type="text" 
                 required 
                 className="styled-input" 
-                placeholder="Username (e.g. gottiaashish / manashvini)"
+                placeholder="Enter your username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 autoFocus
