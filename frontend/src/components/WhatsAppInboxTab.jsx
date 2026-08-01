@@ -110,15 +110,16 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
     setSending(true);
 
     const senderRole = (currentUser && currentUser.toUpperCase().includes('MINNI')) ? 'MINNI' : 'AASHISH';
+    const tempMsgId = 'MSG-TEMP-' + Date.now();
     const optMsg = {
-      id: 'MSG-TEMP-' + Date.now(),
+      id: tempMsgId,
       sender: senderRole,
       text: textToSend,
       timestamp: new Date().toISOString(),
       status: 'DELIVERED'
     };
 
-    // 0ms Optimistic UI update so message appears instantly
+    // 0ms Optimistic UI: instantly show message on screen
     setChats(prev => {
       const exists = prev.some(c => c.phone === targetPhone);
       if (exists) {
@@ -150,13 +151,30 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
       });
       const data = await res.json();
       if (data.success && data.chat) {
-        setChats(prev => {
-          const exists = prev.some(c => c.phone === targetPhone || c.phone === data.chat.phone);
-          if (exists) {
-            return prev.map(c => (c.phone === targetPhone || c.phone === data.chat.phone) ? data.chat : c);
-          }
-          return [data.chat, ...prev];
-        });
+        // Smart merge: keep ALL local messages (especially after clear + new send)
+        // Never blindly overwrite local state with server - merge instead
+        setChats(prev => prev.map(c => {
+          if (c.phone !== targetPhone && c.phone !== data.chat.phone) return c;
+
+          const serverMsgs = data.chat.messages || [];
+          const localMsgs = c.messages || [];
+
+          // Build combined list: start with server messages, then add any local ones not already there
+          const combined = [...serverMsgs];
+          localMsgs.forEach(localMsg => {
+            const alreadyInServer = combined.some(
+              m => m.id === localMsg.id ||
+              (m.text === localMsg.text &&
+                Math.abs(new Date(m.timestamp) - new Date(localMsg.timestamp)) < 15000)
+            );
+            if (!alreadyInServer) combined.push(localMsg);
+          });
+
+          return {
+            ...data.chat,
+            messages: combined
+          };
+        }));
       }
     } catch (err) {
       console.error('Error sending message:', err);
@@ -164,6 +182,7 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
       setSending(false);
     }
   };
+
 
   const handleStartNewChat = async (e) => {
     e.preventDefault();
