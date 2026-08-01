@@ -538,6 +538,8 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
 
   useEffect(() => {
     if (isOpen) {
+      const currentAvatar = sessionStorage.getItem('klapp_admin_avatar') || 'AASHISH';
+      setUserRole(currentAvatar);
       fetchInquiries();
     }
   }, [isOpen]);

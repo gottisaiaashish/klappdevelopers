@@ -34,7 +34,7 @@ export default function App() {
 
   const handleOpenAdminLogin = () => {
     const existingToken = sessionStorage.getItem('klapp_admin_token');
-    if (existingToken === 'klapp_admin_token_04160416') {
+    if (existingToken) {
       setAdminDashboardOpen(true);
     } else {
       setAdminLoginOpen(true);
@@ -49,6 +49,8 @@ export default function App() {
   const handleLogout = () => {
     sessionStorage.removeItem('klapp_admin_token');
     sessionStorage.removeItem('klapp_admin_user');
+    sessionStorage.removeItem('klapp_admin_role');
+    sessionStorage.removeItem('klapp_admin_avatar');
     setAdminDashboardOpen(false);
   };
 

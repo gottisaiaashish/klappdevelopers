@@ -8,13 +8,12 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
-  const [statusFilter, setStatusFilter] = useState('ALL'); // 'ALL', 'HOT_LEAD', 'CLIENT', 'UNREAD'
+  const [statusFilter, setStatusFilter] = useState('ALL');
   const messagesEndRef = useRef(null);
 
-  // Fetch all active chats from backend
   const fetchChats = async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/whatsapp/chats`);
+      const res = await fetch(`${API_BASE_URL}/api/whatsapp/chats`);
       const data = await res.json();
       if (data.success && Array.isArray(data.chats)) {
         setChats(data.chats);
@@ -31,17 +30,15 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
 
   useEffect(() => {
     fetchChats();
-    // Poll every 4 seconds for live inbound WhatsApp updates
     const interval = setInterval(fetchChats, 4000);
     return () => clearInterval(interval);
   }, []);
 
-  // Mark chat as read when selected
   useEffect(() => {
     if (!activeChatPhone) return;
     const markRead = async () => {
       try {
-        await fetch(`${API_BASE_URL}/whatsapp/read`, {
+        await fetch(`${API_BASE_URL}/api/whatsapp/read`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ phone: activeChatPhone })
@@ -52,7 +49,6 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
     markRead();
   }, [activeChatPhone]);
 
-  // Scroll to bottom of message window
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chats, activeChatPhone]);
@@ -68,7 +64,7 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
     setSending(true);
 
     try {
-      const res = await fetch(`${API_BASE_URL}/whatsapp/send`, {
+      const res = await fetch(`${API_BASE_URL}/api/whatsapp/send`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -93,7 +89,6 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
     setMessageText(text);
   };
 
-  // Filtered Chats
   const filteredChats = chats.filter(c => {
     const matchesSearch = c.contactName.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           c.phone.includes(searchQuery);
@@ -104,78 +99,399 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
     return true;
   });
 
-  const getTagBadgeColor = (tag) => {
-    switch (tag) {
-      case 'HOT_LEAD': return 'bg-rose-500/20 text-rose-400 border-rose-500/30';
-      case 'CLIENT': return 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
-      case 'PENDING_QUOTE': return 'bg-amber-500/20 text-amber-400 border-amber-500/30';
-      default: return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
-    }
-  };
-
   return (
-    <div className="flex flex-col h-[750px] bg-[#0b141a] text-zinc-100 rounded-2xl border border-emerald-500/20 shadow-2xl overflow-hidden font-sans">
-      
-      {/* Top Header Banner */}
-      <div className="flex items-center justify-between px-6 py-3.5 bg-[#111b21] border-b border-zinc-800">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold text-xl">
+    <div className="wa-inbox-wrapper">
+      <style>{`
+        .wa-inbox-wrapper {
+          width: 100%;
+          height: 720px;
+          background: #0b141a;
+          border-radius: 16px;
+          border: 1px solid #202c33;
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+          font-family: var(--font-sans, system-ui, sans-serif);
+          box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+          color: #e9edef;
+        }
+
+        .wa-header-bar {
+          height: 64px;
+          background: #111b21;
+          border-bottom: 1px solid #202c33;
+          padding: 0 24px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+
+        .wa-brand-icon {
+          width: 38px;
+          height: 38px;
+          border-radius: 10px;
+          background: rgba(37, 211, 102, 0.15);
+          border: 1px solid rgba(37, 211, 102, 0.3);
+          color: #25d366;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 1.3rem;
+        }
+
+        .wa-status-badge {
+          background: rgba(37, 211, 102, 0.15);
+          color: #25d366;
+          border: 1px solid rgba(37, 211, 102, 0.3);
+          padding: 2px 10px;
+          border-radius: 999px;
+          font-size: 0.72rem;
+          font-weight: 700;
+        }
+
+        .wa-main-body {
+          flex: 1;
+          display: flex;
+          overflow: hidden;
+        }
+
+        /* Sidebar Styling */
+        .wa-sidebar {
+          width: 320px;
+          min-width: 320px;
+          background: #111b21;
+          border-right: 1px solid #202c33;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .wa-search-area {
+          padding: 12px;
+          border-bottom: 1px solid #202c33;
+        }
+
+        .wa-search-input-wrap {
+          position: relative;
+          width: 100%;
+          margin-bottom: 8px;
+        }
+
+        .wa-search-input-wrap i {
+          position: absolute;
+          left: 12px;
+          top: 50%;
+          transform: translateY(-50%);
+          color: #8696a0;
+          font-size: 0.9rem;
+        }
+
+        .wa-search-input {
+          width: 100%;
+          padding: 8px 12px 8px 36px;
+          background: #202c33;
+          border: 1px solid #2a3942;
+          border-radius: 10px;
+          color: #e9edef;
+          font-size: 0.8rem;
+          outline: none;
+          box-sizing: border-box;
+        }
+        .wa-search-input:focus {
+          border-color: #25d366;
+        }
+
+        .wa-filters-row {
+          display: flex;
+          gap: 6px;
+          overflow-x: auto;
+          padding-bottom: 4px;
+        }
+
+        .wa-filter-chip {
+          background: #202c33;
+          border: 1px solid #2a3942;
+          color: #8696a0;
+          padding: 4px 10px;
+          border-radius: 8px;
+          font-size: 0.72rem;
+          font-weight: 600;
+          cursor: pointer;
+          white-space: nowrap;
+          transition: all 0.2s;
+        }
+        .wa-filter-chip:hover {
+          background: #2a3942;
+          color: #e9edef;
+        }
+        .wa-filter-chip.active {
+          background: rgba(37, 211, 102, 0.2);
+          color: #25d366;
+          border-color: rgba(37, 211, 102, 0.4);
+        }
+
+        .wa-chat-list {
+          flex: 1;
+          overflow-y: auto;
+        }
+
+        .wa-chat-item {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 12px 14px;
+          border-bottom: 1px solid #1f2c34;
+          cursor: pointer;
+          transition: background 0.2s;
+        }
+        .wa-chat-item:hover {
+          background: #202c33;
+        }
+        .wa-chat-item.active {
+          background: #2a3942;
+          border-left: 4px solid #25d366;
+        }
+
+        .wa-avatar {
+          width: 42px;
+          height: 42px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #128c7e, #075e54);
+          color: #fff;
+          font-weight: 700;
+          font-size: 0.95rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+
+        .wa-chat-meta {
+          flex: 1;
+          min-width: 0;
+        }
+
+        .wa-chat-name {
+          font-weight: 700;
+          font-size: 0.86rem;
+          color: #e9edef;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .wa-chat-last-msg {
+          font-size: 0.78rem;
+          color: #8696a0;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          margin-top: 2px;
+        }
+
+        .wa-badge-unread {
+          background: #25d366;
+          color: #0b141a;
+          font-weight: 800;
+          font-size: 0.7rem;
+          padding: 2px 6px;
+          border-radius: 999px;
+        }
+
+        /* Right Window */
+        .wa-window {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          background: #0b141a;
+        }
+
+        .wa-window-header {
+          padding: 12px 20px;
+          background: #202c33;
+          border-bottom: 1px solid #2a3942;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+
+        .wa-stream {
+          flex: 1;
+          overflow-y: auto;
+          padding: 20px;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          background-color: #0b141a;
+          background-image: radial-gradient(#1f2c34 1px, transparent 1px);
+          background-size: 16px 16px;
+        }
+
+        .wa-bubble {
+          max-width: 70%;
+          padding: 10px 14px;
+          font-size: 0.82rem;
+          line-height: 1.45;
+          position: relative;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .wa-bubble-customer {
+          align-self: flex-start;
+          background: #202c33;
+          color: #e9edef;
+          border-radius: 0 14px 14px 14px;
+          border: 1px solid #2a3942;
+        }
+
+        .wa-bubble-outbound {
+          align-self: flex-end;
+          background: #005c4b;
+          color: #e9edef;
+          border-radius: 14px 0 14px 14px;
+          border: 1px solid #128c7e;
+        }
+
+        .wa-sender-tag {
+          font-size: 0.68rem;
+          font-weight: 800;
+          color: #53bdeb;
+          display: block;
+          margin-bottom: 4px;
+        }
+
+        .wa-time-tag {
+          font-size: 0.65rem;
+          color: rgba(233, 237, 239, 0.6);
+          text-align: right;
+          margin-top: 4px;
+        }
+
+        .wa-quick-bar {
+          padding: 8px 16px;
+          background: #111b21;
+          border-top: 1px solid #202c33;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          overflow-x: auto;
+        }
+
+        .wa-quick-btn {
+          background: #202c33;
+          border: 1px solid #2a3942;
+          color: #e9edef;
+          padding: 5px 12px;
+          border-radius: 20px;
+          font-size: 0.75rem;
+          cursor: pointer;
+          white-space: nowrap;
+          transition: all 0.2s;
+        }
+        .wa-quick-btn:hover {
+          background: #005c4b;
+          border-color: #25d366;
+          color: #fff;
+        }
+
+        .wa-composer {
+          padding: 12px 16px;
+          background: #202c33;
+          border-top: 1px solid #2a3942;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+
+        .wa-composer-input {
+          flex: 1;
+          padding: 10px 16px;
+          background: #2a3942;
+          border: 1px solid #3b4a54;
+          border-radius: 12px;
+          color: #fff;
+          font-size: 0.84rem;
+          outline: none;
+        }
+        .wa-composer-input:focus {
+          border-color: #25d366;
+        }
+
+        .wa-send-btn {
+          background: #25d366;
+          color: #0b141a;
+          font-weight: 800;
+          border: none;
+          padding: 10px 18px;
+          border-radius: 12px;
+          cursor: pointer;
+          font-size: 0.82rem;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          transition: background 0.2s;
+        }
+        .wa-send-btn:hover {
+          background: #20ba5a;
+        }
+        .wa-send-btn:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+      `}</style>
+
+      {/* TOP BANNER HEADER */}
+      <div className="wa-header-bar">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div className="wa-brand-icon">
             <i className="ri-whatsapp-fill"></i>
           </div>
           <div>
-            <h2 className="font-bold text-base tracking-wide flex items-center gap-2">
-              KLAPP WhatsApp Shared Inbox
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                🟢 Live Connected
-              </span>
-            </h2>
-            <p className="text-xs text-zinc-400">
-              Active Number: <span className="text-emerald-400 font-mono">+91 79890 33580 / 8247758835</span> (Shared with {currentUser === 'AASHISH' ? 'Aashish & Minni' : 'Minni & Aashish'})
-            </p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <strong style={{ fontSize: '0.98rem', letterSpacing: '0.02em' }}>KLAPP WhatsApp Shared Inbox</strong>
+              <span className="wa-status-badge">🟢 Live Connected</span>
+            </div>
+            <div style={{ fontSize: '0.75rem', color: '#8696a0', marginTop: '2px' }}>
+              Active Numbers: <span style={{ color: '#25d366', fontFamily: 'monospace' }}>+91 79890 33580 / 8247758835</span> (Shared Access: Minni & Aashish)
+            </div>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="text-xs px-3 py-1 rounded-full bg-zinc-800 border border-zinc-700 text-zinc-300">
-            Role: <strong className="text-emerald-400">{currentUser}</strong>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <span style={{ fontSize: '0.78rem', padding: '4px 10px', background: '#202c33', borderRadius: '8px', color: '#e9edef' }}>
+            Active Role: <strong style={{ color: '#25d366' }}>{currentUser}</strong>
           </span>
           <button 
-            onClick={fetchChats} 
-            className="p-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition text-sm flex items-center gap-1"
-            title="Refresh Conversations"
+            onClick={fetchChats}
+            style={{ background: '#202c33', border: '1px solid #2a3942', color: '#e9edef', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '6px' }}
           >
-            <i className="ri-refresh-line"></i> Refresh
+            <i className="ri-refresh-line"></i> Sync Chats
           </button>
         </div>
       </div>
 
-      {/* Main Layout Grid */}
-      <div className="flex flex-1 overflow-hidden">
-        
-        {/* Left Sidebar - Chat List */}
-        <div className="w-80 border-r border-zinc-800 bg-[#111b21] flex flex-col">
-          
-          {/* Search & Filter Bar */}
-          <div className="p-3 border-b border-zinc-800 space-y-2">
-            <div className="relative">
-              <i className="ri-search-line absolute left-3 top-2.5 text-zinc-400 text-sm"></i>
+      {/* MAIN LAYOUT */}
+      <div className="wa-main-body">
+
+        {/* LEFT SIDEBAR */}
+        <div className="wa-sidebar">
+          <div className="wa-search-area">
+            <div className="wa-search-input-wrap">
+              <i className="ri-search-line"></i>
               <input
                 type="text"
                 placeholder="Search contact or phone..."
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 bg-[#202c33] border border-zinc-700/60 rounded-xl text-xs text-zinc-100 placeholder-zinc-400 focus:outline-none focus:border-emerald-500"
+                className="wa-search-input"
               />
             </div>
-            <div className="flex items-center gap-1 overflow-x-auto text-[11px] no-scrollbar pt-1">
+
+            <div className="wa-filters-row">
               {['ALL', 'HOT_LEAD', 'CLIENT', 'UNREAD'].map(f => (
                 <button
                   key={f}
                   onClick={() => setStatusFilter(f)}
-                  className={`px-2.5 py-1 rounded-lg border transition whitespace-nowrap ${
-                    statusFilter === f 
-                      ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40 font-semibold' 
-                      : 'bg-[#202c33] text-zinc-400 border-transparent hover:bg-zinc-700'
-                  }`}
+                  className={`wa-filter-chip ${statusFilter === f ? 'active' : ''}`}
                 >
                   {f === 'ALL' ? 'All Chats' : f === 'HOT_LEAD' ? '🔥 Hot Leads' : f === 'CLIENT' ? '🤝 Clients' : '📩 Unread'}
                 </button>
@@ -183,15 +499,14 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
             </div>
           </div>
 
-          {/* Chat Items List */}
-          <div className="flex-1 overflow-y-auto divide-y divide-zinc-800/50">
+          <div className="wa-chat-list">
             {loading ? (
-              <div className="p-6 text-center text-xs text-zinc-500 flex items-center justify-center gap-2">
-                <i className="ri-loader-4-line animate-spin text-emerald-400"></i> Syncing WhatsApp chats...
+              <div style={{ padding: '24px', textAlign: 'center', fontSize: '0.78rem', color: '#8696a0' }}>
+                <i className="ri-loader-4-line animate-spin" style={{ color: '#25d366', marginRight: '6px' }}></i> Loading live WhatsApp chats...
               </div>
             ) : filteredChats.length === 0 ? (
-              <div className="p-6 text-center text-xs text-zinc-500">
-                No chats found for filter.
+              <div style={{ padding: '24px', textAlign: 'center', fontSize: '0.78rem', color: '#8696a0' }}>
+                No chats found.
               </div>
             ) : (
               filteredChats.map(c => {
@@ -200,171 +515,145 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
                   <div
                     key={c.phone}
                     onClick={() => setActiveChatPhone(c.phone)}
-                    className={`p-3 cursor-pointer transition flex items-start gap-3 ${
-                      isActive ? 'bg-[#2a3942] border-l-4 border-emerald-500' : 'hover:bg-[#202c33]'
-                    }`}
+                    className={`wa-chat-item ${isActive ? 'active' : ''}`}
                   >
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-600 to-teal-800 text-white flex items-center justify-center font-bold text-sm shadow-md flex-shrink-0">
-                      {c.contactName.charAt(0).toUpperCase()}
+                    <div className="wa-avatar">
+                      {c.contactName ? c.contactName.charAt(0).toUpperCase() : 'C'}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between">
-                        <h4 className="text-xs font-semibold text-zinc-100 truncate">{c.contactName}</h4>
-                        <span className="text-[10px] text-zinc-400">
+                    <div className="wa-chat-meta">
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span className="wa-chat-name">{c.contactName}</span>
+                        <span style={{ fontSize: '0.68rem', color: '#8696a0' }}>
                           {new Date(c.lastMessageTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </span>
                       </div>
-                      <p className="text-[11px] text-zinc-400 truncate mt-0.5">{c.lastMessage || 'No messages yet'}</p>
-                      <div className="flex items-center justify-between mt-1.5">
-                        <span className={`text-[9px] px-1.5 py-0.5 rounded border ${getTagBadgeColor(c.statusTag)}`}>
-                          {c.statusTag || 'LEAD'}
-                        </span>
-                        {c.unreadCount > 0 && (
-                          <span className="text-[10px] bg-emerald-500 text-zinc-950 font-bold px-1.5 py-0.2 rounded-full shadow">
-                            {c.unreadCount}
-                          </span>
-                        )}
-                      </div>
+                      <div className="wa-chat-last-msg">{c.lastMessage || 'No message content'}</div>
                     </div>
+                    {c.unreadCount > 0 && (
+                      <span className="wa-badge-unread">{c.unreadCount}</span>
+                    )}
                   </div>
                 );
               })
             )}
           </div>
-
         </div>
 
-        {/* Right Section - Active Chat Feed & Composer */}
-        <div className="flex-1 flex flex-col bg-[#0b141a] relative">
+        {/* RIGHT CHAT STREAM & COMPOSER */}
+        <div className="wa-window">
           {activeChat ? (
             <>
               {/* Active Chat Header */}
-              <div className="px-5 py-3 bg-[#202c33] border-b border-zinc-800 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-sm">
-                    {activeChat.contactName.charAt(0).toUpperCase()}
+              <div className="wa-window-header">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div className="wa-avatar" style={{ width: '38px', height: '38px', fontSize: '0.85rem' }}>
+                    {activeChat.contactName ? activeChat.contactName.charAt(0).toUpperCase() : 'C'}
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-zinc-100 flex items-center gap-2">
-                      {activeChat.contactName}
-                      <span className="text-xs text-zinc-400 font-mono">({activeChat.phone})</span>
-                    </h3>
-                    <p className="text-[11px] text-emerald-400">
-                      Interest: {activeChat.serviceInterest || 'Web & AI Development'}
-                    </p>
+                    <div style={{ fontWeight: '700', fontSize: '0.9rem', color: '#e9edef' }}>
+                      {activeChat.contactName} <span style={{ fontSize: '0.78rem', color: '#8696a0', fontFamily: 'monospace' }}>({activeChat.phone})</span>
+                    </div>
+                    <div style={{ fontSize: '0.72rem', color: '#25d366' }}>
+                      Service Interest: {activeChat.serviceInterest || 'Web & AI Automation'}
+                    </div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 text-xs">
-                  <a
-                    href={`https://wa.me/${activeChat.phone}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="px-3 py-1.5 rounded-lg bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 border border-emerald-500/30 font-medium flex items-center gap-1 transition"
-                  >
-                    <i className="ri-whatsapp-line text-sm"></i> Open in WhatsApp Web
-                  </a>
-                </div>
+                <a
+                  href={`https://wa.me/${activeChat.phone}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ background: 'rgba(37, 211, 102, 0.15)', color: '#25d366', border: '1px solid rgba(37, 211, 102, 0.3)', padding: '6px 14px', borderRadius: '8px', fontSize: '0.78rem', fontWeight: '600', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px' }}
+                >
+                  <i className="ri-whatsapp-line"></i> Open WhatsApp Web
+                </a>
               </div>
 
-              {/* Chat Message Stream */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-[radial-gradient(#1f2c34_1px,transparent_1px)] [background-size:16px_16px]">
+              {/* Chat Stream */}
+              <div className="wa-stream">
                 {activeChat.messages && activeChat.messages.length > 0 ? (
                   activeChat.messages.map((m, idx) => {
                     const isOutbound = m.sender === 'AASHISH' || m.sender === 'MINNI' || m.sender === 'BOT';
                     return (
                       <div
                         key={m.id || idx}
-                        className={`flex flex-col ${isOutbound ? 'items-end' : 'items-start'}`}
+                        className={`wa-bubble ${isOutbound ? 'wa-bubble-outbound' : 'wa-bubble-customer'}`}
                       >
-                        <div
-                          className={`max-w-[75%] px-3.5 py-2 rounded-2xl shadow text-xs relative leading-relaxed ${
-                            isOutbound
-                              ? 'bg-[#005c4b] text-zinc-100 rounded-tr-none border border-emerald-500/20'
-                              : 'bg-[#202c33] text-zinc-100 rounded-tl-none border border-zinc-700/50'
-                          }`}
-                        >
-                          {isOutbound && (
-                            <span className="text-[10px] text-emerald-300 font-bold block mb-1">
-                              {m.sender === 'AASHISH' ? '⚡ Aashish (Tech)' : m.sender === 'MINNI' ? '✨ Minni (Growth)' : '🤖 Klapp AI Bot'}
-                            </span>
-                          )}
-                          <p className="whitespace-pre-wrap">{m.text}</p>
-                          <div className={`flex items-center gap-1 justify-end text-[9px] mt-1 ${isOutbound ? 'text-emerald-200/70' : 'text-zinc-400'}`}>
-                            <span>{new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                            {isOutbound && <i className="ri-double-check-line text-emerald-300 text-xs"></i>}
-                          </div>
+                        {isOutbound && (
+                          <span className="wa-sender-tag">
+                            {m.sender === 'AASHISH' ? '⚡ Aashish (Tech)' : m.sender === 'MINNI' ? '✨ Minni (Growth)' : '🤖 Klapp AI Bot'}
+                          </span>
+                        )}
+                        <div style={{ whitespace: 'pre-wrap' }}>{m.text}</div>
+                        <div className="wa-time-tag">
+                          {new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          {isOutbound && <span style={{ marginLeft: '4px', color: '#53bdeb' }}>✓✓</span>}
                         </div>
                       </div>
                     );
                   })
                 ) : (
-                  <div className="p-8 text-center text-zinc-500 text-xs">
-                    No messages exchanged yet with {activeChat.contactName}. Type below to start conversation!
+                  <div style={{ textAlign: 'center', color: '#8696a0', fontSize: '0.8rem', padding: '40px' }}>
+                    No chat history yet with {activeChat.contactName}. Type below to send a message!
                   </div>
                 )}
                 <div ref={messagesEndRef} />
               </div>
 
-              {/* Quick Reply Bar */}
-              <div className="px-4 py-2 bg-[#111b21] border-t border-zinc-800 flex items-center gap-2 overflow-x-auto text-xs no-scrollbar">
-                <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider flex-shrink-0">Quick Replies:</span>
+              {/* Quick Reply Actions */}
+              <div className="wa-quick-bar">
+                <span style={{ fontSize: '0.7rem', color: '#8696a0', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.04em', flexShrink: 0 }}>
+                  Quick Templates:
+                </span>
                 <button
-                  onClick={() => handleQuickReply('Hi! Thank you for reaching out to KLAPP Developers. We build sub-100ms web apps and AI automations. When are you free for a 10-min discovery call?')}
-                  className="px-2.5 py-1 rounded-full bg-[#202c33] hover:bg-emerald-500/20 hover:text-emerald-300 text-zinc-300 border border-zinc-700 text-[11px] whitespace-nowrap transition"
+                  onClick={() => handleQuickReply('Hi! Thank you for contacting KLAPP Developers. We build sub-100ms web apps and AI automations. When are you available for a 10-min discovery call?')}
+                  className="wa-quick-btn"
                 >
                   👋 Intro & Discovery Call
                 </button>
                 <button
-                  onClick={() => handleQuickReply('Here is our Web App starter package proposal: Includes React Frontend, Node.js API, Sub-100ms speed, & Meta WhatsApp integration at ₹50,000.')}
-                  className="px-2.5 py-1 rounded-full bg-[#202c33] hover:bg-emerald-500/20 hover:text-emerald-300 text-zinc-300 border border-zinc-700 text-[11px] whitespace-nowrap transition"
+                  onClick={() => handleQuickReply('Here is our Web App package proposal: React Frontend, Node.js API, Sub-100ms speed & Meta WhatsApp integration at ₹50,000.')}
+                  className="wa-quick-btn"
                 >
-                  💼 Web Package Quote (₹50k)
+                  💼 Web Package (₹50,000)
                 </button>
                 <button
                   onClick={() => handleQuickReply('You can view our live work portfolio & case studies here: https://klappdevelopers.in/#portfolio')}
-                  className="px-2.5 py-1 rounded-full bg-[#202c33] hover:bg-emerald-500/20 hover:text-emerald-300 text-zinc-300 border border-zinc-700 text-[11px] whitespace-nowrap transition"
+                  className="wa-quick-btn"
                 >
                   📁 Live Portfolio Link
                 </button>
               </div>
 
-              {/* Message Composer Bar */}
-              <form onSubmit={handleSendMessage} className="p-3 bg-[#202c33] border-t border-zinc-800 flex items-center gap-2">
-                <div className="flex-1 relative">
-                  <input
-                    type="text"
-                    placeholder={`Type WhatsApp message to ${activeChat.contactName}... (Sending as ${currentUser})`}
-                    value={messageText}
-                    onChange={e => setMessageText(e.target.value)}
-                    className="w-full pl-4 pr-10 py-2.5 bg-[#2a3942] border border-zinc-700/80 rounded-xl text-xs text-zinc-100 placeholder-zinc-400 focus:outline-none focus:border-emerald-500"
-                  />
-                </div>
+              {/* Composer Input Bar */}
+              <form onSubmit={handleSendMessage} className="wa-composer">
+                <input
+                  type="text"
+                  placeholder={`Type message to ${activeChat.contactName}... (Replying as ${currentUser})`}
+                  value={messageText}
+                  onChange={e => setMessageText(e.target.value)}
+                  className="wa-composer-input"
+                />
                 <button
                   type="submit"
                   disabled={!messageText.trim() || sending}
-                  className="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-zinc-950 font-bold text-xs flex items-center gap-1.5 transition shadow-lg"
+                  className="wa-send-btn"
                 >
-                  {sending ? (
-                    <i className="ri-loader-4-line animate-spin"></i>
-                  ) : (
-                    <i className="ri-send-plane-fill"></i>
-                  )}
+                  {sending ? <i className="ri-loader-4-line animate-spin"></i> : <i className="ri-send-plane-fill"></i>}
                   Send WhatsApp
                 </button>
               </form>
             </>
           ) : (
-            <div className="flex-1 flex flex-col items-center justify-center text-zinc-500 p-8 text-center">
-              <i className="ri-whatsapp-line text-5xl text-emerald-500/40 mb-2"></i>
-              <p className="text-sm font-semibold text-zinc-300">Select a contact to view WhatsApp chat history</p>
-              <p className="text-xs text-zinc-500 mt-1">All incoming WhatsApp messages to Klapp numbers will land here live.</p>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#8696a0', padding: '40px', textAlign: 'center' }}>
+              <i className="ri-whatsapp-line" style={{ fontSize: '3rem', color: '#25d366', opacity: 0.5, marginBottom: '12px' }}></i>
+              <div style={{ fontWeight: '700', fontSize: '0.95rem', color: '#e9edef' }}>Select a chat to view messages</div>
+              <div style={{ fontSize: '0.8rem', marginTop: '4px' }}>All incoming WhatsApp messages to Klapp numbers will land here live.</div>
             </div>
           )}
         </div>
 
       </div>
-
     </div>
   );
 }
