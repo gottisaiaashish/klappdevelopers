@@ -180,11 +180,13 @@ router.post('/inbound', async (req, res) => {
 
     let updatedChat = null;
 
+    const contactName = cName || req.body.contactName || req.body.name || `Inquiry (${formattedPhone})`;
+
     if (mongoose.connection.readyState === 1 && WhatsAppChatModel) {
       updatedChat = await WhatsAppChatModel.findOneAndUpdate(
         { phone: formattedPhone },
         {
-          $setOnInsert: { contactName: contactName || `Inquiry (${formattedPhone})` },
+          $setOnInsert: { contactName: contactName },
           $set: {
             lastMessage: String(msgText).trim(),
             lastMessageTime: new Date()
@@ -199,7 +201,7 @@ router.post('/inbound', async (req, res) => {
       if (!chat) {
         chat = {
           phone: formattedPhone,
-          contactName: contactName || `Inquiry (${formattedPhone})`,
+          contactName: contactName,
           unreadCount: 0,
           statusTag: 'HOT_LEAD',
           assignedTo: 'UNASSIGNED',
