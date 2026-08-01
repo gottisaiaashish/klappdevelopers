@@ -308,12 +308,15 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
         }
 
         .wa-bubble {
+          min-width: 90px;
           max-width: 65%;
-          padding: 10px 14px;
-          font-size: 0.86rem;
+          padding: 8px 14px 6px 14px;
+          font-size: 0.88rem;
           line-height: 1.45;
           position: relative;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+          box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+          word-break: break-word;
+          overflow-wrap: anywhere;
         }
 
         .wa-bubble-my {
@@ -587,9 +590,9 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
 
                       <div className={`wa-bubble ${isMyMsg ? 'wa-bubble-my' : 'wa-bubble-other'}`}>
                         <div style={{ whitespace: 'pre-wrap' }}>{m.text}</div>
-                        <div style={{ fontSize: '0.65rem', color: isMyMsg ? '#047857' : '#94a3b8', textAlign: 'right', marginTop: '4px' }}>
-                          {new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                          {isMyMsg && <span style={{ marginLeft: '4px' }}>✓✓</span>}
+                        <div style={{ fontSize: '0.66rem', color: isMyMsg ? '#047857' : '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '4px', marginTop: '4px', whiteSpace: 'nowrap' }}>
+                          <span>{new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                          {isMyMsg && <span style={{ fontWeight: '700', color: '#15803d' }}>✓✓</span>}
                         </div>
 
                         {/* REACTION BADGE */}
