@@ -23,9 +23,11 @@ export default function App() {
   const [pricingOpen, setPricingOpen] = useState(false);
   const [showcaseOpen, setShowcaseOpen] = useState(false);
 
-  // Admin Portal State
+  // Admin Portal State — persist across page refresh using sessionStorage
   const [adminLoginOpen, setAdminLoginOpen] = useState(false);
-  const [adminDashboardOpen, setAdminDashboardOpen] = useState(false);
+  const [adminDashboardOpen, setAdminDashboardOpen] = useState(
+    () => !!sessionStorage.getItem('klapp_admin_token')
+  );
 
   const handleOpenAi = (prompt = '') => {
     setAiPrompt(prompt);
