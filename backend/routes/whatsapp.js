@@ -119,46 +119,55 @@ router.post('/send', async (req, res) => {
     let updatedChat = null;
 
     if (mongoose.connection.readyState === 1 && WhatsAppChatModel) {
-      const updateData = {
-        lastMessage: text.trim(),
-        lastMessageTime: new Date()
-      };
-      if (contactName) updateData.contactName = contactName;
-
-      updatedChat = await WhatsAppChatModel.findOneAndUpdate(
-        { phone: targetPhone },
-        {
-          $setOnInsert: {
-            contactName: contactName || (senderRole === 'AASHISH' ? 'Manashvini (Minni)' : 'Gotti Aashish')
-          },
-          $set: updateData,
-          $inc: { unreadCount: 1 },
-          $push: { messages: newMsg }
-        },
-        { upsert: true, new: true }
-      );
-    } else {
-      let chat = memoryChatsMap.get(targetPhone);
-      if (!chat) {
-        chat = {
-          phone: targetPhone,
-          contactName: contactName || (senderRole === 'AASHISH' ? 'Manashvini (Minni)' : 'Gotti Aashish'),
-          unreadCount: 0,
-          statusTag: 'TEAM',
-          assignedTo: senderRole,
+      try {
+        const updateData = {
           lastMessage: text.trim(),
-          lastMessageTime: new Date().toISOString(),
-          messages: []
+          lastMessageTime: new Date()
         };
+        if (contactName) updateData.contactName = contactName;
+
+        updatedChat = await WhatsAppChatModel.findOneAndUpdate(
+          { phone: targetPhone },
+          {
+            $setOnInsert: {
+              contactName: contactName || (senderRole === 'AASHISH' ? 'Manashvini (Minni)' : 'Gotti Aashish')
+            },
+            $set: updateData,
+            $inc: { unreadCount: 1 },
+            $push: { messages: newMsg }
+          },
+          { upsert: true, new: true }
+        );
+      } catch (dbErr) {
+        console.error('MongoDB push error:', dbErr);
       }
-      if (contactName) chat.contactName = contactName;
-      chat.messages.push(newMsg);
-      chat.lastMessage = text.trim();
-      chat.lastMessageTime = new Date().toISOString();
-      chat.unreadCount = (chat.unreadCount || 0) + 1;
-      memoryChatsMap.set(targetPhone, chat);
-      updatedChat = chat;
     }
+
+    // Always keep memory map in sync as fallback
+    let memChat = memoryChatsMap.get(targetPhone);
+    if (!memChat) {
+      memChat = {
+        phone: targetPhone,
+        contactName: contactName || (senderRole === 'AASHISH' ? 'Manashvini (Minni)' : 'Gotti Aashish'),
+        unreadCount: 0,
+        statusTag: 'TEAM',
+        assignedTo: senderRole,
+        lastMessage: text.trim(),
+        lastMessageTime: new Date().toISOString(),
+        messages: []
+      };
+    }
+    if (contactName) memChat.contactName = contactName;
+    if (!memChat.messages) memChat.messages = [];
+    if (!memChat.messages.some(m => m.id === newMsg.id)) {
+      memChat.messages.push(newMsg);
+    }
+    memChat.lastMessage = text.trim();
+    memChat.lastMessageTime = new Date().toISOString();
+    memChat.unreadCount = (memChat.unreadCount || 0) + 1;
+    memoryChatsMap.set(targetPhone, memChat);
+
+    if (!updatedChat) updatedChat = memChat;
 
     return res.json({ success: true, message: 'Message sent!', chat: updatedChat });
   } catch (err) {

@@ -27,7 +27,29 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
       const res = await fetch(`${API_BASE_URL}/api/whatsapp/chats`);
       const data = await res.json();
       if (data.success && Array.isArray(data.chats)) {
-        setChats(data.chats);
+        setChats(prev => {
+          if (!prev || prev.length === 0) return data.chats;
+          return data.chats.map(serverChat => {
+            const localChat = prev.find(p => p.phone === serverChat.phone);
+            if (!localChat || !localChat.messages) return serverChat;
+
+            const combinedMsgs = [...serverChat.messages];
+            localChat.messages.forEach(localMsg => {
+              const alreadyExists = combinedMsgs.some(
+                m => m.id === localMsg.id || (m.text === localMsg.text && Math.abs(new Date(m.timestamp) - new Date(localMsg.timestamp)) < 10000)
+              );
+              if (!alreadyExists) {
+                combinedMsgs.push(localMsg);
+              }
+            });
+
+            return {
+              ...serverChat,
+              messages: combinedMsgs
+            };
+          });
+        });
+
         if (!activePhone && data.chats.length > 0) {
           setActivePhone(data.chats[0].phone);
         }
