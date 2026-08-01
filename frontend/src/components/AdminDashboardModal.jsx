@@ -135,7 +135,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
       const res = await fetch(`${API_BASE_URL}/api/whatsapp/chats`);
       const data = await res.json();
       if (data.success && Array.isArray(data.chats)) {
-        const isAashish = String(currentUser).toUpperCase().includes('AASHISH');
+        const isAashish = String(userRole).toUpperCase().includes('AASHISH');
         let count = 0;
         data.chats.forEach(c => {
           const lastMsg = c.messages && c.messages.length > 0 ? c.messages[c.messages.length - 1] : null;
@@ -151,7 +151,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
     fetchMessengerUnreadCount();
     const interval = setInterval(fetchMessengerUnreadCount, 3000);
     return () => clearInterval(interval);
-  }, [currentUser]);
+  }, [userRole]);
 
   const handleCreateEvent = (e) => {
     e.preventDefault();
