@@ -104,79 +104,40 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
       <style>{`
         .wa-inbox-wrapper {
           width: 100%;
-          height: 720px;
+          height: 740px;
           background: #0b141a;
           border-radius: 16px;
           border: 1px solid #202c33;
           display: flex;
-          flex-direction: column;
+          flex-direction: row;
           overflow: hidden;
           font-family: var(--font-sans, system-ui, sans-serif);
           box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
           color: #e9edef;
         }
 
-        .wa-header-bar {
-          height: 64px;
-          background: #111b21;
-          border-bottom: 1px solid #202c33;
-          padding: 0 24px;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-        }
-
-        .wa-brand-icon {
-          width: 38px;
-          height: 38px;
-          border-radius: 10px;
-          background: rgba(37, 211, 102, 0.15);
-          border: 1px solid rgba(37, 211, 102, 0.3);
-          color: #25d366;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 1.3rem;
-        }
-
-        .wa-status-badge {
-          background: rgba(37, 211, 102, 0.15);
-          color: #25d366;
-          border: 1px solid rgba(37, 211, 102, 0.3);
-          padding: 2px 10px;
-          border-radius: 999px;
-          font-size: 0.72rem;
-          font-weight: 700;
-        }
-
-        .wa-main-body {
-          flex: 1;
-          display: flex;
-          overflow: hidden;
-        }
-
-        /* Sidebar Styling */
+        /* Sidebar Styling (WhatsApp Web Authentic) */
         .wa-sidebar {
-          width: 320px;
-          min-width: 320px;
+          width: 340px;
+          min-width: 340px;
           background: #111b21;
           border-right: 1px solid #202c33;
           display: flex;
           flex-direction: column;
         }
 
-        .wa-search-area {
+        .wa-sidebar-top {
           padding: 12px;
           border-bottom: 1px solid #202c33;
         }
 
-        .wa-search-input-wrap {
+        .wa-search-wrap {
           position: relative;
           width: 100%;
-          margin-bottom: 8px;
+          margin-bottom: 10px;
         }
 
-        .wa-search-input-wrap i {
+        .wa-search-wrap i {
           position: absolute;
           left: 12px;
           top: 50%;
@@ -187,12 +148,12 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
 
         .wa-search-input {
           width: 100%;
-          padding: 8px 12px 8px 36px;
+          padding: 9px 12px 9px 38px;
           background: #202c33;
           border: 1px solid #2a3942;
           border-radius: 10px;
           color: #e9edef;
-          font-size: 0.8rem;
+          font-size: 0.82rem;
           outline: none;
           box-sizing: border-box;
         }
@@ -200,20 +161,19 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
           border-color: #25d366;
         }
 
-        .wa-filters-row {
+        .wa-filter-bar {
           display: flex;
           gap: 6px;
           overflow-x: auto;
-          padding-bottom: 4px;
         }
 
         .wa-filter-chip {
           background: #202c33;
           border: 1px solid #2a3942;
           color: #8696a0;
-          padding: 4px 10px;
-          border-radius: 8px;
-          font-size: 0.72rem;
+          padding: 5px 12px;
+          border-radius: 20px;
+          font-size: 0.74rem;
           font-weight: 600;
           cursor: pointer;
           white-space: nowrap;
@@ -224,9 +184,9 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
           color: #e9edef;
         }
         .wa-filter-chip.active {
-          background: rgba(37, 211, 102, 0.2);
+          background: #005c4b;
           color: #25d366;
-          border-color: rgba(37, 211, 102, 0.4);
+          border-color: #128c7e;
         }
 
         .wa-chat-list {
@@ -238,7 +198,7 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
           display: flex;
           align-items: center;
           gap: 12px;
-          padding: 12px 14px;
+          padding: 14px 16px;
           border-bottom: 1px solid #1f2c34;
           cursor: pointer;
           transition: background 0.2s;
@@ -252,13 +212,13 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
         }
 
         .wa-avatar {
-          width: 42px;
-          height: 42px;
+          width: 44px;
+          height: 44px;
           border-radius: 50%;
           background: linear-gradient(135deg, #128c7e, #075e54);
           color: #fff;
           font-weight: 700;
-          font-size: 0.95rem;
+          font-size: 1rem;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -272,7 +232,7 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
 
         .wa-chat-name {
           font-weight: 700;
-          font-size: 0.86rem;
+          font-size: 0.88rem;
           color: #e9edef;
           white-space: nowrap;
           overflow: hidden;
@@ -285,19 +245,19 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
-          margin-top: 2px;
+          margin-top: 3px;
         }
 
-        .wa-badge-unread {
+        .wa-unread-badge {
           background: #25d366;
           color: #0b141a;
           font-weight: 800;
           font-size: 0.7rem;
-          padding: 2px 6px;
+          padding: 2px 7px;
           border-radius: 999px;
         }
 
-        /* Right Window */
+        /* Right Window Styling */
         .wa-window {
           flex: 1;
           display: flex;
@@ -317,22 +277,22 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
         .wa-stream {
           flex: 1;
           overflow-y: auto;
-          padding: 20px;
+          padding: 24px;
           display: flex;
           flex-direction: column;
-          gap: 12px;
+          gap: 14px;
           background-color: #0b141a;
           background-image: radial-gradient(#1f2c34 1px, transparent 1px);
-          background-size: 16px 16px;
+          background-size: 18px 18px;
         }
 
         .wa-bubble {
-          max-width: 70%;
+          max-width: 68%;
           padding: 10px 14px;
-          font-size: 0.82rem;
+          font-size: 0.84rem;
           line-height: 1.45;
           position: relative;
-          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
         }
 
         .wa-bubble-customer {
@@ -404,12 +364,12 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
 
         .wa-composer-input {
           flex: 1;
-          padding: 10px 16px;
+          padding: 11px 16px;
           background: #2a3942;
           border: 1px solid #3b4a54;
           border-radius: 12px;
           color: #fff;
-          font-size: 0.84rem;
+          font-size: 0.85rem;
           outline: none;
         }
         .wa-composer-input:focus {
@@ -421,10 +381,10 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
           color: #0b141a;
           font-weight: 800;
           border: none;
-          padding: 10px 18px;
+          padding: 11px 20px;
           border-radius: 12px;
           cursor: pointer;
-          font-size: 0.82rem;
+          font-size: 0.84rem;
           display: flex;
           align-items: center;
           gap: 6px;
@@ -439,220 +399,182 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
         }
       `}</style>
 
-      {/* TOP BANNER HEADER */}
-      <div className="wa-header-bar">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div className="wa-brand-icon">
-            <i className="ri-whatsapp-fill"></i>
+      {/* LEFT SIDEBAR (WhatsApp Web Authentic) */}
+      <div className="wa-sidebar">
+        <div className="wa-sidebar-top">
+          <div className="wa-search-wrap">
+            <i className="ri-search-line"></i>
+            <input
+              type="text"
+              placeholder="Search or start new chat..."
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              className="wa-search-input"
+            />
           </div>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <strong style={{ fontSize: '0.98rem', letterSpacing: '0.02em' }}>KLAPP WhatsApp Shared Inbox</strong>
-              <span className="wa-status-badge">🟢 Live Connected</span>
-            </div>
-            <div style={{ fontSize: '0.75rem', color: '#8696a0', marginTop: '2px' }}>
-              Active Numbers: <span style={{ color: '#25d366', fontFamily: 'monospace' }}>+91 79890 33580 / 8247758835</span> (Shared Access: Minni & Aashish)
-            </div>
+
+          <div className="wa-filter-bar">
+            {['ALL', 'HOT_LEAD', 'CLIENT', 'UNREAD'].map(f => (
+              <button
+                key={f}
+                onClick={() => setStatusFilter(f)}
+                className={`wa-filter-chip ${statusFilter === f ? 'active' : ''}`}
+              >
+                {f === 'ALL' ? 'All Chats' : f === 'HOT_LEAD' ? '🔥 Hot Leads' : f === 'CLIENT' ? '🤝 Clients' : '📩 Unread'}
+              </button>
+            ))}
           </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <span style={{ fontSize: '0.78rem', padding: '4px 10px', background: '#202c33', borderRadius: '8px', color: '#e9edef' }}>
-            Active Role: <strong style={{ color: '#25d366' }}>{currentUser}</strong>
-          </span>
-          <button 
-            onClick={fetchChats}
-            style={{ background: '#202c33', border: '1px solid #2a3942', color: '#e9edef', padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', fontSize: '0.78rem', display: 'flex', alignItems: 'center', gap: '6px' }}
-          >
-            <i className="ri-refresh-line"></i> Sync Chats
-          </button>
+        <div className="wa-chat-list">
+          {loading ? (
+            <div style={{ padding: '24px', textAlign: 'center', fontSize: '0.78rem', color: '#8696a0' }}>
+              <i className="ri-loader-4-line animate-spin" style={{ color: '#25d366', marginRight: '6px' }}></i> Syncing WhatsApp chats...
+            </div>
+          ) : filteredChats.length === 0 ? (
+            <div style={{ padding: '24px', textAlign: 'center', fontSize: '0.78rem', color: '#8696a0' }}>
+              No chats found.
+            </div>
+          ) : (
+            filteredChats.map(c => {
+              const isActive = c.phone === activeChatPhone;
+              return (
+                <div
+                  key={c.phone}
+                  onClick={() => setActiveChatPhone(c.phone)}
+                  className={`wa-chat-item ${isActive ? 'active' : ''}`}
+                >
+                  <div className="wa-avatar">
+                    {c.contactName ? c.contactName.charAt(0).toUpperCase() : 'C'}
+                  </div>
+                  <div className="wa-chat-meta">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span className="wa-chat-name">{c.contactName}</span>
+                      <span style={{ fontSize: '0.68rem', color: '#8696a0' }}>
+                        {new Date(c.lastMessageTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </div>
+                    <div className="wa-chat-last-msg">{c.lastMessage || 'No messages yet'}</div>
+                  </div>
+                  {c.unreadCount > 0 && (
+                    <span className="wa-unread-badge">{c.unreadCount}</span>
+                  )}
+                </div>
+              );
+            })
+          )}
         </div>
       </div>
 
-      {/* MAIN LAYOUT */}
-      <div className="wa-main-body">
-
-        {/* LEFT SIDEBAR */}
-        <div className="wa-sidebar">
-          <div className="wa-search-area">
-            <div className="wa-search-input-wrap">
-              <i className="ri-search-line"></i>
-              <input
-                type="text"
-                placeholder="Search contact or phone..."
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                className="wa-search-input"
-              />
-            </div>
-
-            <div className="wa-filters-row">
-              {['ALL', 'HOT_LEAD', 'CLIENT', 'UNREAD'].map(f => (
-                <button
-                  key={f}
-                  onClick={() => setStatusFilter(f)}
-                  className={`wa-filter-chip ${statusFilter === f ? 'active' : ''}`}
-                >
-                  {f === 'ALL' ? 'All Chats' : f === 'HOT_LEAD' ? '🔥 Hot Leads' : f === 'CLIENT' ? '🤝 Clients' : '📩 Unread'}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="wa-chat-list">
-            {loading ? (
-              <div style={{ padding: '24px', textAlign: 'center', fontSize: '0.78rem', color: '#8696a0' }}>
-                <i className="ri-loader-4-line animate-spin" style={{ color: '#25d366', marginRight: '6px' }}></i> Loading live WhatsApp chats...
-              </div>
-            ) : filteredChats.length === 0 ? (
-              <div style={{ padding: '24px', textAlign: 'center', fontSize: '0.78rem', color: '#8696a0' }}>
-                No chats found.
-              </div>
-            ) : (
-              filteredChats.map(c => {
-                const isActive = c.phone === activeChatPhone;
-                return (
-                  <div
-                    key={c.phone}
-                    onClick={() => setActiveChatPhone(c.phone)}
-                    className={`wa-chat-item ${isActive ? 'active' : ''}`}
-                  >
-                    <div className="wa-avatar">
-                      {c.contactName ? c.contactName.charAt(0).toUpperCase() : 'C'}
-                    </div>
-                    <div className="wa-chat-meta">
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span className="wa-chat-name">{c.contactName}</span>
-                        <span style={{ fontSize: '0.68rem', color: '#8696a0' }}>
-                          {new Date(c.lastMessageTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </span>
-                      </div>
-                      <div className="wa-chat-last-msg">{c.lastMessage || 'No message content'}</div>
-                    </div>
-                    {c.unreadCount > 0 && (
-                      <span className="wa-badge-unread">{c.unreadCount}</span>
-                    )}
+      {/* RIGHT CHAT WINDOW (WhatsApp Web Authentic) */}
+      <div className="wa-window">
+        {activeChat ? (
+          <>
+            {/* Active Chat Header */}
+            <div className="wa-window-header">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div className="wa-avatar" style={{ width: '40px', height: '40px', fontSize: '0.9rem' }}>
+                  {activeChat.contactName ? activeChat.contactName.charAt(0).toUpperCase() : 'C'}
+                </div>
+                <div>
+                  <div style={{ fontWeight: '700', fontSize: '0.92rem', color: '#e9edef' }}>
+                    {activeChat.contactName} <span style={{ fontSize: '0.78rem', color: '#8696a0', fontFamily: 'monospace' }}>({activeChat.phone})</span>
                   </div>
-                );
-              })
-            )}
-          </div>
-        </div>
-
-        {/* RIGHT CHAT STREAM & COMPOSER */}
-        <div className="wa-window">
-          {activeChat ? (
-            <>
-              {/* Active Chat Header */}
-              <div className="wa-window-header">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <div className="wa-avatar" style={{ width: '38px', height: '38px', fontSize: '0.85rem' }}>
-                    {activeChat.contactName ? activeChat.contactName.charAt(0).toUpperCase() : 'C'}
-                  </div>
-                  <div>
-                    <div style={{ fontWeight: '700', fontSize: '0.9rem', color: '#e9edef' }}>
-                      {activeChat.contactName} <span style={{ fontSize: '0.78rem', color: '#8696a0', fontFamily: 'monospace' }}>({activeChat.phone})</span>
-                    </div>
-                    <div style={{ fontSize: '0.72rem', color: '#25d366' }}>
-                      Service Interest: {activeChat.serviceInterest || 'Web & AI Automation'}
-                    </div>
+                  <div style={{ fontSize: '0.72rem', color: '#25d366' }}>
+                    Online | {activeChat.serviceInterest || 'Web & AI Automation'}
                   </div>
                 </div>
-
-                <a
-                  href={`https://wa.me/${activeChat.phone}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{ background: 'rgba(37, 211, 102, 0.15)', color: '#25d366', border: '1px solid rgba(37, 211, 102, 0.3)', padding: '6px 14px', borderRadius: '8px', fontSize: '0.78rem', fontWeight: '600', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px' }}
-                >
-                  <i className="ri-whatsapp-line"></i> Open WhatsApp Web
-                </a>
               </div>
 
-              {/* Chat Stream */}
-              <div className="wa-stream">
-                {activeChat.messages && activeChat.messages.length > 0 ? (
-                  activeChat.messages.map((m, idx) => {
-                    const isOutbound = m.sender === 'AASHISH' || m.sender === 'MINNI' || m.sender === 'BOT';
-                    return (
-                      <div
-                        key={m.id || idx}
-                        className={`wa-bubble ${isOutbound ? 'wa-bubble-outbound' : 'wa-bubble-customer'}`}
-                      >
-                        {isOutbound && (
-                          <span className="wa-sender-tag">
-                            {m.sender === 'AASHISH' ? '⚡ Aashish (Tech)' : m.sender === 'MINNI' ? '✨ Minni (Growth)' : '🤖 Klapp AI Bot'}
-                          </span>
-                        )}
-                        <div style={{ whitespace: 'pre-wrap' }}>{m.text}</div>
-                        <div className="wa-time-tag">
-                          {new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                          {isOutbound && <span style={{ marginLeft: '4px', color: '#53bdeb' }}>✓✓</span>}
-                        </div>
-                      </div>
-                    );
-                  })
-                ) : (
-                  <div style={{ textAlign: 'center', color: '#8696a0', fontSize: '0.8rem', padding: '40px' }}>
-                    No chat history yet with {activeChat.contactName}. Type below to send a message!
-                  </div>
-                )}
-                <div ref={messagesEndRef} />
-              </div>
-
-              {/* Quick Reply Actions */}
-              <div className="wa-quick-bar">
-                <span style={{ fontSize: '0.7rem', color: '#8696a0', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.04em', flexShrink: 0 }}>
-                  Quick Templates:
-                </span>
-                <button
-                  onClick={() => handleQuickReply('Hi! Thank you for contacting KLAPP Developers. We build sub-100ms web apps and AI automations. When are you available for a 10-min discovery call?')}
-                  className="wa-quick-btn"
-                >
-                  👋 Intro & Discovery Call
-                </button>
-                <button
-                  onClick={() => handleQuickReply('Here is our Web App package proposal: React Frontend, Node.js API, Sub-100ms speed & Meta WhatsApp integration at ₹50,000.')}
-                  className="wa-quick-btn"
-                >
-                  💼 Web Package (₹50,000)
-                </button>
-                <button
-                  onClick={() => handleQuickReply('You can view our live work portfolio & case studies here: https://klappdevelopers.in/#portfolio')}
-                  className="wa-quick-btn"
-                >
-                  📁 Live Portfolio Link
-                </button>
-              </div>
-
-              {/* Composer Input Bar */}
-              <form onSubmit={handleSendMessage} className="wa-composer">
-                <input
-                  type="text"
-                  placeholder={`Type message to ${activeChat.contactName}... (Replying as ${currentUser})`}
-                  value={messageText}
-                  onChange={e => setMessageText(e.target.value)}
-                  className="wa-composer-input"
-                />
-                <button
-                  type="submit"
-                  disabled={!messageText.trim() || sending}
-                  className="wa-send-btn"
-                >
-                  {sending ? <i className="ri-loader-4-line animate-spin"></i> : <i className="ri-send-plane-fill"></i>}
-                  Send WhatsApp
-                </button>
-              </form>
-            </>
-          ) : (
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#8696a0', padding: '40px', textAlign: 'center' }}>
-              <i className="ri-whatsapp-line" style={{ fontSize: '3rem', color: '#25d366', opacity: 0.5, marginBottom: '12px' }}></i>
-              <div style={{ fontWeight: '700', fontSize: '0.95rem', color: '#e9edef' }}>Select a chat to view messages</div>
-              <div style={{ fontSize: '0.8rem', marginTop: '4px' }}>All incoming WhatsApp messages to Klapp numbers will land here live.</div>
+              <a
+                href={`https://wa.me/${activeChat.phone}`}
+                target="_blank"
+                rel="noreferrer"
+                style={{ background: 'rgba(37, 211, 102, 0.15)', color: '#25d366', border: '1px solid rgba(37, 211, 102, 0.3)', padding: '6px 14px', borderRadius: '8px', fontSize: '0.78rem', fontWeight: '600', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px' }}
+              >
+                <i className="ri-whatsapp-line"></i> WhatsApp Web
+              </a>
             </div>
-          )}
-        </div>
 
+            {/* Chat Stream */}
+            <div className="wa-stream">
+              {activeChat.messages && activeChat.messages.length > 0 ? (
+                activeChat.messages.map((m, idx) => {
+                  const isOutbound = m.sender === 'AASHISH' || m.sender === 'MINNI' || m.sender === 'BOT';
+                  return (
+                    <div
+                      key={m.id || idx}
+                      className={`wa-bubble ${isOutbound ? 'wa-bubble-outbound' : 'wa-bubble-customer'}`}
+                    >
+                      {isOutbound && (
+                        <span className="wa-sender-tag">
+                          {m.sender === 'AASHISH' ? '⚡ Aashish' : m.sender === 'MINNI' ? '✨ Minni' : '🤖 Klapp AI'}
+                        </span>
+                      )}
+                      <div style={{ whitespace: 'pre-wrap' }}>{m.text}</div>
+                      <div className="wa-time-tag">
+                        {new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        {isOutbound && <span style={{ marginLeft: '4px', color: '#53bdeb' }}>✓✓</span>}
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <div style={{ textAlign: 'center', color: '#8696a0', fontSize: '0.8rem', padding: '40px' }}>
+                  No chat history yet with {activeChat.contactName}. Type below to send a message!
+                </div>
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+
+            {/* Quick Reply Bar */}
+            <div className="wa-quick-bar">
+              <button
+                onClick={() => handleQuickReply('Hi! Thank you for contacting KLAPP Developers. We build sub-100ms web apps and AI automations. When are you available for a 10-min discovery call?')}
+                className="wa-quick-btn"
+              >
+                👋 Discovery Call
+              </button>
+              <button
+                onClick={() => handleQuickReply('Here is our Web App package proposal: React Frontend, Node.js API, Sub-100ms speed & Meta WhatsApp integration at ₹50,000.')}
+                className="wa-quick-btn"
+              >
+                💼 Web Package (₹50k)
+              </button>
+              <button
+                onClick={() => handleQuickReply('You can view our live work portfolio & case studies here: https://klappdevelopers.in/#portfolio')}
+                className="wa-quick-btn"
+              >
+                📁 Portfolio Link
+              </button>
+            </div>
+
+            {/* Message Composer Bar */}
+            <form onSubmit={handleSendMessage} className="wa-composer">
+              <input
+                type="text"
+                placeholder={`Type message to ${activeChat.contactName}...`}
+                value={messageText}
+                onChange={e => setMessageText(e.target.value)}
+                className="wa-composer-input"
+              />
+              <button
+                type="submit"
+                disabled={!messageText.trim() || sending}
+                className="wa-send-btn"
+              >
+                {sending ? <i className="ri-loader-4-line animate-spin"></i> : <i className="ri-send-plane-fill"></i>}
+                Send
+              </button>
+            </form>
+          </>
+        ) : (
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#8696a0', padding: '40px', textAlign: 'center' }}>
+            <i className="ri-whatsapp-line" style={{ fontSize: '3.5rem', color: '#25d366', opacity: 0.5, marginBottom: '12px' }}></i>
+            <div style={{ fontWeight: '700', fontSize: '1rem', color: '#e9edef' }}>WhatsApp Web for Klapp</div>
+            <div style={{ fontSize: '0.8rem', marginTop: '4px' }}>Select a contact from the left sidebar to start chatting.</div>
+          </div>
+        )}
       </div>
     </div>
   );
