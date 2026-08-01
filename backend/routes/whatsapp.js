@@ -57,12 +57,29 @@ if (memoryChatsMap.size === 0) {
 router.get('/chats', async (req, res) => {
   try {
     if (mongoose.connection.readyState === 1 && WhatsAppChatModel) {
+      // Clean up old temporary test records
+      await WhatsAppChatModel.deleteMany({
+        $or: [
+          { contactName: { $regex: /Live Test/i } },
+          { phone: 'KLAPP-TEAM-AASHISH-MINNI' },
+          { phone: '918247758835' }
+        ]
+      });
+
       let chats = await WhatsAppChatModel.find().sort({ lastMessageTime: -1 });
       if (chats.length === 0) {
         chats = await WhatsAppChatModel.insertMany(getDefaultSeedChats());
       }
       return res.json({ success: true, chats });
     } else {
+      memoryChatsMap.delete('KLAPP-TEAM-AASHISH-MINNI');
+      memoryChatsMap.delete('918247758835');
+      for (const [k, v] of memoryChatsMap.entries()) {
+        if (v.contactName && v.contactName.includes('Live Test')) {
+          memoryChatsMap.delete(k);
+        }
+      }
+
       const chats = Array.from(memoryChatsMap.values()).sort(
         (a, b) => new Date(b.lastMessageTime) - new Date(a.lastMessageTime)
       );
@@ -70,6 +87,26 @@ router.get('/chats', async (req, res) => {
     }
   } catch (err) {
     console.error('Error fetching chats:', err);
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+/**
+ * DELETE /api/whatsapp/chat/:phone
+ * Delete a specific contact chat thread
+ */
+router.delete('/chat/:phone', async (req, res) => {
+  try {
+    const { phone } = req.params;
+    const targetPhone = formatPhone(phone);
+
+    if (mongoose.connection.readyState === 1 && WhatsAppChatModel) {
+      await WhatsAppChatModel.deleteOne({ phone: targetPhone });
+    }
+    memoryChatsMap.delete(targetPhone);
+
+    return res.json({ success: true });
+  } catch (err) {
     return res.status(500).json({ success: false, error: err.message });
   }
 });

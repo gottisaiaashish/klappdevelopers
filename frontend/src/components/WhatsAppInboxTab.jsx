@@ -193,11 +193,34 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
     }
   };
 
+  const handleDeleteContact = async (phoneToDelete, e) => {
+    if (e) e.stopPropagation();
+    if (!window.confirm('Delete this contact card from your inbox?')) return;
+
+    setChats(prev => prev.filter(c => c.phone !== phoneToDelete));
+    if (activePhone === phoneToDelete) {
+      const remaining = chats.filter(c => c.phone !== phoneToDelete);
+      setActivePhone(remaining.length > 0 ? remaining[0].phone : '');
+    }
+
+    try {
+      await fetch(`${API_BASE_URL}/api/whatsapp/chat/${phoneToDelete}`, {
+        method: 'DELETE'
+      });
+    } catch (err) {
+      console.error('Error deleting contact:', err);
+    }
+  };
+
   const addEmojiToText = (emoji) => {
     setMessageText(prev => prev + emoji);
   };
 
   const filteredChats = chats.filter(c => {
+    const isLiveTest = c.contactName && c.contactName.includes('Live Test');
+    const isTempPhone = c.phone === '918247758835' || c.phone === 'KLAPP-TEAM-AASHISH-MINNI';
+    if (isLiveTest || isTempPhone) return false;
+
     const name = getDisplayContactName(c).toLowerCase();
     return name.includes(searchQuery.toLowerCase()) || c.phone.includes(searchQuery);
   });
@@ -691,6 +714,15 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
                     </div>
                   </div>
                   {isUnread && <div className="wa-unread-dot" title="New Message"></div>}
+                  {c.phone !== '917989033580' && (
+                    <button
+                      onClick={(e) => handleDeleteContact(c.phone, e)}
+                      style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: '0.9rem', cursor: 'pointer', marginLeft: '4px', padding: '2px 4px' }}
+                      title="Delete Contact"
+                    >
+                      🗑️
+                    </button>
+                  )}
                 </div>
               );
             })
