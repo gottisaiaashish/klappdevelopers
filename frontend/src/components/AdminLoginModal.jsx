@@ -245,32 +245,6 @@ export default function AdminLoginModal({ isOpen, onClose, onSuccessLogin }) {
         <h3 className="minimal-title">KLAPP OS Sign In</h3>
         <p className="minimal-sub">Enter your credentials to access KLAPP OS</p>
 
-        {/* 1-Click Role Quick Selectors */}
-        <div className="role-shortcuts">
-          <button 
-            type="button" 
-            className="role-btn"
-            onClick={() => { setUsername('gottiaashish'); setPassword('04160416'); }}
-          >
-            <div className="role-avatar-dot">⚡</div>
-            <div>
-              <div style={{ fontWeight: '700' }}>Aashish</div>
-              <div style={{ fontSize: '0.68rem', color: '#a1a1aa' }}>Founder</div>
-            </div>
-          </button>
-          <button 
-            type="button" 
-            className="role-btn"
-            onClick={() => { setUsername('manashvini'); setPassword('04160416'); }}
-          >
-            <div className="role-avatar-dot" style={{ background: '#ec4899', border: 'none' }}>✨</div>
-            <div>
-              <div style={{ fontWeight: '700' }}>Manashvini</div>
-              <div style={{ fontSize: '0.68rem', color: '#a1a1aa' }}>Ops Lead</div>
-            </div>
-          </button>
-        </div>
-
         {errorMsg && (
           <div className="error-alert-box">
             <i className="ri-error-warning-fill" style={{ marginRight: '6px' }}></i>
