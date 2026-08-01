@@ -29,30 +29,37 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
       if (data.success && Array.isArray(data.chats)) {
         setChats(prev => {
           if (!prev || prev.length === 0) return data.chats;
+
           return data.chats.map(serverChat => {
             const localChat = prev.find(p => p.phone === serverChat.phone);
-            if (!localChat || !localChat.messages) return serverChat;
+            if (!localChat) return serverChat;
 
-            const combinedMsgs = [...serverChat.messages];
-            localChat.messages.forEach(localMsg => {
-              const alreadyExists = combinedMsgs.some(
-                m => m.id === localMsg.id || (m.text === localMsg.text && Math.abs(new Date(m.timestamp) - new Date(localMsg.timestamp)) < 10000)
+            const serverMsgIds = new Set((serverChat.messages || []).map(m => m.id));
+            const serverMsgTexts = new Set((serverChat.messages || []).map(m => m.text + '|' + new Date(m.timestamp).getTime()));
+            const now = Date.now();
+
+            // Only keep truly-pending local messages: sent in last 15s and not yet in server
+            const pendingMsgs = (localChat.messages || []).filter(localMsg => {
+              const isTemp = String(localMsg.id).startsWith('MSG-TEMP-');
+              const ageMs = now - new Date(localMsg.timestamp).getTime();
+              if (!isTemp || ageMs > 15000) return false; // discard old temps
+              if (serverMsgIds.has(localMsg.id)) return false;
+              // Also discard if server has same text sent within 15s
+              const isDuplicate = (serverChat.messages || []).some(
+                sm => sm.text === localMsg.text && Math.abs(new Date(sm.timestamp) - new Date(localMsg.timestamp)) < 15000
               );
-              if (!alreadyExists) {
-                combinedMsgs.push(localMsg);
-              }
+              return !isDuplicate;
             });
 
-            // Sort by timestamp so messages appear in correct order
-            combinedMsgs.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+            const allMsgs = [...(serverChat.messages || []), ...pendingMsgs];
+            allMsgs.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
 
-            // Always derive lastMessage from the actual last message in the thread
-            const lastMsg = combinedMsgs.length > 0 ? combinedMsgs[combinedMsgs.length - 1] : null;
+            const lastMsg = allMsgs.length > 0 ? allMsgs[allMsgs.length - 1] : null;
 
             return {
               ...serverChat,
-              messages: combinedMsgs,
-              lastMessage: lastMsg ? lastMsg.text : (serverChat.lastMessage === 'Chat cleared' ? '' : serverChat.lastMessage),
+              messages: allMsgs,
+              lastMessage: lastMsg ? lastMsg.text : (serverChat.lastMessage || ''),
               lastMessageTime: lastMsg ? lastMsg.timestamp : serverChat.lastMessageTime
             };
           });

@@ -3,109 +3,94 @@ const router = express.Router();
 const mongoose = require('mongoose');
 const WhatsAppChatModel = require('../models/WhatsAppChat');
 
-// In-memory fallback map if MongoDB is offline
-const memoryChatsMap = new Map();
+// ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
+const TEAM_PHONE = '917989033580';
+const LEGACY_PHONES = ['KLAPP-TEAM-AASHISH-MINNI', '918247758835', 'DEFAULT'];
 
-// Helper to format phone / contactId
 function formatPhone(phone) {
-  if (!phone || phone === 'KLAPP-TEAM-AASHISH-MINNI' || phone === '918247758835' || phone === 'DEFAULT') {
-    return '917989033580';
-  }
+  if (!phone || LEGACY_PHONES.includes(String(phone).trim())) return TEAM_PHONE;
   return String(phone).trim();
 }
 
-// Initial default seed contacts for Aashish & Minni
-function getDefaultSeedChats() {
-  return [
-    {
-      phone: '917989033580',
-      contactName: 'Manashvini (Minni)',
-      email: 'minni@klappdevelopers.in',
-      serviceInterest: 'Klapp Growth & Operations Lead',
-      statusTag: 'TEAM',
-      unreadCount: 0,
-      assignedTo: 'AASHISH',
-      lastMessage: 'Welcome to Klapp OS Messenger!',
-      lastMessageTime: new Date().toISOString(),
-      messages: [
-        {
-          id: 'MSG-INIT-1',
-          sender: 'AASHISH',
-          text: 'Hey Minni! Klapp Messenger is active. We can chat here anytime!',
-          timestamp: new Date(Date.now() - 10 * 60000).toISOString(),
-          status: 'DELIVERED'
-        },
-        {
-          id: 'MSG-INIT-2',
-          sender: 'MINNI',
-          text: 'Awesome Aashish! Super clean & fast 1-on-1 team chat!',
-          timestamp: new Date(Date.now() - 5 * 60000).toISOString(),
-          status: 'DELIVERED'
-        }
-      ]
-    }
-  ];
+function isMongoUp() {
+  return mongoose.connection.readyState === 1 && WhatsAppChatModel;
 }
 
-// Initialize seed data into memory if empty
-if (memoryChatsMap.size === 0) {
-  getDefaultSeedChats().forEach(c => memoryChatsMap.set(c.phone, c));
+// Seed document — only the contact record, no sample messages
+function buildSeedContact() {
+  return {
+    phone: TEAM_PHONE,
+    contactName: 'Manashvini (Minni)',
+    email: 'minni@klappdevelopers.in',
+    serviceInterest: 'Klapp Growth & Operations Lead',
+    statusTag: 'TEAM',
+    unreadCount: 0,
+    assignedTo: 'AASHISH',
+    lastMessage: '',
+    lastMessageTime: new Date(),
+    messages: []
+  };
 }
 
-/**
- * GET /api/whatsapp/chats
- * Get all active contacts and team chat threads
- */
+// One-time legacy key cleanup at startup (runs once after MongoDB connects)
+let legacyCleanupDone = false;
+async function runLegacyCleanup() {
+  if (legacyCleanupDone || !isMongoUp()) return;
+  legacyCleanupDone = true;
+  try {
+    await WhatsAppChatModel.deleteMany({ phone: { $in: LEGACY_PHONES } });
+    console.log('[WhatsApp] Legacy key cleanup done');
+  } catch (e) {
+    console.error('[WhatsApp] Legacy cleanup error:', e.message);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// GET /api/whatsapp/chats  – return all active chat threads
+// ---------------------------------------------------------------------------
 router.get('/chats', async (req, res) => {
   try {
-    if (mongoose.connection.readyState === 1 && WhatsAppChatModel) {
-      // Clean up legacy keys to keep single unified thread
-      await WhatsAppChatModel.deleteMany({ phone: { $in: ['KLAPP-TEAM-AASHISH-MINNI', '918247758835'] } });
+    await runLegacyCleanup();
 
-      let chats = await WhatsAppChatModel.find({ phone: { $nin: ['KLAPP-TEAM-AASHISH-MINNI', '918247758835'] } }).sort({ lastMessageTime: -1 });
-      if (chats.length === 0) {
-        chats = await WhatsAppChatModel.insertMany(getDefaultSeedChats());
-      }
-      return res.json({ success: true, chats });
-    } else {
-      memoryChatsMap.delete('KLAPP-TEAM-AASHISH-MINNI');
-      memoryChatsMap.delete('918247758835');
-
-      const chats = Array.from(memoryChatsMap.values()).sort(
-        (a, b) => new Date(b.lastMessageTime) - new Date(a.lastMessageTime)
-      );
-      return res.json({ success: true, chats });
+    if (!isMongoUp()) {
+      return res.json({ success: true, chats: [] });
     }
+
+    let chats = await WhatsAppChatModel.find().sort({ lastMessageTime: -1 });
+
+    // First-run: if no contacts exist yet, seed the Aashish-Minni thread
+    if (chats.length === 0) {
+      const created = await WhatsAppChatModel.create(buildSeedContact());
+      chats = [created];
+    }
+
+    return res.json({ success: true, chats });
   } catch (err) {
-    console.error('Error fetching chats:', err);
+    console.error('[GET /chats] Error:', err);
     return res.status(500).json({ success: false, error: err.message });
   }
 });
 
-/**
- * DELETE /api/whatsapp/chat/:phone
- * Delete a specific contact chat thread
- */
+// ---------------------------------------------------------------------------
+// DELETE /api/whatsapp/chat/:phone  – delete a contact thread
+// ---------------------------------------------------------------------------
 router.delete('/chat/:phone', async (req, res) => {
   try {
-    const { phone } = req.params;
-    const targetPhone = formatPhone(phone);
-
-    if (mongoose.connection.readyState === 1 && WhatsAppChatModel) {
+    const targetPhone = formatPhone(req.params.phone);
+    if (isMongoUp()) {
       await WhatsAppChatModel.deleteOne({ phone: targetPhone });
     }
-    memoryChatsMap.delete(targetPhone);
-
     return res.json({ success: true });
   } catch (err) {
     return res.status(500).json({ success: false, error: err.message });
   }
 });
 
-/**
- * POST /api/whatsapp/send
- * Send message to a specific contact chat thread
- */
+// ---------------------------------------------------------------------------
+// POST /api/whatsapp/send  – append a message to a thread
+// ---------------------------------------------------------------------------
 router.post('/send', async (req, res) => {
   try {
     const { phone, text, sender, contactName } = req.body;
@@ -113,174 +98,150 @@ router.post('/send', async (req, res) => {
       return res.status(400).json({ success: false, error: 'Message text is required.' });
     }
 
-    const targetPhone = formatPhone(phone || '917989033580');
+    const targetPhone = formatPhone(phone);
     const senderRole = (sender && sender.toUpperCase().includes('MINNI')) ? 'MINNI' : 'AASHISH';
 
     const newMsg = {
-      id: 'MSG-' + Date.now(),
+      id: 'MSG-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7),
       sender: senderRole,
       text: text.trim(),
-      timestamp: new Date().toISOString(),
+      timestamp: new Date(),
       status: 'DELIVERED'
     };
 
-    let updatedChat = null;
-
-    if (mongoose.connection.readyState === 1 && WhatsAppChatModel) {
-      try {
-        const updateData = {
-          lastMessage: text.trim(),
-          lastMessageTime: new Date()
-        };
-        if (contactName) updateData.contactName = contactName;
-
-        updatedChat = await WhatsAppChatModel.findOneAndUpdate(
-          { phone: targetPhone },
-          {
-            $setOnInsert: {
-              contactName: contactName || (senderRole === 'AASHISH' ? 'Manashvini (Minni)' : 'Gotti Aashish')
-            },
-            $set: updateData,
-            $inc: { unreadCount: 1 },
-            $push: { messages: newMsg }
-          },
-          { upsert: true, new: true }
-        );
-      } catch (dbErr) {
-        console.error('MongoDB push error:', dbErr);
-      }
+    if (!isMongoUp()) {
+      return res.status(503).json({ success: false, error: 'Database not available.' });
     }
 
-    // Always keep memory map in sync as fallback
-    let memChat = memoryChatsMap.get(targetPhone);
-    if (!memChat) {
-      memChat = {
-        phone: targetPhone,
-        contactName: contactName || (senderRole === 'AASHISH' ? 'Manashvini (Minni)' : 'Gotti Aashish'),
-        unreadCount: 0,
-        statusTag: 'TEAM',
-        assignedTo: senderRole,
-        lastMessage: text.trim(),
-        lastMessageTime: new Date().toISOString(),
-        messages: []
-      };
-    }
-    if (contactName) memChat.contactName = contactName;
-    if (!memChat.messages) memChat.messages = [];
-    if (!memChat.messages.some(m => m.id === newMsg.id)) {
-      memChat.messages.push(newMsg);
-    }
-    memChat.lastMessage = text.trim();
-    memChat.lastMessageTime = new Date().toISOString();
-    memChat.unreadCount = (memChat.unreadCount || 0) + 1;
-    memoryChatsMap.set(targetPhone, memChat);
+    // Determine the right contactName to store (don't overwrite with the display alias)
+    // contactName from frontend is the DISPLAY name (e.g. "Gotti Aashish" for Minni's view)
+    // We always store the CANONICAL contactName = 'Manashvini (Minni)' for the team thread
+    const canonicalName = contactName && contactName !== 'Gotti Aashish' && contactName !== 'Manashvini (Minni)'
+      ? contactName
+      : undefined; // don't overwrite for team thread — it's set in seed
 
-    if (!updatedChat) updatedChat = memChat;
+    const setFields = {
+      lastMessage: text.trim(),
+      lastMessageTime: new Date()
+    };
 
-    return res.json({ success: true, message: 'Message sent!', chat: updatedChat });
+    const updatedChat = await WhatsAppChatModel.findOneAndUpdate(
+      { phone: targetPhone },
+      {
+        $setOnInsert: {
+          contactName: canonicalName || 'Manashvini (Minni)',
+          email: '',
+          serviceInterest: 'Klapp Growth & Operations Lead',
+          statusTag: 'TEAM',
+          assignedTo: 'AASHISH'
+        },
+        $set: setFields,
+        $inc: { unreadCount: 1 },
+        $push: { messages: newMsg }
+      },
+      { upsert: true, new: true }
+    );
+
+    return res.json({ success: true, message: 'Sent!', chat: updatedChat });
   } catch (err) {
-    console.error('Error sending message:', err);
+    console.error('[POST /send] Error:', err);
     return res.status(500).json({ success: false, error: err.message });
   }
 });
 
-/**
- * POST /api/whatsapp/clear
- * Clear chat history for a specific contact
- */
+// ---------------------------------------------------------------------------
+// POST /api/whatsapp/clear  – wipe all messages from a thread
+// ---------------------------------------------------------------------------
 router.post('/clear', async (req, res) => {
   try {
-    const { phone } = req.body;
-    const targetPhone = formatPhone(phone || '917989033580');
-
-    if (mongoose.connection.readyState === 1 && WhatsAppChatModel) {
+    const targetPhone = formatPhone(req.body.phone);
+    if (isMongoUp()) {
       await WhatsAppChatModel.updateOne(
         { phone: targetPhone },
         { $set: { messages: [], lastMessage: '', lastMessageTime: new Date(), unreadCount: 0 } }
       );
     }
-
-    const chat = memoryChatsMap.get(targetPhone);
-    if (chat) {
-      chat.messages = [];
-      chat.lastMessage = '';
-      chat.lastMessageTime = new Date().toISOString();
-      chat.unreadCount = 0;
-    }
-
     return res.json({ success: true });
   } catch (err) {
     return res.status(500).json({ success: false, error: err.message });
   }
 });
 
-/**
- * POST /api/whatsapp/react
- * Add or update emoji reaction on a message in a specific chat
- */
+// ---------------------------------------------------------------------------
+// POST /api/whatsapp/react  – toggle emoji reaction on a message
+// ---------------------------------------------------------------------------
 router.post('/react', async (req, res) => {
   try {
     const { phone, messageId, emoji, sender } = req.body;
-    if (!emoji) {
-      return res.status(400).json({ success: false, error: 'Emoji is required.' });
-    }
+    if (!emoji) return res.status(400).json({ success: false, error: 'Emoji required.' });
 
-    const targetPhone = formatPhone(phone || '917989033580');
+    const targetPhone = formatPhone(phone);
     const senderRole = (sender && sender.toUpperCase().includes('MINNI')) ? 'MINNI' : 'AASHISH';
-    let updatedChat = null;
 
-    if (mongoose.connection.readyState === 1 && WhatsAppChatModel) {
-      const chatDoc = await WhatsAppChatModel.findOne({ phone: targetPhone });
-      if (chatDoc && chatDoc.messages) {
-        let msg = chatDoc.messages.find(m => String(m.id) === String(messageId) || String(m._id) === String(messageId));
-        if (!msg && messageId !== undefined && !isNaN(messageId)) {
-          msg = chatDoc.messages[Number(messageId)];
-        }
-        if (msg) {
-          msg.reaction = msg.reaction === emoji ? null : emoji;
-          msg.reactionBy = senderRole;
-          chatDoc.markModified('messages');
-          await chatDoc.save();
-          updatedChat = chatDoc;
-        }
-      }
+    if (!isMongoUp()) return res.json({ success: false, error: 'DB unavailable' });
+
+    const chatDoc = await WhatsAppChatModel.findOne({ phone: targetPhone });
+    if (!chatDoc) return res.json({ success: false, error: 'Chat not found' });
+
+    let msg = chatDoc.messages.find(m => String(m.id) === String(messageId) || String(m._id) === String(messageId));
+    if (!msg && !isNaN(messageId)) msg = chatDoc.messages[Number(messageId)];
+
+    if (msg) {
+      msg.reaction = msg.reaction === emoji ? null : emoji;
+      msg.reactionBy = senderRole;
+      chatDoc.markModified('messages');
+      await chatDoc.save();
     }
 
-    const memChat = memoryChatsMap.get(targetPhone);
-    if (memChat && memChat.messages) {
-      let msg = memChat.messages.find(m => String(m.id) === String(messageId));
-      if (!msg && messageId !== undefined && !isNaN(messageId)) {
-        msg = memChat.messages[Number(messageId)];
-      }
-      if (msg) {
-        msg.reaction = msg.reaction === emoji ? null : emoji;
-        msg.reactionBy = senderRole;
-      }
-      if (!updatedChat) updatedChat = memChat;
-    }
-
-    return res.json({ success: true, chat: updatedChat });
+    return res.json({ success: true, chat: chatDoc });
   } catch (err) {
     return res.status(500).json({ success: false, error: err.message });
   }
 });
 
-/**
- * POST /api/whatsapp/read
- * Reset unread counter for a contact
- */
+// ---------------------------------------------------------------------------
+// POST /api/whatsapp/read  – mark thread as read (reset unread count)
+// ---------------------------------------------------------------------------
 router.post('/read', async (req, res) => {
   try {
-    const { phone } = req.body;
-    const targetPhone = formatPhone(phone || '917989033580');
-
-    if (mongoose.connection.readyState === 1 && WhatsAppChatModel) {
+    const targetPhone = formatPhone(req.body.phone);
+    if (isMongoUp()) {
       await WhatsAppChatModel.updateOne({ phone: targetPhone }, { $set: { unreadCount: 0 } });
     }
-    const chat = memoryChatsMap.get(targetPhone);
-    if (chat) chat.unreadCount = 0;
-
     return res.json({ success: true });
+  } catch (err) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// ---------------------------------------------------------------------------
+// POST /api/whatsapp/contact  – add/update a contact thread
+// ---------------------------------------------------------------------------
+router.post('/contact', async (req, res) => {
+  try {
+    const { phone, contactName } = req.body;
+    if (!phone) return res.status(400).json({ success: false, error: 'Phone required.' });
+
+    const targetPhone = formatPhone(phone);
+    if (!isMongoUp()) return res.status(503).json({ success: false, error: 'DB unavailable.' });
+
+    const chat = await WhatsAppChatModel.findOneAndUpdate(
+      { phone: targetPhone },
+      {
+        $setOnInsert: {
+          contactName: contactName || 'New Contact',
+          statusTag: 'TEAM',
+          unreadCount: 0,
+          assignedTo: 'AASHISH',
+          lastMessage: '',
+          lastMessageTime: new Date(),
+          messages: []
+        }
+      },
+      { upsert: true, new: true }
+    );
+
+    return res.json({ success: true, chat });
   } catch (err) {
     return res.status(500).json({ success: false, error: err.message });
   }
