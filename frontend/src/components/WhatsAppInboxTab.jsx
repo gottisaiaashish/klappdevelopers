@@ -251,6 +251,18 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
           display: flex;
           flex-direction: column;
           position: relative;
+          padding-top: 32px;
+          margin-top: -20px;
+        }
+
+        .wa-bubble-wrap.my-wrap {
+          align-self: flex-end;
+          align-items: flex-end;
+        }
+
+        .wa-bubble-wrap.other-wrap {
+          align-self: flex-start;
+          align-items: flex-start;
         }
 
         .wa-bubble {
@@ -263,7 +275,6 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
         }
 
         .wa-bubble-my {
-          align-self: flex-end;
           background: #dcfce7;
           color: #064e3b;
           border-radius: 12px 0 12px 12px;
@@ -271,7 +282,6 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
         }
 
         .wa-bubble-other {
-          align-self: flex-start;
           background: #ffffff;
           color: #1e293b;
           border-radius: 0 12px 12px 12px;
@@ -281,18 +291,18 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
         /* EMOJI REACTION POPUP BAR */
         .wa-reaction-bar {
           position: absolute;
-          top: -34px;
+          top: 0px;
           background: #ffffff;
-          border: 1px solid #e2e8f0;
+          border: 1px solid #cbd5e1;
           border-radius: 20px;
-          padding: 3px 8px;
+          padding: 4px 10px;
           display: flex;
           gap: 6px;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-          z-index: 10;
+          box-shadow: 0 6px 16px rgba(0,0,0,0.18);
+          z-index: 20;
         }
-        .wa-bubble-my .wa-reaction-bar { right: 0; }
-        .wa-bubble-other .wa-reaction-bar { left: 0; }
+        .wa-bubble-wrap.my-wrap .wa-reaction-bar { right: 0; }
+        .wa-bubble-wrap.other-wrap .wa-reaction-bar { left: 0; }
 
         .wa-react-btn {
           background: none;
@@ -506,25 +516,27 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
               return (
                 <div
                   key={m.id || idx}
-                  className="wa-bubble-wrap"
+                  className={`wa-bubble-wrap ${isMyMsg ? 'my-wrap' : 'other-wrap'}`}
                   onMouseEnter={() => setHoveredMsgId(m.id || idx)}
                   onMouseLeave={() => setHoveredMsgId(null)}
                 >
+                  {/* EMOJI REACTION FLOATING BAR */}
+                  {isHovered && (
+                    <div className="wa-reaction-bar">
+                      {reactionOptions.map(emoji => (
+                        <button
+                          key={emoji}
+                          type="button"
+                          onClick={() => handleReactToMessage(m.id, emoji)}
+                          className="wa-react-btn"
+                        >
+                          {emoji}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
                   <div className={`wa-bubble ${isMyMsg ? 'wa-bubble-my' : 'wa-bubble-other'}`}>
-                    {/* EMOJI REACTION FLOATING BAR */}
-                    {isHovered && (
-                      <div className="wa-reaction-bar">
-                        {reactionOptions.map(emoji => (
-                          <button
-                            key={emoji}
-                            onClick={() => handleReactToMessage(m.id, emoji)}
-                            className="wa-react-btn"
-                          >
-                            {emoji}
-                          </button>
-                        ))}
-                      </div>
-                    )}
 
                     <div style={{ whitespace: 'pre-wrap' }}>{m.text}</div>
                     <div style={{ fontSize: '0.65rem', color: isMyMsg ? '#047857' : '#94a3b8', textAlign: 'right', marginTop: '4px' }}>
