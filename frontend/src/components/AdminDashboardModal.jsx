@@ -2148,7 +2148,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
             <div>
               {/* TOP FINANCIAL METRICS GRID */}
               {(() => {
-                const totalRevenue = osData.projects.reduce((acc, p) => acc + (p.budget || 0), 125000);
+                const totalRevenue = (osData.projects || []).reduce((acc, p) => acc + (p.budget || 0), 0);
                 const totalExpenses = (osData.expenses || []).reduce((acc, e) => acc + (e.amount || 0), 0);
                 const netProfit = totalRevenue - totalExpenses;
 
