@@ -8,7 +8,9 @@ const memoryChatsMap = new Map();
 
 // Helper to format phone / contactId
 function formatPhone(phone) {
-  if (!phone) return 'DEFAULT';
+  if (!phone || phone === 'KLAPP-TEAM-AASHISH-MINNI' || phone === '918247758835' || phone === 'DEFAULT') {
+    return '917989033580';
+  }
   return String(phone).trim();
 }
 

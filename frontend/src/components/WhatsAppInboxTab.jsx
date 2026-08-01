@@ -3,7 +3,7 @@ import { API_BASE_URL } from '../config/api';
 
 export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
   const [chats, setChats] = useState([]);
-  const [activePhone, setActivePhone] = useState('');
+  const [activePhone, setActivePhone] = useState('917989033580');
   const [messageText, setMessageText] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
@@ -201,16 +201,17 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
   };
 
   const handleClearChat = async () => {
-    if (!activePhone || !window.confirm('Are you sure you want to clear this chat history?')) return;
+    const targetPhone = activePhone || (activeChat ? activeChat.phone : '917989033580');
+    if (!window.confirm('Are you sure you want to clear this chat history?')) return;
     try {
       const res = await fetch(`${API_BASE_URL}/api/whatsapp/clear`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: activePhone })
+        body: JSON.stringify({ phone: targetPhone })
       });
       const data = await res.json();
       if (data.success) {
-        setChats(prev => prev.map(c => c.phone === activePhone ? { ...c, messages: [], lastMessage: 'Chat cleared' } : c));
+        setChats(prev => prev.map(c => (c.phone === targetPhone || c.phone === activePhone) ? { ...c, messages: [], lastMessage: 'Chat cleared' } : c));
       }
     } catch (err) {
       console.error('Error clearing chat:', err);
