@@ -127,16 +127,31 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
     link: '#'
   });
 
-  const formatTime12h = (timeStr) => {
-    if (!timeStr) return 'All Day';
-    if (timeStr.includes('AM') || timeStr.includes('PM')) return timeStr;
-    const [h, m] = timeStr.split(':');
-    if (!h) return timeStr;
-    const hour = parseInt(h);
-    const ampm = hour >= 12 ? 'PM' : 'AM';
-    const h12 = hour % 12 || 12;
-    return `${h12}:${m || '00'} ${ampm}`;
+  // Messenger Dynamic Unread Counter State
+  const [messengerUnreadCount, setMessengerUnreadCount] = useState(0);
+
+  const fetchMessengerUnreadCount = async () => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/whatsapp/chats`);
+      const data = await res.json();
+      if (data.success && Array.isArray(data.chats)) {
+        const isAashish = String(currentUser).toUpperCase().includes('AASHISH');
+        let count = 0;
+        data.chats.forEach(c => {
+          const lastMsg = c.messages && c.messages.length > 0 ? c.messages[c.messages.length - 1] : null;
+          const isUnread = (c.unreadCount > 0) || (lastMsg && ((isAashish && lastMsg.sender === 'MINNI') || (!isAashish && lastMsg.sender === 'AASHISH')));
+          if (isUnread) count++;
+        });
+        setMessengerUnreadCount(count);
+      }
+    } catch (e) {}
   };
+
+  useEffect(() => {
+    fetchMessengerUnreadCount();
+    const interval = setInterval(fetchMessengerUnreadCount, 3000);
+    return () => clearInterval(interval);
+  }, [currentUser]);
 
   const handleCreateEvent = (e) => {
     e.preventDefault();
@@ -844,7 +859,9 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
 
             <button className={`sidebar-nav-btn ${activeTab === 'whatsapp' ? 'active' : ''}`} onClick={() => setActiveTab('whatsapp')} style={{ borderColor: '#2563eb' }}>
               <span><i className="ri-chat-smile-2-fill" style={{ marginRight: '8px', color: '#2563eb' }}></i> Klapp Messenger</span>
-              <span className="sidebar-badge" style={{ background: '#2563eb', color: '#fff', fontWeight: 'bold' }}>Live</span>
+              <span className="sidebar-badge" style={{ background: messengerUnreadCount > 0 ? '#16a34a' : '#2563eb', color: '#fff', fontWeight: 'bold' }}>
+                {messengerUnreadCount}
+              </span>
             </button>
 
             <button className={`sidebar-nav-btn ${activeTab === 'content' ? 'active' : ''}`} onClick={() => setActiveTab('content')}>
