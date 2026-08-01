@@ -9,6 +9,7 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
   const [sending, setSending] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [hoveredMsgId, setHoveredMsgId] = useState(null);
+  const [isChatOpen, setIsChatOpen] = useState(true);
   const messagesEndRef = useRef(null);
 
   const isAashish = String(currentUser).toUpperCase().includes('AASHISH');
@@ -91,21 +92,33 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
     }
   };
 
-  const handleReactToMessage = async (messageId, emoji) => {
+  const handleReactToMessage = async (msgTargetId, emoji) => {
+    // Instant optimistic local update for 0ms feedback
+    setChat(prev => {
+      if (!prev || !prev.messages) return prev;
+      const updatedMsgs = prev.messages.map((m, idx) => {
+        const idMatches = m.id === msgTargetId || String(idx) === String(msgTargetId);
+        if (idMatches) {
+          return {
+            ...m,
+            reaction: m.reaction === emoji ? null : emoji
+          };
+        }
+        return m;
+      });
+      return { ...prev, messages: updatedMsgs };
+    });
+
     try {
-      const res = await fetch(`${API_BASE_URL}/api/whatsapp/react`, {
+      await fetch(`${API_BASE_URL}/api/whatsapp/react`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          messageId,
-          emoji,
+          messageId: msgTargetId,
+          emoji: emoji,
           sender: currentUser
         })
       });
-      const data = await res.json();
-      if (data.success && data.chat) {
-        setChat(data.chat);
-      }
     } catch (err) {
       console.error('Error reacting to message:', err);
     }
@@ -115,8 +128,21 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
     setMessageText(prev => prev + emoji);
   };
 
+  const handleSelectContact = () => {
+    setIsChatOpen(true);
+    // Mark chat as read
+    fetch(`${API_BASE_URL}/api/whatsapp/read`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    }).catch(() => {});
+  };
+
   const matchesSearch = contactName.toLowerCase().includes(searchQuery.toLowerCase()) ||
     contactPhone.includes(searchQuery);
+
+  // Check if last message was from the other person to show unread dot
+  const lastMsg = chat?.messages && chat.messages.length > 0 ? chat.messages[chat.messages.length - 1] : null;
+  const hasUnreadDot = lastMsg && ((isAashish && lastMsg.sender === 'MINNI') || (!isAashish && lastMsg.sender === 'AASHISH'));
 
   return (
     <div className="wa-direct-wrapper">
@@ -175,9 +201,15 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
           padding: 14px;
           border-bottom: 1px solid #f1f5f9;
           display: flex;
-          align-items: flex-start;
+          align-items: center;
           gap: 12px;
           cursor: pointer;
+          transition: background 0.15s;
+        }
+        .wa-contact-card:hover {
+          background: #f8fafc;
+        }
+        .wa-contact-card.active {
           background: #f0fdf4;
           border-left: 4px solid #16a34a;
         }
@@ -194,6 +226,7 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
           align-items: center;
           justify-content: center;
           flex-shrink: 0;
+          position: relative;
         }
 
         .wa-contact-info {
@@ -217,6 +250,15 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
           overflow: hidden;
           text-overflow: ellipsis;
           margin-top: 3px;
+        }
+
+        .wa-unread-dot {
+          width: 10px;
+          height: 10px;
+          border-radius: 50%;
+          background: #16a34a;
+          box-shadow: 0 0 0 2px #ffffff;
+          flex-shrink: 0;
         }
 
         /* MAIN CHAT WINDOW */
@@ -307,7 +349,7 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
         .wa-react-btn {
           background: none;
           border: none;
-          font-size: 1rem;
+          font-size: 1.1rem;
           cursor: pointer;
           transition: transform 0.15s;
         }
@@ -323,7 +365,7 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
           border: 1px solid #cbd5e1;
           border-radius: 10px;
           padding: 1px 6px;
-          font-size: 0.72rem;
+          font-size: 0.76rem;
           box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
@@ -452,7 +494,10 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
 
         <div style={{ flex: 1, overflowY: 'auto' }}>
           {matchesSearch && (
-            <div className="wa-contact-card">
+            <div
+              onClick={handleSelectContact}
+              className={`wa-contact-card ${isChatOpen ? 'active' : ''}`}
+            >
               <div className="wa-avatar">
                 {contactAvatarChar}
               </div>
@@ -467,6 +512,7 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
                   {chat?.lastMessage || 'Start conversation...'}
                 </div>
               </div>
+              {hasUnreadDot && <div className="wa-unread-dot" title="New Message"></div>}
             </div>
           )}
         </div>
@@ -474,137 +520,146 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
 
       {/* RIGHT MAIN CHAT WINDOW */}
       <div className="wa-main">
-        {/* Header */}
-        <div className="wa-header">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div className="wa-avatar" style={{ width: '38px', height: '38px', fontSize: '0.95rem' }}>
-              {contactAvatarChar}
-            </div>
-            <div>
-              <div style={{ fontWeight: '700', fontSize: '0.92rem', color: '#0f172a' }}>
-                {contactName}
-              </div>
-              <div style={{ fontSize: '0.74rem', color: '#16a34a', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#16a34a' }}></span>
-                {contactRole}
-              </div>
-            </div>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <button
-              onClick={handleClearChat}
-              style={{ background: '#fef2f2', color: '#ef4444', border: '1px solid #fca5a5', padding: '6px 12px', borderRadius: '6px', fontSize: '0.78rem', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
-              title="Clear all chat history"
-            >
-              <i className="ri-delete-bin-line"></i> Clear Chat
-            </button>
-          </div>
-        </div>
-
-        {/* Stream */}
-        <div className="wa-stream">
-          {loading ? (
-            <div style={{ padding: '40px', textAlign: 'center', color: '#94a3b8', fontSize: '0.82rem' }}>
-              <i className="ri-loader-4-line animate-spin" style={{ color: '#16a34a', marginRight: '6px' }}></i> Loading conversation...
-            </div>
-          ) : chat && chat.messages && chat.messages.length > 0 ? (
-            chat.messages.map((m, idx) => {
-              const isMyMsg = (isAashish && m.sender === 'AASHISH') || (!isAashish && m.sender === 'MINNI');
-              const isHovered = hoveredMsgId === (m.id || idx);
-
-              return (
-                <div
-                  key={m.id || idx}
-                  className={`wa-bubble-wrap ${isMyMsg ? 'my-wrap' : 'other-wrap'}`}
-                  onMouseEnter={() => setHoveredMsgId(m.id || idx)}
-                  onMouseLeave={() => setHoveredMsgId(null)}
-                >
-                  {/* EMOJI REACTION FLOATING BAR */}
-                  {isHovered && (
-                    <div className="wa-reaction-bar">
-                      {reactionOptions.map(emoji => (
-                        <button
-                          key={emoji}
-                          type="button"
-                          onClick={() => handleReactToMessage(m.id, emoji)}
-                          className="wa-react-btn"
-                        >
-                          {emoji}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-
-                  <div className={`wa-bubble ${isMyMsg ? 'wa-bubble-my' : 'wa-bubble-other'}`}>
-
-                    <div style={{ whitespace: 'pre-wrap' }}>{m.text}</div>
-                    <div style={{ fontSize: '0.65rem', color: isMyMsg ? '#047857' : '#94a3b8', textAlign: 'right', marginTop: '4px' }}>
-                      {new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      {isMyMsg && <span style={{ marginLeft: '4px' }}>✓✓</span>}
-                    </div>
-
-                    {/* REACTION BADGE */}
-                    {m.reaction && (
-                      <div className="wa-reaction-badge">
-                        {m.reaction}
-                      </div>
-                    )}
+        {isChatOpen ? (
+          <>
+            {/* Header */}
+            <div className="wa-header">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div className="wa-avatar" style={{ width: '38px', height: '38px', fontSize: '0.95rem' }}>
+                  {contactAvatarChar}
+                </div>
+                <div>
+                  <div style={{ fontWeight: '700', fontSize: '0.92rem', color: '#0f172a' }}>
+                    {contactName}
+                  </div>
+                  <div style={{ fontSize: '0.74rem', color: '#16a34a', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#16a34a' }}></span>
+                    {contactRole}
                   </div>
                 </div>
-              );
-            })
-          ) : (
-            <div style={{ padding: '40px', textAlign: 'center', color: '#94a3b8', fontSize: '0.82rem' }}>
-              No messages yet with {contactName}. Type below to send a message!
-            </div>
-          )}
-          <div ref={messagesEndRef} />
-        </div>
+              </div>
 
-        {/* Composer */}
-        <form onSubmit={handleSendMessage} className="wa-composer">
-          {/* EMOJI PICKER POPUP */}
-          {showEmojiPicker && (
-            <div className="wa-emoji-panel">
-              {emojiList.map(emoji => (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <button
-                  type="button"
-                  key={emoji}
-                  onClick={() => addEmojiToText(emoji)}
-                  className="wa-emoji-item"
+                  onClick={handleClearChat}
+                  style={{ background: '#fef2f2', color: '#ef4444', border: '1px solid #fca5a5', padding: '6px 12px', borderRadius: '6px', fontSize: '0.78rem', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+                  title="Clear all chat history"
                 >
-                  {emoji}
+                  <i className="ri-delete-bin-line"></i> Clear Chat
                 </button>
-              ))}
+              </div>
             </div>
-          )}
 
-          <button
-            type="button"
-            onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-            className="wa-emoji-picker-btn"
-            title="Add Emojis"
-          >
-            😊
-          </button>
+            {/* Stream */}
+            <div className="wa-stream">
+              {loading ? (
+                <div style={{ padding: '40px', textAlign: 'center', color: '#94a3b8', fontSize: '0.82rem' }}>
+                  <i className="ri-loader-4-line animate-spin" style={{ color: '#16a34a', marginRight: '6px' }}></i> Loading conversation...
+                </div>
+              ) : chat && chat.messages && chat.messages.length > 0 ? (
+                chat.messages.map((m, idx) => {
+                  const isMyMsg = (isAashish && m.sender === 'AASHISH') || (!isAashish && m.sender === 'MINNI');
+                  const msgTargetId = m.id || idx;
+                  const isHovered = hoveredMsgId === msgTargetId;
 
-          <input
-            type="text"
-            placeholder={`Type a message to ${contactName}...`}
-            value={messageText}
-            onChange={e => setMessageText(e.target.value)}
-            className="wa-composer-input"
-          />
+                  return (
+                    <div
+                      key={m.id || idx}
+                      className={`wa-bubble-wrap ${isMyMsg ? 'my-wrap' : 'other-wrap'}`}
+                      onMouseEnter={() => setHoveredMsgId(msgTargetId)}
+                      onMouseLeave={() => setHoveredMsgId(null)}
+                    >
+                      {/* EMOJI REACTION FLOATING BAR */}
+                      {isHovered && (
+                        <div className="wa-reaction-bar">
+                          {reactionOptions.map(emoji => (
+                            <button
+                              key={emoji}
+                              type="button"
+                              onClick={() => handleReactToMessage(msgTargetId, emoji)}
+                              className="wa-react-btn"
+                            >
+                              {emoji}
+                            </button>
+                          ))}
+                        </div>
+                      )}
 
-          <button
-            type="submit"
-            disabled={!messageText.trim() || sending}
-            className="wa-send-btn"
-          >
-            Send ➢
-          </button>
-        </form>
+                      <div className={`wa-bubble ${isMyMsg ? 'wa-bubble-my' : 'wa-bubble-other'}`}>
+                        <div style={{ whitespace: 'pre-wrap' }}>{m.text}</div>
+                        <div style={{ fontSize: '0.65rem', color: isMyMsg ? '#047857' : '#94a3b8', textAlign: 'right', marginTop: '4px' }}>
+                          {new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          {isMyMsg && <span style={{ marginLeft: '4px' }}>✓✓</span>}
+                        </div>
+
+                        {/* REACTION BADGE */}
+                        {m.reaction && (
+                          <div className="wa-reaction-badge">
+                            {m.reaction}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <div style={{ padding: '40px', textAlign: 'center', color: '#94a3b8', fontSize: '0.82rem' }}>
+                  No messages yet with {contactName}. Type below to send a message!
+                </div>
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+
+            {/* Composer */}
+            <form onSubmit={handleSendMessage} className="wa-composer">
+              {/* EMOJI PICKER POPUP */}
+              {showEmojiPicker && (
+                <div className="wa-emoji-panel">
+                  {emojiList.map(emoji => (
+                    <button
+                      type="button"
+                      key={emoji}
+                      onClick={() => addEmojiToText(emoji)}
+                      className="wa-emoji-item"
+                    >
+                      {emoji}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              <button
+                type="button"
+                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                className="wa-emoji-picker-btn"
+                title="Add Emojis"
+              >
+                😊
+              </button>
+
+              <input
+                type="text"
+                placeholder={`Type a message to ${contactName}...`}
+                value={messageText}
+                onChange={e => setMessageText(e.target.value)}
+                className="wa-composer-input"
+              />
+
+              <button
+                type="submit"
+                disabled={!messageText.trim() || sending}
+                className="wa-send-btn"
+              >
+                Send ➢
+              </button>
+            </form>
+          </>
+        ) : (
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#64748b', padding: '40px', textAlign: 'center' }}>
+            <div style={{ fontSize: '2rem', marginBottom: '10px' }}>🖱️</div>
+            <div style={{ fontWeight: '600', fontSize: '0.92rem', color: '#334155' }}>Select contact from the left sidebar to open chat</div>
+          </div>
+        )}
       </div>
     </div>
   );

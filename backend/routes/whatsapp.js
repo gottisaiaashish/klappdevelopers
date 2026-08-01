@@ -154,10 +154,14 @@ router.post('/react', async (req, res) => {
     if (mongoose.connection.readyState === 1 && WhatsAppChatModel) {
       const chatDoc = await WhatsAppChatModel.findOne({ phone: TEAM_CHAT_PHONE });
       if (chatDoc && chatDoc.messages) {
-        const msg = chatDoc.messages.find(m => m.id === messageId);
+        let msg = chatDoc.messages.find(m => String(m.id) === String(messageId) || String(m._id) === String(messageId));
+        if (!msg && !isNaN(messageId)) {
+          msg = chatDoc.messages[Number(messageId)];
+        }
         if (msg) {
           msg.reaction = msg.reaction === emoji ? null : emoji;
           msg.reactionBy = senderRole;
+          chatDoc.markModified('messages');
           await chatDoc.save();
           updatedChat = chatDoc;
         }
@@ -166,7 +170,10 @@ router.post('/react', async (req, res) => {
 
     if (!updatedChat) {
       const chat = memoryChatsMap.get(TEAM_CHAT_PHONE) || defaultTeamChat;
-      const msg = chat.messages.find(m => m.id === messageId);
+      let msg = chat.messages.find(m => String(m.id) === String(messageId));
+      if (!msg && !isNaN(messageId)) {
+        msg = chat.messages[Number(messageId)];
+      }
       if (msg) {
         msg.reaction = msg.reaction === emoji ? null : emoji;
         msg.reactionBy = senderRole;
