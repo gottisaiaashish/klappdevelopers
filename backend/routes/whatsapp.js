@@ -114,18 +114,67 @@ router.post('/send', async (req, res) => {
 });
 
 /**
- * POST /api/whatsapp/read
- * Reset unread counter
+ * POST /api/whatsapp/clear
+ * Clear all chat messages
  */
-router.post('/read', async (req, res) => {
+router.post('/clear', async (req, res) => {
   try {
     if (mongoose.connection.readyState === 1 && WhatsAppChatModel) {
-      await WhatsAppChatModel.updateOne({ phone: TEAM_CHAT_PHONE }, { $set: { unreadCount: 0 } });
-    } else {
-      const chat = memoryChatsMap.get(TEAM_CHAT_PHONE);
-      if (chat) chat.unreadCount = 0;
+      await WhatsAppChatModel.updateOne(
+        { phone: TEAM_CHAT_PHONE },
+        { $set: { messages: [], lastMessage: 'Chat cleared', lastMessageTime: new Date() } }
+      );
     }
-    return res.json({ success: true });
+    const chat = memoryChatsMap.get(TEAM_CHAT_PHONE) || defaultTeamChat;
+    chat.messages = [];
+    chat.lastMessage = 'Chat cleared';
+    chat.lastMessageTime = new Date().toISOString();
+    memoryChatsMap.set(TEAM_CHAT_PHONE, chat);
+
+    return res.json({ success: true, chat });
+  } catch (err) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+/**
+ * POST /api/whatsapp/react
+ * Add or update emoji reaction on a message
+ */
+router.post('/react', async (req, res) => {
+  try {
+    const { messageId, emoji, sender } = req.body;
+    if (!messageId || !emoji) {
+      return res.status(400).json({ success: false, error: 'messageId and emoji required.' });
+    }
+
+    const senderRole = (sender && sender.toUpperCase().includes('MINNI')) ? 'MINNI' : 'AASHISH';
+    let updatedChat = null;
+
+    if (mongoose.connection.readyState === 1 && WhatsAppChatModel) {
+      const chatDoc = await WhatsAppChatModel.findOne({ phone: TEAM_CHAT_PHONE });
+      if (chatDoc && chatDoc.messages) {
+        const msg = chatDoc.messages.find(m => m.id === messageId);
+        if (msg) {
+          msg.reaction = msg.reaction === emoji ? null : emoji;
+          msg.reactionBy = senderRole;
+          await chatDoc.save();
+          updatedChat = chatDoc;
+        }
+      }
+    }
+
+    if (!updatedChat) {
+      const chat = memoryChatsMap.get(TEAM_CHAT_PHONE) || defaultTeamChat;
+      const msg = chat.messages.find(m => m.id === messageId);
+      if (msg) {
+        msg.reaction = msg.reaction === emoji ? null : emoji;
+        msg.reactionBy = senderRole;
+      }
+      updatedChat = chat;
+    }
+
+    return res.json({ success: true, chat: updatedChat });
   } catch (err) {
     return res.status(500).json({ success: false, error: err.message });
   }

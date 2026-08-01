@@ -7,6 +7,8 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [hoveredMsgId, setHoveredMsgId] = useState(null);
   const messagesEndRef = useRef(null);
 
   const isAashish = String(currentUser).toUpperCase().includes('AASHISH');
@@ -16,6 +18,9 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
   const contactRole = isAashish ? 'Klapp Growth & Operations Lead' : 'Klapp Co-Founder & Tech Lead';
   const contactAvatarChar = isAashish ? 'M' : 'A';
   const contactPhone = isAashish ? '917989033580' : '918247758835';
+
+  const emojiList = ['❤️', '👍', '🔥', '😂', '😮', '🙏', '✨', '⚡', '💯', '🎯', '🤝', '💼', '🚀', '🥳'];
+  const reactionOptions = ['❤️', '👍', '🔥', '😂', '😮', '🙏'];
 
   const fetchChat = async () => {
     try {
@@ -33,7 +38,7 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
 
   useEffect(() => {
     fetchChat();
-    const interval = setInterval(fetchChat, 2000); // 2s fast polling for live chat
+    const interval = setInterval(fetchChat, 2000); // 2s fast polling
     return () => clearInterval(interval);
   }, []);
 
@@ -47,6 +52,7 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
 
     const textToSend = messageText.trim();
     setMessageText('');
+    setShowEmojiPicker(false);
     setSending(true);
 
     try {
@@ -67,6 +73,46 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
     } finally {
       setSending(false);
     }
+  };
+
+  const handleClearChat = async () => {
+    if (!window.confirm('Are you sure you want to clear all chat messages?')) return;
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/whatsapp/clear`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      const data = await res.json();
+      if (data.success) {
+        setChat(prev => ({ ...prev, messages: [], lastMessage: 'Chat cleared' }));
+      }
+    } catch (err) {
+      console.error('Error clearing chat:', err);
+    }
+  };
+
+  const handleReactToMessage = async (messageId, emoji) => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/whatsapp/react`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messageId,
+          emoji,
+          sender: currentUser
+        })
+      });
+      const data = await res.json();
+      if (data.success && data.chat) {
+        setChat(data.chat);
+      }
+    } catch (err) {
+      console.error('Error reacting to message:', err);
+    }
+  };
+
+  const addEmojiToText = (emoji) => {
+    setMessageText(prev => prev + emoji);
   };
 
   const matchesSearch = contactName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -179,6 +225,7 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
           display: flex;
           flex-direction: column;
           background: #f8fafc;
+          position: relative;
         }
 
         .wa-header {
@@ -196,8 +243,14 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
           padding: 20px;
           display: flex;
           flex-direction: column;
-          gap: 12px;
+          gap: 14px;
           background: #f8fafc;
+        }
+
+        .wa-bubble-wrap {
+          display: flex;
+          flex-direction: column;
+          position: relative;
         }
 
         .wa-bubble {
@@ -225,6 +278,46 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
           border: 1px solid #e2e8f0;
         }
 
+        /* EMOJI REACTION POPUP BAR */
+        .wa-reaction-bar {
+          position: absolute;
+          top: -34px;
+          background: #ffffff;
+          border: 1px solid #e2e8f0;
+          border-radius: 20px;
+          padding: 3px 8px;
+          display: flex;
+          gap: 6px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+          z-index: 10;
+        }
+        .wa-bubble-my .wa-reaction-bar { right: 0; }
+        .wa-bubble-other .wa-reaction-bar { left: 0; }
+
+        .wa-react-btn {
+          background: none;
+          border: none;
+          font-size: 1rem;
+          cursor: pointer;
+          transition: transform 0.15s;
+        }
+        .wa-react-btn:hover {
+          transform: scale(1.3);
+        }
+
+        .wa-reaction-badge {
+          position: absolute;
+          bottom: -10px;
+          right: 10px;
+          background: #ffffff;
+          border: 1px solid #cbd5e1;
+          border-radius: 10px;
+          padding: 1px 6px;
+          font-size: 0.72rem;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* COMPOSER */
         .wa-composer {
           padding: 12px 20px;
           background: #ffffff;
@@ -232,6 +325,51 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
           display: flex;
           align-items: center;
           gap: 10px;
+          position: relative;
+        }
+
+        .wa-emoji-picker-btn {
+          width: 38px;
+          height: 38px;
+          border-radius: 50%;
+          border: 1px solid #e2e8f0;
+          background: #f8fafc;
+          font-size: 1.1rem;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: background 0.2s;
+        }
+        .wa-emoji-picker-btn:hover {
+          background: #e2e8f0;
+        }
+
+        .wa-emoji-panel {
+          position: absolute;
+          bottom: 60px;
+          left: 20px;
+          background: #ffffff;
+          border: 1px solid #e2e8f0;
+          border-radius: 12px;
+          padding: 10px;
+          display: grid;
+          grid-template-columns: repeat(7, 1fr);
+          gap: 6px;
+          box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+          z-index: 20;
+        }
+
+        .wa-emoji-item {
+          font-size: 1.25rem;
+          background: none;
+          border: none;
+          cursor: pointer;
+          padding: 4px;
+          border-radius: 6px;
+        }
+        .wa-emoji-item:hover {
+          background: #f1f5f9;
         }
 
         .wa-composer-input {
@@ -342,6 +480,16 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
               </div>
             </div>
           </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <button
+              onClick={handleClearChat}
+              style={{ background: '#fef2f2', color: '#ef4444', border: '1px solid #fca5a5', padding: '6px 12px', borderRadius: '6px', fontSize: '0.78rem', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
+              title="Clear all chat history"
+            >
+              <i className="ri-delete-bin-line"></i> Clear Chat
+            </button>
+          </div>
         </div>
 
         {/* Stream */}
@@ -353,16 +501,43 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
           ) : chat && chat.messages && chat.messages.length > 0 ? (
             chat.messages.map((m, idx) => {
               const isMyMsg = (isAashish && m.sender === 'AASHISH') || (!isAashish && m.sender === 'MINNI');
+              const isHovered = hoveredMsgId === (m.id || idx);
 
               return (
                 <div
                   key={m.id || idx}
-                  className={`wa-bubble ${isMyMsg ? 'wa-bubble-my' : 'wa-bubble-other'}`}
+                  className="wa-bubble-wrap"
+                  onMouseEnter={() => setHoveredMsgId(m.id || idx)}
+                  onMouseLeave={() => setHoveredMsgId(null)}
                 >
-                  <div style={{ whitespace: 'pre-wrap' }}>{m.text}</div>
-                  <div style={{ fontSize: '0.65rem', color: isMyMsg ? '#047857' : '#94a3b8', textAlign: 'right', marginTop: '4px' }}>
-                    {new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    {isMyMsg && <span style={{ marginLeft: '4px' }}>✓✓</span>}
+                  <div className={`wa-bubble ${isMyMsg ? 'wa-bubble-my' : 'wa-bubble-other'}`}>
+                    {/* EMOJI REACTION FLOATING BAR */}
+                    {isHovered && (
+                      <div className="wa-reaction-bar">
+                        {reactionOptions.map(emoji => (
+                          <button
+                            key={emoji}
+                            onClick={() => handleReactToMessage(m.id, emoji)}
+                            className="wa-react-btn"
+                          >
+                            {emoji}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    <div style={{ whitespace: 'pre-wrap' }}>{m.text}</div>
+                    <div style={{ fontSize: '0.65rem', color: isMyMsg ? '#047857' : '#94a3b8', textAlign: 'right', marginTop: '4px' }}>
+                      {new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      {isMyMsg && <span style={{ marginLeft: '4px' }}>✓✓</span>}
+                    </div>
+
+                    {/* REACTION BADGE */}
+                    {m.reaction && (
+                      <div className="wa-reaction-badge">
+                        {m.reaction}
+                      </div>
+                    )}
                   </div>
                 </div>
               );
@@ -377,6 +552,31 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
 
         {/* Composer */}
         <form onSubmit={handleSendMessage} className="wa-composer">
+          {/* EMOJI PICKER POPUP */}
+          {showEmojiPicker && (
+            <div className="wa-emoji-panel">
+              {emojiList.map(emoji => (
+                <button
+                  type="button"
+                  key={emoji}
+                  onClick={() => addEmojiToText(emoji)}
+                  className="wa-emoji-item"
+                >
+                  {emoji}
+                </button>
+              ))}
+            </div>
+          )}
+
+          <button
+            type="button"
+            onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+            className="wa-emoji-picker-btn"
+            title="Add Emojis"
+          >
+            😊
+          </button>
+
           <input
             type="text"
             placeholder={`Type a message to ${contactName}...`}
@@ -384,6 +584,7 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
             onChange={e => setMessageText(e.target.value)}
             className="wa-composer-input"
           />
+
           <button
             type="submit"
             disabled={!messageText.trim() || sending}
