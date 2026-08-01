@@ -960,15 +960,31 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
 
                 <div className="os-card" style={{ marginBottom: 0 }}>
                   <div style={{ fontSize: '0.76rem', fontWeight: '700', color: '#71717a', textTransform: 'uppercase', marginBottom: '4px' }}>SCHEDULED MEETINGS</div>
-                  <div style={{ fontSize: '1.8rem', fontWeight: '800', color: '#18181b' }}>{osData.meetings.length}</div>
-                  <div style={{ fontSize: '0.76rem', color: '#d97706', fontWeight: '600', marginTop: '4px' }}>Next: Milestone Review</div>
+                  <div style={{ fontSize: '1.8rem', fontWeight: '800', color: '#18181b' }}>{(osData.meetings || []).length}</div>
+                  <div style={{ fontSize: '0.76rem', color: '#d97706', fontWeight: '600', marginTop: '4px' }}>
+                    {(osData.meetings || []).length > 0 ? `Next: ${osData.meetings[0].title}` : 'No Upcoming Meetings'}
+                  </div>
                 </div>
 
-                <div className="os-card" style={{ marginBottom: 0 }}>
-                  <div style={{ fontSize: '0.76rem', fontWeight: '700', color: '#71717a', textTransform: 'uppercase', marginBottom: '4px' }}>TODAY DISCIPLINE</div>
-                  <div style={{ fontSize: '1.8rem', fontWeight: '800', color: '#22c55e' }}>100%</div>
-                  <div style={{ fontSize: '0.76rem', color: '#166534', fontWeight: '600', marginTop: '4px' }}>Active Streak 🔥</div>
-                </div>
+                {(() => {
+                  const personLog = userRole === 'MINNI' ? osData.disciplineLogs?.minni : osData.disciplineLogs?.aashish;
+                  const habitKeys = personLog ? Object.keys(personLog).filter(k => typeof personLog[k] === 'boolean') : [];
+                  const totalHabits = habitKeys.length;
+                  const completedHabits = habitKeys.filter(k => personLog[k] === true).length;
+                  const pct = totalHabits > 0 ? Math.round((completedHabits / totalHabits) * 100) : 0;
+
+                  return (
+                    <div className="os-card" style={{ marginBottom: 0 }}>
+                      <div style={{ fontSize: '0.76rem', fontWeight: '700', color: '#71717a', textTransform: 'uppercase', marginBottom: '4px' }}>DAILY HABITS</div>
+                      <div style={{ fontSize: '1.8rem', fontWeight: '800', color: pct === 100 ? '#22c55e' : (pct > 0 ? '#2563eb' : '#71717a') }}>
+                        {pct}%
+                      </div>
+                      <div style={{ fontSize: '0.76rem', color: pct === 100 ? '#166534' : (pct > 0 ? '#1d4ed8' : '#71717a'), fontWeight: '600', marginTop: '4px' }}>
+                        {completedHabits} / {totalHabits} Completed {pct === 100 ? '🔥' : '⚡'}
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
 
               {/* TODAY'S AGENDA GRID */}
