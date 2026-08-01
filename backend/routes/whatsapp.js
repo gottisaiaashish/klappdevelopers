@@ -18,64 +18,6 @@ function formatPhone(phone) {
   return cleaned;
 }
 
-// Initial seed dummy chats for instant testing in portal
-function getInitialSeedChats() {
-  return [
-    {
-      phone: '918247758835',
-      contactName: 'Aashish (Klapp Tech Lead)',
-      email: 'aashish@klappdevelopers.in',
-      serviceInterest: 'Full Stack App & AI',
-      statusTag: 'HOT_LEAD',
-      unreadCount: 1,
-      assignedTo: 'AASHISH',
-      lastMessage: 'Portal WhatsApp integration is live now!',
-      lastMessageTime: new Date(Date.now() - 5 * 60000).toISOString(),
-      messages: [
-        {
-          id: 'MSG-101',
-          sender: 'CUSTOMER',
-          text: 'Hi Klapp Team! Want to integrate WhatsApp inbox on our business portal.',
-          timestamp: new Date(Date.now() - 30 * 60000).toISOString(),
-          status: 'READ'
-        },
-        {
-          id: 'MSG-102',
-          sender: 'AASHISH',
-          text: 'Portal WhatsApp integration is live now!',
-          timestamp: new Date(Date.now() - 5 * 60000).toISOString(),
-          status: 'DELIVERED'
-        }
-      ]
-    },
-    {
-      phone: '917989033580',
-      contactName: 'Minni (Klapp Growth Lead)',
-      email: 'minni@klappdevelopers.in',
-      serviceInterest: 'Client Ops & Marketing',
-      statusTag: 'CLIENT',
-      unreadCount: 0,
-      assignedTo: 'MINNI',
-      lastMessage: 'Checking incoming lead inquiries from Instagram & Web.',
-      lastMessageTime: new Date(Date.now() - 25 * 60000).toISOString(),
-      messages: [
-        {
-          id: 'MSG-201',
-          sender: 'MINNI',
-          text: 'Checking incoming lead inquiries from Instagram & Web.',
-          timestamp: new Date(Date.now() - 25 * 60000).toISOString(),
-          status: 'READ'
-        }
-      ]
-    }
-  ];
-}
-
-// Initialize seed data into memory if empty
-if (memoryChatsMap.size === 0) {
-  getInitialSeedChats().forEach(c => memoryChatsMap.set(c.phone, c));
-}
-
 /**
  * GET /api/whatsapp/chats
  * Get all active WhatsApp conversations
@@ -83,11 +25,7 @@ if (memoryChatsMap.size === 0) {
 router.get('/chats', async (req, res) => {
   try {
     if (mongoose.connection.readyState === 1 && WhatsAppChatModel) {
-      let chats = await WhatsAppChatModel.find().sort({ lastMessageTime: -1 });
-      if (chats.length === 0) {
-        // Insert initial seed chats into DB
-        chats = await WhatsAppChatModel.insertMany(getInitialSeedChats());
-      }
+      const chats = await WhatsAppChatModel.find().sort({ lastMessageTime: -1 });
       return res.json({ success: true, chats });
     } else {
       const chats = Array.from(memoryChatsMap.values()).sort(
@@ -160,12 +98,15 @@ router.post('/send', async (req, res) => {
 
     // Forward to Periskope / WhatsApp API Webhook if configured
     const webhookUrl = process.env.PERISKOPE_WEBHOOK_URL || process.env.N8N_WEBHOOK_URL;
+    const apiKey = process.env.PERISKOPE_API_KEY;
     if (webhookUrl) {
       try {
         const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+        const headers = { 'Content-Type': 'application/json' };
+        if (apiKey) headers['Authorization'] = `Bearer ${apiKey}`;
         fetch(webhookUrl, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers,
           body: JSON.stringify({
             event: 'OUTBOUND_MESSAGE',
             to: formattedPhone,
@@ -190,18 +131,47 @@ router.post('/send', async (req, res) => {
  */
 router.post('/inbound', async (req, res) => {
   try {
-    const { phone, from, text, message, contactName, mediaUrl } = req.body;
-    const rawPhone = phone || from;
-    const msgText = text || message;
+    let rawPhone = req.body.phone || req.body.from;
+    let msgText = req.body.text || req.body.message;
+    let cName = req.body.contactName || req.body.name;
+    const mediaUrl = req.body.mediaUrl || null;
+
+    // Parse Periskope webhook event structure: { event: "message.created", data: { ... } }
+    if (req.body && req.body.data) {
+      const d = req.body.data;
+      if (d.message) {
+        msgText = d.message.text || d.message.body || msgText;
+        if (req.body.event === 'message.deleted') {
+          msgText = '🚫 This message was un-sent / deleted';
+        }
+        if (d.message.chat) {
+          rawPhone = d.message.chat.phone || d.message.chat.id || rawPhone;
+          cName = d.message.chat.name || cName;
+        }
+        if (d.message.sender) {
+          rawPhone = rawPhone || d.message.sender.phone;
+          cName = cName || d.message.sender.name;
+        }
+      }
+    }
 
     if (!rawPhone || !msgText) {
       return res.status(400).json({ success: false, error: 'Incoming payload requires phone and text.' });
     }
 
     const formattedPhone = formatPhone(rawPhone);
+
+    let senderType = 'CUSTOMER';
+    if (req.body && req.body.data && req.body.data.message) {
+      const m = req.body.data.message;
+      if (m.direction === 'outbound' || m.is_from_me === true || m.from_me === true) {
+        senderType = 'MINNI';
+      }
+    }
+
     const incomingMsg = {
       id: 'MSG-IN-' + Date.now(),
-      sender: 'CUSTOMER',
+      sender: senderType,
       text: String(msgText).trim(),
       timestamp: new Date().toISOString(),
       status: 'DELIVERED',

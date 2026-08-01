@@ -21,7 +21,6 @@ Time    : ${inquiry.createdAt}
   // Optional SMTP Email notification if configured in .env
   if (process.env.SMTP_USER && process.env.SMTP_PASS && process.env.NOTIFICATION_EMAIL) {
     try {
-      // Lazy load nodemailer if available
       const nodemailer = require('nodemailer');
       const transporter = nodemailer.createTransport({
         host: process.env.SMTP_HOST || 'smtp.gmail.com',
@@ -43,6 +42,8 @@ Time    : ${inquiry.createdAt}
     } catch (err) {
       console.warn('⚠️ SMTP notification failed (check .env settings):', err.message);
     }
+  }
+
   // Auto-feed new inquiry into WhatsApp Shared Inbox
   try {
     const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));

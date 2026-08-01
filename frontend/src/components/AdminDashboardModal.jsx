@@ -22,6 +22,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
+  const [aiAutoReply, setAiAutoReply] = useState(true);
 
   // Live Clock Ticking Engine (Updates every 1 second)
   const [liveTime, setLiveTime] = useState(new Date());
@@ -894,24 +895,49 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
       <main className="admin-main-container">
         {/* TOP HEADER BAR */}
         <header className="admin-header-bar">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-            <h2 style={{ fontSize: '1.2rem', fontWeight: '800', margin: 0, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-              {activeTab === 'overview' && 'Command Center Overview'}
+          {/* LEFT: BREADCRUMB & TITLE */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.86rem', color: '#64748b', fontWeight: '500' }}>
+            <span>KLAPP OS</span>
+            <span>&rsaquo;</span>
+            <strong style={{ color: '#0f172a', fontWeight: '800' }}>
+              {activeTab === 'overview' && 'Dashboard Overview'}
               {activeTab === 'inquiries' && 'Inquiries & Client CRM'}
               {activeTab === 'whatsapp' && 'Official WhatsApp Shared Live Inbox'}
               {activeTab === 'projects' && 'Projects & Deliverables Board'}
               {activeTab === 'calendar' && 'Shared Calendar & Meetings'}
               {activeTab === 'content' && 'Content Planner & Social Workflow'}
               {activeTab === 'discipline' && 'Personal Discipline & Accountability'}
-              {activeTab === 'competition' && 'Streaks & Gamification Engine'}
               {activeTab === 'revenue' && 'Revenue Analytics & Proposals'}
-              {activeTab === 'reminders' && 'Smart Reminder Engine'}
-              {activeTab === 'addLead' && 'Add Manual Lead'}
               {activeTab === 'notes' && 'Agency Scratchpad'}
-            </h2>
+            </strong>
           </div>
 
+          {/* CENTER: DIGI-ADBOT STYLE SEARCH BAR WITH CTRL+K */}
+          <div style={{ position: 'relative', width: '340px' }}>
+            <i className="ri-search-line" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', fontSize: '0.9rem' }}></i>
+            <input 
+              type="text" 
+              placeholder="Search templates, campaigns, contacts..."
+              style={{
+                width: '100%',
+                padding: '8px 64px 8px 36px',
+                background: '#ffffff',
+                border: '1px solid #cbd5e1',
+                borderRadius: '12px',
+                fontSize: '0.8rem',
+                color: '#1e293b',
+                outline: 'none',
+                boxSizing: 'border-box'
+              }}
+            />
+            <span style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '6px', padding: '2px 6px', fontSize: '0.68rem', color: '#64748b', fontWeight: '600' }}>
+              Ctrl+K
+            </span>
+          </div>
+
+          {/* RIGHT: ACTION BUTTONS */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+
             <button onClick={fetchInquiries} className="btn-action-outline">
               <i className="ri-refresh-line"></i> Refresh
             </button>
@@ -923,7 +949,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
         </header>
 
         {/* WORKSPACE CONTENT */}
-        <div className="main-workspace">
+        <div className="main-workspace" style={{ padding: activeTab === 'whatsapp' ? '0' : '24px 28px 60px 28px', overflow: activeTab === 'whatsapp' ? 'hidden' : 'auto' }}>
 
           {/* WHATSAPP SHARED INBOX TAB */}
           {activeTab === 'whatsapp' && (

@@ -10,11 +10,10 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
   const [sending, setSending] = useState(false);
   const messagesEndRef = useRef(null);
 
-  // New Contact Modal State
+  // Periskope Style New Chat Modal
   const [showNewChatModal, setShowNewChatModal] = useState(false);
-  const [newChatName, setNewChatName] = useState('');
-  const [newChatPhone, setNewChatPhone] = useState('');
-  const [newChatInitialMsg, setNewChatInitialMsg] = useState('');
+  const [newContactQuery, setNewContactQuery] = useState('');
+  const [newContactName, setNewContactName] = useState('');
 
   const fetchChats = async () => {
     try {
@@ -22,9 +21,6 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
       const data = await res.json();
       if (data.success && Array.isArray(data.chats)) {
         setChats(data.chats);
-        if (!activeChatPhone && data.chats.length > 0) {
-          setActiveChatPhone(data.chats[0].phone);
-        }
       }
     } catch (err) {
       console.error('Failed to load WhatsApp chats:', err);
@@ -58,7 +54,7 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chats, activeChatPhone]);
 
-  const activeChat = chats.find(c => c.phone === activeChatPhone) || chats[0];
+  const activeChat = chats.find(c => c.phone === activeChatPhone);
 
   const handleSendMessage = async (e) => {
     if (e) e.preventDefault();
@@ -90,20 +86,18 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
     }
   };
 
-  const handleCreateNewChat = async (e) => {
+  const handleStartNewChat = async (e) => {
     e.preventDefault();
-    if (!newChatPhone.trim()) return;
+    if (!newContactQuery.trim()) return;
 
-    let cleanPhone = newChatPhone.trim().replace(/\D/g, '');
+    let cleanPhone = newContactQuery.trim().replace(/\D/g, '');
     if (cleanPhone.length === 10) cleanPhone = '91' + cleanPhone;
 
-    const contactName = newChatName.trim() || `Client (${cleanPhone})`;
-    const initialMsg = newChatInitialMsg.trim() || 'Hi! Connecting from KLAPP Developers.';
+    const contactName = newContactName.trim() || `Client (${cleanPhone})`;
 
     setShowNewChatModal(false);
-    setNewChatName('');
-    setNewChatPhone('');
-    setNewChatInitialMsg('');
+    setNewContactQuery('');
+    setNewContactName('');
 
     try {
       const res = await fetch(`${API_BASE_URL}/api/whatsapp/send`, {
@@ -111,7 +105,7 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           phone: cleanPhone,
-          text: initialMsg,
+          text: 'Hi! Reaching out from KLAPP Developers.',
           sender: currentUser,
           contactName: contactName
         })
@@ -126,296 +120,299 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
     }
   };
 
-  const handleQuickReply = (text) => {
-    setMessageText(text);
-  };
-
   const filteredChats = chats.filter(c =>
     c.contactName.toLowerCase().includes(searchQuery.toLowerCase()) ||
     c.phone.includes(searchQuery)
   );
 
   return (
-    <div className="wa-inbox-wrapper">
+    <div className="periskope-inbox-wrapper">
       <style>{`
-        .wa-inbox-wrapper {
+        .periskope-inbox-wrapper {
           width: 100%;
-          height: calc(100vh - 140px);
-          min-height: 600px;
-          background: #0b141a;
-          border-radius: 12px;
-          border: 1px solid #202c33;
+          height: 100%;
+          background: #ffffff;
           display: flex;
           flex-direction: row;
           overflow: hidden;
-          font-family: var(--font-sans, system-ui, sans-serif);
-          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-          color: #e9edef;
+          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+          color: #1e293b;
           position: relative;
         }
 
-        /* Sidebar Styling */
-        .wa-sidebar {
+        /* PERISKOPE SIDEBAR */
+        .periskope-sidebar {
           width: 320px;
           min-width: 320px;
-          background: #111b21;
-          border-right: 1px solid #202c33;
+          background: #ffffff;
+          border-right: 1px solid #e2e8f0;
           display: flex;
           flex-direction: column;
+          position: relative;
         }
 
-        .wa-sidebar-top {
-          padding: 12px;
-          border-bottom: 1px solid #202c33;
+        .periskope-sidebar-header {
+          padding: 12px 14px;
+          border-bottom: 1px solid #f1f5f9;
           display: flex;
           align-items: center;
-          gap: 8px;
+          justify-content: space-between;
         }
 
-        .wa-search-wrap {
-          position: relative;
-          flex: 1;
-        }
-
-        .wa-search-wrap i {
-          position: absolute;
-          left: 12px;
-          top: 50%;
-          transform: translateY(-50%);
-          color: #8696a0;
-          font-size: 0.9rem;
-        }
-
-        .wa-search-input {
-          width: 100%;
-          padding: 9px 12px 9px 38px;
-          background: #202c33;
-          border: 1px solid #2a3942;
-          border-radius: 10px;
-          color: #e9edef;
-          font-size: 0.82rem;
-          outline: none;
-          box-sizing: border-box;
-        }
-        .wa-search-input:focus {
-          border-color: #25d366;
-        }
-
-        .wa-add-chat-btn {
-          width: 38px;
-          height: 38px;
-          border-radius: 10px;
-          background: #25d366;
-          color: #0b141a;
-          border: none;
-          font-size: 1.2rem;
-          font-weight: 900;
+        .periskope-inbox-dropdown {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-weight: 700;
+          font-size: 0.88rem;
+          color: #0f172a;
           cursor: pointer;
+        }
+
+        .periskope-header-actions {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+
+        .periskope-icon-btn {
+          width: 30px;
+          height: 30px;
+          border-radius: 6px;
+          border: 1px solid #e2e8f0;
+          background: #ffffff;
+          color: #64748b;
           display: flex;
           align-items: center;
           justify-content: center;
-          transition: background 0.2s, transform 0.1s;
-          flex-shrink: 0;
+          cursor: pointer;
+          font-size: 0.85rem;
+          transition: all 0.2s;
         }
-        .wa-add-chat-btn:hover {
-          background: #20ba5a;
-          transform: scale(1.04);
+        .periskope-icon-btn:hover {
+          background: #f8fafc;
+          color: #0f172a;
         }
 
-        .wa-chat-list {
+        .periskope-search-bar {
+          padding: 8px 12px;
+          border-bottom: 1px solid #f1f5f9;
+        }
+
+        .periskope-search-input {
+          width: 100%;
+          padding: 7px 12px 7px 32px;
+          background: #f8fafc;
+          border: 1px solid #e2e8f0;
+          border-radius: 8px;
+          font-size: 0.8rem;
+          color: #1e293b;
+          outline: none;
+          box-sizing: border-box;
+        }
+        .periskope-search-input:focus {
+          border-color: #16a34a;
+          background: #ffffff;
+        }
+
+        .periskope-chat-list {
           flex: 1;
           overflow-y: auto;
         }
 
-        .wa-chat-item {
+        .periskope-chat-card {
+          padding: 12px 14px;
+          border-bottom: 1px solid #f1f5f9;
           display: flex;
-          align-items: center;
+          align-items: flex-start;
           gap: 12px;
-          padding: 14px 16px;
-          border-bottom: 1px solid #1f2c34;
           cursor: pointer;
-          transition: background 0.2s;
+          transition: background 0.15s;
         }
-        .wa-chat-item:hover {
-          background: #202c33;
+        .periskope-chat-card:hover {
+          background: #f8fafc;
         }
-        .wa-chat-item.active {
-          background: #2a3942;
-          border-left: 4px solid #25d366;
+        .periskope-chat-card.active {
+          background: #f0fdf4;
+          border-left: 3px solid #16a34a;
         }
 
-        .wa-avatar {
-          width: 42px;
-          height: 42px;
+        .periskope-avatar {
+          width: 40px;
+          height: 40px;
           border-radius: 50%;
-          background: linear-gradient(135deg, #128c7e, #075e54);
-          color: #fff;
+          background: #1e293b;
+          color: #ffffff;
           font-weight: 700;
-          font-size: 0.95rem;
+          font-size: 0.9rem;
           display: flex;
           align-items: center;
           justify-content: center;
           flex-shrink: 0;
         }
 
-        .wa-chat-meta {
+        .periskope-chat-info {
           flex: 1;
           min-width: 0;
         }
 
-        .wa-chat-name {
+        .periskope-contact-name {
           font-weight: 700;
-          font-size: 0.88rem;
-          color: #e9edef;
+          font-size: 0.86rem;
+          color: #0f172a;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
         }
 
-        .wa-chat-last-msg {
+        .periskope-label-tag {
+          display: inline-block;
+          border: 1px solid #cbd5e1;
+          color: #64748b;
+          border-radius: 4px;
+          padding: 1px 5px;
+          font-size: 0.65rem;
+          font-weight: 600;
+          margin-left: 6px;
+        }
+
+        .periskope-last-msg {
           font-size: 0.78rem;
-          color: #8696a0;
+          color: #64748b;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
           margin-top: 3px;
         }
 
-        .wa-unread-badge {
-          background: #25d366;
-          color: #0b141a;
-          font-weight: 800;
-          font-size: 0.7rem;
-          padding: 2px 7px;
-          border-radius: 999px;
+        .periskope-timestamp {
+          font-size: 0.68rem;
+          color: #94a3b8;
+          white-space: nowrap;
         }
 
-        /* Right Window Styling */
-        .wa-window {
+        .periskope-unread-badge {
+          background: #16a34a;
+          color: #ffffff;
+          font-weight: 800;
+          font-size: 0.68rem;
+          width: 18px;
+          height: 18px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-top: 4px;
+        }
+
+        /* PERISKOPE FLOATING + BUTTON */
+        .periskope-fab {
+          position: absolute;
+          bottom: 16px;
+          left: 16px;
+          width: 44px;
+          height: 44px;
+          border-radius: 50%;
+          background: #16a34a;
+          color: #ffffff;
+          border: none;
+          font-size: 1.3rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          box-shadow: 0 4px 12px rgba(22, 163, 74, 0.35);
+          transition: transform 0.2s, background 0.2s;
+          z-index: 10;
+        }
+        .periskope-fab:hover {
+          background: #15803d;
+          transform: scale(1.06);
+        }
+
+        /* PERISKOPE MAIN WINDOW */
+        .periskope-main {
           flex: 1;
           display: flex;
           flex-direction: column;
-          background: #0b141a;
+          background: #f8fafc;
         }
 
-        .wa-window-header {
+        .periskope-header {
           padding: 12px 20px;
-          background: #202c33;
-          border-bottom: 1px solid #2a3942;
+          background: #ffffff;
+          border-bottom: 1px solid #e2e8f0;
           display: flex;
           align-items: center;
           justify-content: space-between;
         }
 
-        .wa-stream {
+        .periskope-stream {
           flex: 1;
           overflow-y: auto;
           padding: 20px;
           display: flex;
           flex-direction: column;
           gap: 12px;
-          background-color: #0b141a;
-          background-image: radial-gradient(#1f2c34 1px, transparent 1px);
-          background-size: 18px 18px;
+          background: #f8fafc;
         }
 
-        .wa-bubble {
-          max-width: 68%;
+        .periskope-bubble {
+          max-width: 65%;
           padding: 10px 14px;
           font-size: 0.84rem;
           line-height: 1.45;
           position: relative;
-          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+          box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
 
-        .wa-bubble-customer {
+        .periskope-bubble-inbound {
           align-self: flex-start;
-          background: #202c33;
-          color: #e9edef;
-          border-radius: 0 14px 14px 14px;
-          border: 1px solid #2a3942;
+          background: #ffffff;
+          color: #1e293b;
+          border-radius: 0 12px 12px 12px;
+          border: 1px solid #e2e8f0;
         }
 
-        .wa-bubble-outbound {
+        .periskope-bubble-outbound {
           align-self: flex-end;
-          background: #005c4b;
-          color: #e9edef;
-          border-radius: 14px 0 14px 14px;
-          border: 1px solid #128c7e;
+          background: #dcfce7;
+          color: #064e3b;
+          border-radius: 12px 0 12px 12px;
+          border: 1px solid #bbf7d0;
         }
 
-        .wa-sender-tag {
-          font-size: 0.68rem;
-          font-weight: 800;
-          color: #53bdeb;
-          display: block;
-          margin-bottom: 4px;
-        }
-
-        .wa-time-tag {
-          font-size: 0.65rem;
-          color: rgba(233, 237, 239, 0.6);
-          text-align: right;
-          margin-top: 4px;
-        }
-
-        .wa-quick-bar {
-          padding: 8px 16px;
-          background: #111b21;
-          border-top: 1px solid #202c33;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          overflow-x: auto;
-        }
-
-        .wa-quick-btn {
-          background: #202c33;
-          border: 1px solid #2a3942;
-          color: #e9edef;
-          padding: 5px 12px;
-          border-radius: 20px;
-          font-size: 0.75rem;
-          cursor: pointer;
-          white-space: nowrap;
-          transition: all 0.2s;
-        }
-        .wa-quick-btn:hover {
-          background: #005c4b;
-          border-color: #25d366;
-          color: #fff;
-        }
-
-        .wa-composer {
-          padding: 12px 16px;
-          background: #202c33;
-          border-top: 1px solid #2a3942;
+        .periskope-composer {
+          padding: 12px 20px;
+          background: #ffffff;
+          border-top: 1px solid #e2e8f0;
           display: flex;
           align-items: center;
           gap: 10px;
         }
 
-        .wa-composer-input {
+        .periskope-composer-input {
           flex: 1;
-          padding: 11px 16px;
-          background: #2a3942;
-          border: 1px solid #3b4a54;
-          border-radius: 12px;
-          color: #fff;
+          padding: 10px 16px;
+          background: #f8fafc;
+          border: 1px solid #cbd5e1;
+          border-radius: 8px;
           font-size: 0.85rem;
+          color: #0f172a;
           outline: none;
         }
-        .wa-composer-input:focus {
-          border-color: #25d366;
+        .periskope-composer-input:focus {
+          border-color: #16a34a;
+          background: #ffffff;
         }
 
-        .wa-send-btn {
-          background: #25d366;
-          color: #0b141a;
-          font-weight: 800;
+        .periskope-send-btn {
+          background: #16a34a;
+          color: #ffffff;
+          font-weight: 700;
           border: none;
-          padding: 11px 20px;
-          border-radius: 12px;
+          padding: 10px 18px;
+          border-radius: 8px;
           cursor: pointer;
           font-size: 0.84rem;
           display: flex;
@@ -423,23 +420,19 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
           gap: 6px;
           transition: background 0.2s;
         }
-        .wa-send-btn:hover {
-          background: #20ba5a;
-        }
-        .wa-send-btn:disabled {
-          opacity: 0.5;
-          cursor: not-allowed;
+        .periskope-send-btn:hover {
+          background: #15803d;
         }
 
-        /* New Chat Modal Styling */
-        .wa-modal-overlay {
+        /* PERISKOPE NEW CHAT MODAL (EXACT PERISKOPE POPUP LOOK) */
+        .periskope-modal-overlay {
           position: absolute;
           top: 0;
           left: 0;
           width: 100%;
           height: 100%;
-          background: rgba(11, 20, 26, 0.85);
-          backdrop-filter: blur(6px);
+          background: rgba(15, 23, 42, 0.4);
+          backdrop-filter: blur(4px);
           z-index: 100;
           display: flex;
           align-items: center;
@@ -448,110 +441,137 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
           box-sizing: border-box;
         }
 
-        .wa-modal-card {
-          background: #111b21;
-          border: 1px solid #2a3942;
-          border-radius: 16px;
+        .periskope-modal-card {
+          background: #ffffff;
+          border: 1px solid #e2e8f0;
+          border-radius: 12px;
           width: 100%;
-          max-width: 420px;
+          max-width: 480px;
           padding: 24px;
-          box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
         }
 
-        .wa-modal-title {
-          font-size: 1.1rem;
-          font-weight: 800;
-          color: #e9edef;
-          margin-bottom: 4px;
+        .periskope-modal-header {
           display: flex;
           align-items: center;
           justify-content: space-between;
+          margin-bottom: 16px;
         }
 
-        .wa-modal-input {
-          width: 100%;
-          padding: 10px 14px;
-          background: #202c33;
-          border: 1px solid #2a3942;
-          border-radius: 10px;
-          color: #e9edef;
-          font-size: 0.86rem;
-          outline: none;
-          margin-top: 6px;
-          box-sizing: border-box;
+        .periskope-modal-title {
+          font-size: 1rem;
+          font-weight: 700;
+          color: #0f172a;
         }
-        .wa-modal-input:focus {
-          border-color: #25d366;
+
+        .periskope-modal-input-wrap {
+          border: 1px solid #16a34a;
+          border-radius: 8px;
+          padding: 10px 14px;
+          margin-bottom: 20px;
+          background: #ffffff;
+          box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+        }
+
+        .periskope-modal-input {
+          width: 100%;
+          border: none;
+          outline: none;
+          font-size: 0.88rem;
+          color: #0f172a;
+        }
+
+        .periskope-sender-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding-top: 12px;
+        }
+
+        .periskope-account-badge {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 0.8rem;
+          font-weight: 600;
+          color: #334155;
+        }
+
+        .periskope-account-avatar {
+          width: 24px;
+          height: 24px;
+          border-radius: 50%;
+          background: #2563eb;
+          color: #ffffff;
+          font-size: 0.68rem;
+          font-weight: 800;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
       `}</style>
 
-      {/* NEW CHAT POPUP MODAL */}
+      {/* PERISKOPE DITTO NEW CHAT MODAL */}
       {showNewChatModal && (
-        <div className="wa-modal-overlay">
-          <div className="wa-modal-card">
-            <div className="wa-modal-title">
-              <span>💬 Start New WhatsApp Chat</span>
+        <div className="periskope-modal-overlay">
+          <div className="periskope-modal-card">
+            <div className="periskope-modal-header">
+              <span className="periskope-modal-title">New Chat</span>
               <button
                 onClick={() => setShowNewChatModal(false)}
-                style={{ background: 'none', border: 'none', color: '#8696a0', fontSize: '1.2rem', cursor: 'pointer' }}
+                style={{ background: 'none', border: 'none', color: '#64748b', fontSize: '1.2rem', cursor: 'pointer' }}
               >
-                <i className="ri-close-line"></i>
+                ✕
               </button>
             </div>
-            <p style={{ fontSize: '0.78rem', color: '#8696a0', marginBottom: '16px' }}>
-              Enter client details to send a direct WhatsApp message from Klapp.
-            </p>
 
-            <form onSubmit={handleCreateNewChat}>
-              <div style={{ marginBottom: '12px' }}>
-                <label style={{ fontSize: '0.78rem', color: '#8696a0', fontWeight: '600' }}>Client Name / Title</label>
+            <form onSubmit={handleStartNewChat}>
+              <div className="periskope-modal-input-wrap">
                 <input
                   type="text"
-                  placeholder="e.g. Ramesh - Real Estate Lead"
-                  value={newChatName}
-                  onChange={e => setNewChatName(e.target.value)}
-                  className="wa-modal-input"
+                  required
+                  placeholder="Search contact by name or number..."
+                  value={newContactQuery}
+                  onChange={e => setNewContactQuery(e.target.value)}
+                  className="periskope-modal-input"
                   autoFocus
                 />
               </div>
 
-              <div style={{ marginBottom: '12px' }}>
-                <label style={{ fontSize: '0.78rem', color: '#8696a0', fontWeight: '600' }}>WhatsApp Phone Number *</label>
+              <div style={{ marginBottom: '14px' }}>
                 <input
                   type="text"
-                  required
-                  placeholder="e.g. 8247758835 or +91 82477 58835"
-                  value={newChatPhone}
-                  onChange={e => setNewChatPhone(e.target.value)}
-                  className="wa-modal-input"
+                  placeholder="Optional: Contact Name (e.g. Lavanya)"
+                  value={newContactName}
+                  onChange={e => setNewContactName(e.target.value)}
+                  style={{ width: '100%', padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '0.82rem', outline: 'none', boxSizing: 'border-box' }}
                 />
               </div>
 
-              <div style={{ marginBottom: '18px' }}>
-                <label style={{ fontSize: '0.78rem', color: '#8696a0', fontWeight: '600' }}>Initial WhatsApp Message</label>
-                <textarea
-                  rows="3"
-                  placeholder="e.g. Hi Ramesh! This is Aashish from KLAPP Developers. Reaching out regarding your web inquiry."
-                  value={newChatInitialMsg}
-                  onChange={e => setNewChatInitialMsg(e.target.value)}
-                  className="wa-modal-input"
-                  style={{ resize: 'none' }}
-                />
-              </div>
+              <div className="periskope-sender-row">
+                <div className="periskope-account-badge">
+                  <div className="periskope-account-avatar">KL</div>
+                  <span>KLAPP (+91 79890 33580)</span>
+                </div>
 
-              <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-                <button
-                  type="button"
-                  onClick={() => setShowNewChatModal(false)}
-                  style={{ background: '#202c33', color: '#e9edef', border: '1px solid #2a3942', padding: '8px 16px', borderRadius: '10px', fontSize: '0.82rem', fontWeight: '600', cursor: 'pointer' }}
-                >
-                  Cancel
-                </button>
                 <button
                   type="submit"
-                  style={{ background: '#25d366', color: '#0b141a', border: 'none', padding: '8px 18px', borderRadius: '10px', fontSize: '0.82rem', fontWeight: '800', cursor: 'pointer' }}
+                  disabled={!newContactQuery.trim()}
+                  style={{
+                    background: newContactQuery.trim() ? '#16a34a' : '#e2e8f0',
+                    color: newContactQuery.trim() ? '#ffffff' : '#94a3b8',
+                    border: 'none',
+                    padding: '8px 18px',
+                    borderRadius: '8px',
+                    fontSize: '0.84rem',
+                    fontWeight: '700',
+                    cursor: newContactQuery.trim() ? 'pointer' : 'not-allowed',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}
                 >
-                  Start WhatsApp Chat
+                  Start Chat <span>➢</span>
                 </button>
               </div>
             </form>
@@ -559,37 +579,48 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
         </div>
       )}
 
-      {/* LEFT SIDEBAR */}
-      <div className="wa-sidebar">
-        <div className="wa-sidebar-top">
-          <div className="wa-search-wrap">
-            <i className="ri-search-line"></i>
-            <input
-              type="text"
-              placeholder="Search chats..."
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              className="wa-search-input"
-            />
+      {/* LEFT PERISKOPE SIDEBAR */}
+      <div className="periskope-sidebar">
+        <div className="periskope-sidebar-header">
+          <div className="periskope-inbox-dropdown">
+            <i className="ri-phone-line" style={{ color: '#64748b' }}></i>
+            <span>Inbox</span>
           </div>
 
-          <button
-            onClick={() => setShowNewChatModal(true)}
-            className="wa-add-chat-btn"
-            title="Start New Direct WhatsApp Chat (+ Number)"
-          >
-            <i className="ri-add-line"></i>
-          </button>
+          <div className="periskope-header-actions">
+            <button className="periskope-icon-btn" onClick={fetchChats} title="Refresh Inbox">
+              <i className="ri-refresh-line"></i>
+            </button>
+            <button className="periskope-icon-btn" title="Search">
+              <i className="ri-search-line"></i>
+            </button>
+            <button className="periskope-icon-btn" title="Filter">
+              <i className="ri-filter-3-line"></i>
+            </button>
+          </div>
         </div>
 
-        <div className="wa-chat-list">
+        <div className="periskope-search-bar">
+          <div style={{ position: 'relative' }}>
+            <i className="ri-search-line" style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', fontSize: '0.8rem' }}></i>
+            <input
+              type="text"
+              placeholder="Search chats, messages, contacts..."
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              className="periskope-search-input"
+            />
+          </div>
+        </div>
+
+        <div className="periskope-chat-list">
           {loading ? (
-            <div style={{ padding: '24px', textAlign: 'center', fontSize: '0.78rem', color: '#8696a0' }}>
-              <i className="ri-loader-4-line animate-spin" style={{ color: '#25d366', marginRight: '6px' }}></i> Syncing WhatsApp chats...
+            <div style={{ padding: '24px', textAlign: 'center', fontSize: '0.8rem', color: '#94a3b8' }}>
+              <i className="ri-loader-4-line animate-spin" style={{ color: '#16a34a', marginRight: '6px' }}></i> Loading chats...
             </div>
           ) : filteredChats.length === 0 ? (
-            <div style={{ padding: '24px', textAlign: 'center', fontSize: '0.78rem', color: '#8696a0' }}>
-              No active chats. Click <strong style={{ color: '#25d366' }}>+</strong> above to start a conversation!
+            <div style={{ padding: '28px', textAlign: 'center', fontSize: '0.82rem', color: '#94a3b8' }}>
+              No chats found. Click <strong style={{ color: '#16a34a' }}>+</strong> below to start a conversation!
             </div>
           ) : (
             filteredChats.map(c => {
@@ -598,46 +629,60 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
                 <div
                   key={c.phone}
                   onClick={() => setActiveChatPhone(c.phone)}
-                  className={`wa-chat-item ${isActive ? 'active' : ''}`}
+                  className={`periskope-chat-card ${isActive ? 'active' : ''}`}
                 >
-                  <div className="wa-avatar">
+                  <div className="periskope-avatar">
                     {c.contactName ? c.contactName.charAt(0).toUpperCase() : 'C'}
                   </div>
-                  <div className="wa-chat-meta">
+                  <div className="periskope-chat-info">
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span className="wa-chat-name">{c.contactName}</span>
-                      <span style={{ fontSize: '0.68rem', color: '#8696a0' }}>
+                      <div style={{ display: 'flex', alignItems: 'center' }}>
+                        <span className="periskope-contact-name">{c.contactName}</span>
+                        <span className="periskope-label-tag">+ Label</span>
+                      </div>
+                      <span className="periskope-timestamp">
                         {new Date(c.lastMessageTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </span>
                     </div>
-                    <div className="wa-chat-last-msg">{c.lastMessage || 'No messages yet'}</div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div className="periskope-last-msg">{c.lastMessage || 'No messages'}</div>
+                      {c.unreadCount > 0 && (
+                        <div className="periskope-unread-badge">{c.unreadCount}</div>
+                      )}
+                    </div>
                   </div>
-                  {c.unreadCount > 0 && (
-                    <span className="wa-unread-badge">{c.unreadCount}</span>
-                  )}
                 </div>
               );
             })
           )}
         </div>
+
+        {/* FLOATING ACTION BUTTON (+) FOR NEW CHAT */}
+        <button
+          className="periskope-fab"
+          onClick={() => setShowNewChatModal(true)}
+          title="New Chat"
+        >
+          +
+        </button>
       </div>
 
-      {/* RIGHT CHAT WINDOW */}
-      <div className="wa-window">
+      {/* RIGHT PERISKOPE MAIN WINDOW */}
+      <div className="periskope-main">
         {activeChat ? (
           <>
-            {/* Active Chat Header */}
-            <div className="wa-window-header">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <div className="wa-avatar" style={{ width: '40px', height: '40px', fontSize: '0.9rem' }}>
+            {/* Header */}
+            <div className="periskope-header">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div className="periskope-avatar" style={{ width: '36px', height: '36px', fontSize: '0.85rem' }}>
                   {activeChat.contactName ? activeChat.contactName.charAt(0).toUpperCase() : 'C'}
                 </div>
                 <div>
-                  <div style={{ fontWeight: '700', fontSize: '0.92rem', color: '#e9edef' }}>
-                    {activeChat.contactName} <span style={{ fontSize: '0.78rem', color: '#8696a0', fontFamily: 'monospace' }}>({activeChat.phone})</span>
+                  <div style={{ fontWeight: '700', fontSize: '0.9rem', color: '#0f172a' }}>
+                    {activeChat.contactName}
                   </div>
-                  <div style={{ fontSize: '0.72rem', color: '#25d366' }}>
-                    WhatsApp Connected
+                  <div style={{ fontSize: '0.74rem', color: '#64748b', fontFamily: 'monospace' }}>
+                    +{activeChat.phone}
                   </div>
                 </div>
               </div>
@@ -646,89 +691,68 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
                 href={`https://wa.me/${activeChat.phone}`}
                 target="_blank"
                 rel="noreferrer"
-                style={{ background: 'rgba(37, 211, 102, 0.15)', color: '#25d366', border: '1px solid rgba(37, 211, 102, 0.3)', padding: '6px 14px', borderRadius: '8px', fontSize: '0.78rem', fontWeight: '600', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px' }}
+                style={{ background: '#f1f5f9', color: '#0f172a', border: '1px solid #cbd5e1', padding: '6px 14px', borderRadius: '6px', fontSize: '0.78rem', fontWeight: '600', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px' }}
               >
-                <i className="ri-whatsapp-line"></i> Open in WhatsApp
+                <i className="ri-whatsapp-line" style={{ color: '#16a34a' }}></i> Open WhatsApp
               </a>
             </div>
 
             {/* Chat Stream */}
-            <div className="wa-stream">
+            <div className="periskope-stream">
               {activeChat.messages && activeChat.messages.length > 0 ? (
                 activeChat.messages.map((m, idx) => {
                   const isOutbound = m.sender === 'AASHISH' || m.sender === 'MINNI' || m.sender === 'BOT';
                   return (
                     <div
                       key={m.id || idx}
-                      className={`wa-bubble ${isOutbound ? 'wa-bubble-outbound' : 'wa-bubble-customer'}`}
+                      className={`periskope-bubble ${isOutbound ? 'periskope-bubble-outbound' : 'periskope-bubble-inbound'}`}
                     >
-                      {isOutbound && (
-                        <span className="wa-sender-tag">
-                          {m.sender === 'AASHISH' ? '⚡ Aashish' : m.sender === 'MINNI' ? '✨ Minni' : '🤖 Klapp AI'}
-                        </span>
-                      )}
                       <div style={{ whitespace: 'pre-wrap' }}>{m.text}</div>
-                      <div className="wa-time-tag">
+                      <div style={{ fontSize: '0.65rem', color: isOutbound ? '#047857' : '#94a3b8', textAlign: 'right', marginTop: '4px' }}>
                         {new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        {isOutbound && <span style={{ marginLeft: '4px', color: '#53bdeb' }}>✓✓</span>}
+                        {isOutbound && <span style={{ marginLeft: '4px' }}>✓✓</span>}
                       </div>
                     </div>
                   );
                 })
               ) : (
-                <div style={{ textAlign: 'center', color: '#8696a0', fontSize: '0.8rem', padding: '40px' }}>
-                  No chat history yet with {activeChat.contactName}. Type below to send a message!
+                <div style={{ textAlign: 'center', color: '#94a3b8', fontSize: '0.82rem', padding: '40px' }}>
+                  No messages in this chat. Type below to send a message.
                 </div>
               )}
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Quick Reply Bar */}
-            <div className="wa-quick-bar">
-              <button
-                onClick={() => handleQuickReply('Hi! Thank you for contacting KLAPP Developers. We build sub-100ms web apps and AI automations. When are you available for a 10-min discovery call?')}
-                className="wa-quick-btn"
-              >
-                👋 Discovery Call
-              </button>
-              <button
-                onClick={() => handleQuickReply('Here is our Web App package proposal: React Frontend, Node.js API, Sub-100ms speed & Meta WhatsApp integration at ₹50,000.')}
-                className="wa-quick-btn"
-              >
-                💼 Web Package (₹50k)
-              </button>
-              <button
-                onClick={() => handleQuickReply('You can view our live work portfolio & case studies here: https://klappdevelopers.in/#portfolio')}
-                className="wa-quick-btn"
-              >
-                📁 Portfolio Link
-              </button>
-            </div>
-
-            {/* Message Composer Bar */}
-            <form onSubmit={handleSendMessage} className="wa-composer">
+            {/* Composer */}
+            <form onSubmit={handleSendMessage} className="periskope-composer">
               <input
                 type="text"
-                placeholder={`Type message to ${activeChat.contactName}...`}
+                placeholder="Type a message..."
                 value={messageText}
                 onChange={e => setMessageText(e.target.value)}
-                className="wa-composer-input"
+                className="periskope-composer-input"
               />
               <button
                 type="submit"
                 disabled={!messageText.trim() || sending}
-                className="wa-send-btn"
+                className="periskope-send-btn"
               >
-                {sending ? <i className="ri-loader-4-line animate-spin"></i> : <i className="ri-send-plane-fill"></i>}
-                Send
+                Send ➢
               </button>
             </form>
           </>
         ) : (
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#8696a0', padding: '40px', textAlign: 'center' }}>
-            <i className="ri-whatsapp-line" style={{ fontSize: '3.5rem', color: '#25d366', opacity: 0.5, marginBottom: '12px' }}></i>
-            <div style={{ fontWeight: '700', fontSize: '1rem', color: '#e9edef' }}>WhatsApp Web for Klapp</div>
-            <div style={{ fontSize: '0.8rem', marginTop: '4px' }}>Select a contact from the left sidebar or click <strong style={{ color: '#25d366' }}>+</strong> to start a new chat.</div>
+          /* EMPTY STATE (EXACT PERISKOPE LOOK) */
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#64748b', padding: '40px', textAlign: 'center' }}>
+            <div style={{ fontSize: '2rem', marginBottom: '10px', color: '#94a3b8' }}>
+              🖱️
+            </div>
+            <div style={{ fontWeight: '600', fontSize: '0.92rem', color: '#334155' }}>
+              Select a chat to view
+            </div>
+            <div style={{ fontSize: '0.78rem', color: '#94a3b8', marginTop: '4px', cursor: 'pointer', textDecoration: 'underline' }} onClick={fetchChats}>
+              Can't see all data? Click to refresh
+            </div>
           </div>
         )}
       </div>
