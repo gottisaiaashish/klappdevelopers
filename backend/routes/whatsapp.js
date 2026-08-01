@@ -59,12 +59,18 @@ if (memoryChatsMap.size === 0) {
 router.get('/chats', async (req, res) => {
   try {
     if (mongoose.connection.readyState === 1 && WhatsAppChatModel) {
-      let chats = await WhatsAppChatModel.find().sort({ lastMessageTime: -1 });
+      // Clean up legacy keys to keep single unified thread
+      await WhatsAppChatModel.deleteMany({ phone: { $in: ['KLAPP-TEAM-AASHISH-MINNI', '918247758835'] } });
+
+      let chats = await WhatsAppChatModel.find({ phone: { $nin: ['KLAPP-TEAM-AASHISH-MINNI', '918247758835'] } }).sort({ lastMessageTime: -1 });
       if (chats.length === 0) {
         chats = await WhatsAppChatModel.insertMany(getDefaultSeedChats());
       }
       return res.json({ success: true, chats });
     } else {
+      memoryChatsMap.delete('KLAPP-TEAM-AASHISH-MINNI');
+      memoryChatsMap.delete('918247758835');
+
       const chats = Array.from(memoryChatsMap.values()).sort(
         (a, b) => new Date(b.lastMessageTime) - new Date(a.lastMessageTime)
       );
