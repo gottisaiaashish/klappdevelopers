@@ -903,7 +903,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
             <img
               src={userRole === 'AASHISH' ? '/profiles/ashish.png' : '/profiles/min.png'}
               alt={userRole === 'AASHISH' ? 'Aashish' : 'Minni'}
-              style={{ width: '28px', height: '28px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #22c55e', flexShrink: 0 }}
+              style={{ width: '28px', height: '28px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
               onError={(e) => { e.target.style.display = 'none'; }}
             />
             <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -2158,47 +2158,6 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
           {/* TAB 5: PERSONAL DISCIPLINE & COMPETITIVE STREAKS */}
           {activeTab === 'discipline' && (
             <div>
-              {/* COMPETITIVE STREAKS HERO CARD AT TOP */}
-              <div className="os-card" style={{ marginBottom: '20px', background: '#faf8f5', border: '1px solid #c8c3b7' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
-                  <div>
-                    <h3 style={{ fontSize: '1.25rem', fontWeight: '800', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span>🏆</span> Daily Discipline Leaderboard & Streaks
-                    </h3>
-                    <p style={{ fontSize: '0.82rem', color: '#71717a', margin: '4px 0 0 0' }}>
-                      Competitive consistency tracking between Aashish and Minni. Live mutual accountability.
-                    </p>
-                  </div>
-                  <span style={{ fontSize: '0.78rem', background: '#22c55e', color: '#ffffff', padding: '4px 10px', borderRadius: '6px', fontWeight: '800' }}>
-                    🔥 Live Battle
-                  </span>
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '14px' }}>
-                  {/* AASHISH STREAK CARD */}
-                  <div style={{ background: '#ffffff', border: '1px solid #c8c3b7', borderRadius: '10px', padding: '14px', display: 'flex', alignItems: 'center', gap: '14px' }}>
-                    <div style={{ width: '42px', height: '42px', borderRadius: '50%', background: '#2563eb', color: '#ffffff', fontWeight: '800', fontSize: '1.2rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      A
-                    </div>
-                    <div>
-                      <div style={{ fontSize: '0.74rem', fontWeight: '700', color: '#71717a', textTransform: 'uppercase' }}>Aashish Streak</div>
-                      <div style={{ fontSize: '1.4rem', fontWeight: '800', color: '#2563eb' }}>12 Days 🔥</div>
-                    </div>
-                  </div>
-
-                  {/* MINNI STREAK CARD */}
-                  <div style={{ background: '#ffffff', border: '1px solid #c8c3b7', borderRadius: '10px', padding: '14px', display: 'flex', alignItems: 'center', gap: '14px' }}>
-                    <div style={{ width: '42px', height: '42px', borderRadius: '50%', background: '#ec4899', color: '#ffffff', fontWeight: '800', fontSize: '1.2rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      M
-                    </div>
-                    <div>
-                      <div style={{ fontSize: '0.74rem', fontWeight: '700', color: '#71717a', textTransform: 'uppercase' }}>Minni Streak</div>
-                      <div style={{ fontSize: '1.4rem', fontWeight: '800', color: '#ec4899' }}>14 Days 🔥</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
               <div className="discipline-grid">
                 {/* AASHISH DISCIPLINE CARD */}
                 <div className="os-card">

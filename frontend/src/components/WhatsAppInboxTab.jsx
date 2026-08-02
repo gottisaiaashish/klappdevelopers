@@ -489,7 +489,6 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
           align-items: center;
           justify-content: center;
           background: #f8fafc;
-          border-bottom: 6px solid #25d366;
           padding: 40px;
           text-align: center;
         }
