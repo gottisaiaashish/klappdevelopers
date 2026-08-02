@@ -1104,10 +1104,11 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
         ) : (
           <div className="wa-landing-screen">
             <div className="wa-landing-content">
-              <div className="wa-landing-icon-bg">
-                <i className="ri-whatsapp-fill" style={{ fontSize: '3.8rem', color: '#25d366' }}></i>
-                <div className="wa-landing-icon-badge">✨</div>
-              </div>
+              <img 
+                src="/klapp-logo.png" 
+                alt="KLAPP Logo" 
+                style={{ width: '120px', height: 'auto', marginBottom: '20px', objectFit: 'contain' }} 
+              />
 
               <h2 className="wa-landing-title">Klapp Messenger on Web</h2>
               <p className="wa-landing-subtitle">
