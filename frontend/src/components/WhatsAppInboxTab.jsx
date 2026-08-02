@@ -3,7 +3,7 @@ import { API_BASE_URL } from '../config/api';
 
 export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
   const [chats, setChats] = useState([]);
-  const [activePhone, setActivePhone] = useState('917989033580');
+  const [activePhone, setActivePhone] = useState(null);
   const [messageText, setMessageText] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
@@ -22,6 +22,33 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
   const emojiList = ['❤️', '👍', '🔥', '😂', '😮', '🙏', '✨', '⚡', '💯', '🎯', '🤝', '💼', '🚀', '🥳'];
   const reactionOptions = ['❤️', '👍', '🔥', '😂', '😮', '🙏'];
 
+  const getContactAvatarSrc = (c) => {
+    if (!c) return null;
+    const isTeamMain = c.phone === '917989033580' || c.phone === 'KLAPP-TEAM-AASHISH-MINNI';
+    if (isTeamMain) {
+      return isAashish ? '/profiles/min.png' : '/profiles/ashish.png';
+    }
+    return c.avatarUrl || null;
+  };
+
+  const getUnreadCountForChat = (c) => {
+    if (!c || !Array.isArray(c.messages)) return 0;
+    const myRole = isAashish ? 'AASHISH' : 'MINNI';
+    return c.messages.filter(m => m.sender !== myRole && m.status !== 'READ').length;
+  };
+
+  const renderMessageTicks = (m) => {
+    const status = String(m.status || 'DELIVERED').toUpperCase();
+    if (status === 'SENT') {
+      return <span title="Sent (Single tick)" style={{ color: '#94a3b8', marginLeft: '4px', fontWeight: '700', fontSize: '0.85rem' }}>✓</span>;
+    }
+    if (status === 'READ') {
+      return <span title="Read (Blue tick)" style={{ color: '#53bdeb', marginLeft: '4px', fontWeight: '700', fontSize: '0.85rem' }}>✓✓</span>;
+    }
+    // Delivered (Default double grey tick)
+    return <span title="Delivered (Double tick)" style={{ color: '#94a3b8', marginLeft: '4px', fontWeight: '700', fontSize: '0.85rem' }}>✓✓</span>;
+  };
+
   const fetchChats = async () => {
     try {
       const res = await fetch(`${API_BASE_URL}/api/whatsapp/chats`);
@@ -35,16 +62,14 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
             if (!localChat) return serverChat;
 
             const serverMsgIds = new Set((serverChat.messages || []).map(m => m.id));
-            const serverMsgTexts = new Set((serverChat.messages || []).map(m => m.text + '|' + new Date(m.timestamp).getTime()));
             const now = Date.now();
 
             // Only keep truly-pending local messages: sent in last 15s and not yet in server
             const pendingMsgs = (localChat.messages || []).filter(localMsg => {
               const isTemp = String(localMsg.id).startsWith('MSG-TEMP-');
               const ageMs = now - new Date(localMsg.timestamp).getTime();
-              if (!isTemp || ageMs > 15000) return false; // discard old temps
+              if (!isTemp || ageMs > 15000) return false;
               if (serverMsgIds.has(localMsg.id)) return false;
-              // Also discard if server has same text sent within 15s
               const isDuplicate = (serverChat.messages || []).some(
                 sm => sm.text === localMsg.text && Math.abs(new Date(sm.timestamp) - new Date(localMsg.timestamp)) < 15000
               );
@@ -64,10 +89,6 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
             };
           });
         });
-
-        if (!activePhone && data.chats.length > 0) {
-          setActivePhone(data.chats[0].phone);
-        }
       }
     } catch (err) {
       console.error('Failed to load chats:', err);
@@ -78,7 +99,7 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
 
   useEffect(() => {
     fetchChats();
-    const interval = setInterval(fetchChats, 5000); // 5s polling — sufficient for live team chat
+    const interval = setInterval(fetchChats, 2500); // 2.5s live polling across portals
     return () => clearInterval(interval);
   }, []);
 
@@ -87,15 +108,15 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
     fetch(`${API_BASE_URL}/api/whatsapp/read`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone: activePhone })
+      body: JSON.stringify({ phone: activePhone, reader: currentUser })
     }).catch(() => {});
-  }, [activePhone]);
+  }, [activePhone, currentUser]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chats, activePhone]);
 
-  const activeChat = chats.find(c => c.phone === activePhone) || chats[0];
+  const activeChat = activePhone ? chats.find(c => c.phone === activePhone) : null;
 
   // Dynamic Contact Name for Aashish vs Minni
   const getDisplayContactName = (c) => {
@@ -445,13 +466,99 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
           margin-top: 3px;
         }
 
-        .wa-unread-dot {
-          width: 10px;
-          height: 10px;
-          border-radius: 50%;
-          background: #16a34a;
-          box-shadow: 0 0 0 2px #ffffff;
+        .wa-unread-badge {
+          min-width: 20px;
+          height: 20px;
+          padding: 0 6px;
+          border-radius: 10px;
+          background: #25d366;
+          color: #ffffff;
+          font-size: 0.72rem;
+          font-weight: 700;
+          display: flex;
+          align-items: center;
+          justify-content: center;
           flex-shrink: 0;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+        }
+
+        /* LANDING SCREEN (NO CHAT SELECTED) */
+        .wa-landing-screen {
+          flex: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: #f8fafc;
+          border-bottom: 6px solid #16a34a;
+          padding: 40px;
+          text-align: center;
+        }
+        .wa-landing-content {
+          max-width: 460px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        }
+        .wa-landing-icon-bg {
+          width: 96px;
+          height: 96px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          position: relative;
+          box-shadow: 0 10px 25px rgba(22, 163, 74, 0.15);
+          margin-bottom: 24px;
+        }
+        .wa-landing-icon-badge {
+          position: absolute;
+          bottom: 0px;
+          right: 0px;
+          font-size: 1.3rem;
+          background: #ffffff;
+          border-radius: 50%;
+          padding: 2px;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+        }
+        .wa-landing-title {
+          font-size: 1.6rem;
+          font-weight: 700;
+          color: #1e293b;
+          margin: 0 0 10px 0;
+          letter-spacing: -0.02em;
+        }
+        .wa-landing-subtitle {
+          font-size: 0.88rem;
+          color: #64748b;
+          line-height: 1.5;
+          margin: 0 0 28px 0;
+        }
+        .wa-landing-features {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 10px;
+          justify-content: center;
+          margin-bottom: 36px;
+        }
+        .wa-landing-feature-tag {
+          background: #ffffff;
+          border: 1px solid #e2e8f0;
+          border-radius: 20px;
+          padding: 6px 14px;
+          font-size: 0.78rem;
+          font-weight: 600;
+          color: #334155;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+        .wa-landing-footer {
+          font-size: 0.76rem;
+          color: #94a3b8;
+          display: flex;
+          align-items: center;
         }
 
         /* MAIN CHAT WINDOW */
@@ -780,10 +887,10 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
               const isTeamMain = c.phone === '917989033580' || c.phone === 'KLAPP-TEAM-AASHISH-MINNI';
               const avatarIcon = isTeamMain ? (isAashish ? '✨' : '⚡') : '👤';
               const avatarGradient = isTeamMain ? (isAashish ? 'linear-gradient(135deg, #ec4899, #f43f5e)' : 'linear-gradient(135deg, #2563eb, #3b82f6)') : 'linear-gradient(135deg, #0284c7, #0ea5e9)';
+              const avatarSrc = getContactAvatarSrc(c);
 
-              // Unread dot check
-              const lastMsg = c.messages && c.messages.length > 0 ? c.messages[c.messages.length - 1] : null;
-              const isUnread = c.unreadCount > 0 || (lastMsg && ((isAashish && lastMsg.sender === 'MINNI') || (!isAashish && lastMsg.sender === 'AASHISH')));
+              // Unread count check
+              const unreadCount = getUnreadCountForChat(c);
 
               return (
                 <div
@@ -791,23 +898,36 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
                   onClick={() => setActivePhone(c.phone)}
                   className={`wa-contact-card ${isActive ? 'active' : ''}`}
                 >
-                  <div className="wa-avatar" style={{ background: avatarGradient, boxShadow: '0 2px 6px rgba(0,0,0,0.12)' }}>
-                    {avatarIcon}
+                  <div className="wa-avatar" style={{ background: avatarGradient, boxShadow: '0 2px 6px rgba(0,0,0,0.12)', overflow: 'hidden' }}>
+                    {avatarSrc ? (
+                      <img
+                        src={avatarSrc}
+                        alt={displayName}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        onError={(e) => { e.target.style.display = 'none'; }}
+                      />
+                    ) : (
+                      avatarIcon
+                    )}
                   </div>
                   <div className="wa-contact-info">
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span className="wa-contact-name">{displayName}</span>
-                      <span style={{ fontSize: '0.68rem', color: '#94a3b8' }}>
+                      <span className="wa-contact-name" style={{ fontWeight: unreadCount > 0 ? '800' : '700' }}>{displayName}</span>
+                      <span style={{ fontSize: '0.68rem', color: unreadCount > 0 ? '#16a34a' : '#94a3b8', fontWeight: unreadCount > 0 ? '700' : '400' }}>
                         {c.lastMessageTime ? new Date(c.lastMessageTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
                       </span>
                     </div>
-                    <div className="wa-last-msg">
+                    <div className="wa-last-msg" style={{ fontWeight: unreadCount > 0 ? '700' : '400', color: unreadCount > 0 ? '#0f172a' : '#64748b' }}>
                       {(c.messages && c.messages.length > 0)
                         ? c.messages[c.messages.length - 1].text
                         : (c.lastMessage && c.lastMessage !== 'Chat cleared' ? c.lastMessage : 'Start conversation...')}
                     </div>
                   </div>
-                  {isUnread && <div className="wa-unread-dot" title="New Message"></div>}
+                  {unreadCount > 0 && (
+                    <div className="wa-unread-badge" title={`${unreadCount} unread message${unreadCount > 1 ? 's' : ''}`}>
+                      {unreadCount}
+                    </div>
+                  )}
                   {c.phone !== '917989033580' && (
                     <button
                       onClick={(e) => handleDeleteContact(c.phone, e)}
@@ -831,8 +951,17 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
             {/* Header */}
             <div className="wa-header">
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <div className="wa-avatar" style={{ width: '38px', height: '38px', fontSize: '1rem', background: (activeChat.phone === '917989033580' || activeChat.phone === 'KLAPP-TEAM-AASHISH-MINNI') ? (isAashish ? 'linear-gradient(135deg, #ec4899, #f43f5e)' : 'linear-gradient(135deg, #2563eb, #3b82f6)') : 'linear-gradient(135deg, #0284c7, #0ea5e9)' }}>
-                  {(activeChat.phone === '917989033580' || activeChat.phone === 'KLAPP-TEAM-AASHISH-MINNI') ? (isAashish ? '✨' : '⚡') : '👤'}
+                <div className="wa-avatar" style={{ width: '38px', height: '38px', fontSize: '1rem', overflow: 'hidden', background: (activeChat.phone === '917989033580' || activeChat.phone === 'KLAPP-TEAM-AASHISH-MINNI') ? (isAashish ? 'linear-gradient(135deg, #ec4899, #f43f5e)' : 'linear-gradient(135deg, #2563eb, #3b82f6)') : 'linear-gradient(135deg, #0284c7, #0ea5e9)' }}>
+                  {getContactAvatarSrc(activeChat) ? (
+                    <img
+                      src={getContactAvatarSrc(activeChat)}
+                      alt={getDisplayContactName(activeChat)}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      onError={(e) => { e.target.style.display = 'none'; }}
+                    />
+                  ) : (
+                    (activeChat.phone === '917989033580' || activeChat.phone === 'KLAPP-TEAM-AASHISH-MINNI') ? (isAashish ? '✨' : '⚡') : '👤'
+                  )}
                 </div>
                 <div>
                   <div style={{ fontWeight: '700', fontSize: '0.92rem', color: '#0f172a' }}>
@@ -893,9 +1022,9 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
 
                       <div className={`wa-bubble ${isMyMsg ? 'wa-bubble-my' : 'wa-bubble-other'}`}>
                         <div style={{ whitespace: 'pre-wrap' }}>{m.text}</div>
-                        <div style={{ fontSize: '0.66rem', color: isMyMsg ? '#047857' : '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '4px', marginTop: '4px', whiteSpace: 'nowrap' }}>
+                        <div style={{ fontSize: '0.66rem', color: isMyMsg ? '#047857' : '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '2px', marginTop: '4px', whiteSpace: 'nowrap' }}>
                           <span>{new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                          {isMyMsg && <span style={{ fontWeight: '700', color: '#15803d' }}>✓✓</span>}
+                          {isMyMsg && renderMessageTicks(m)}
                         </div>
 
                         {/* REACTION BADGE */}
@@ -961,9 +1090,35 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
             </form>
           </>
         ) : (
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#64748b', padding: '40px', textAlign: 'center' }}>
-            <div style={{ fontSize: '2rem', marginBottom: '10px' }}>🖱️</div>
-            <div style={{ fontWeight: '600', fontSize: '0.92rem', color: '#334155' }}>Select contact from the left sidebar to open chat</div>
+          <div className="wa-landing-screen">
+            <div className="wa-landing-content">
+              <div className="wa-landing-icon-bg">
+                <i className="ri-whatsapp-fill" style={{ fontSize: '3.5rem', color: '#16a34a' }}></i>
+                <span className="wa-landing-icon-badge">✨</span>
+              </div>
+
+              <h2 className="wa-landing-title">Klapp Messenger on Web</h2>
+              <p className="wa-landing-subtitle">
+                Send and receive messages seamlessly across your team and client inquiries in real-time.
+              </p>
+
+              <div className="wa-landing-features">
+                <div className="wa-landing-feature-tag">
+                  <i className="ri-check-double-line" style={{ color: '#53bdeb' }}></i> Live Delivery & Read Ticks
+                </div>
+                <div className="wa-landing-feature-tag">
+                  <i className="ri-team-line" style={{ color: '#16a34a' }}></i> Team Inbox & Live Chat
+                </div>
+                <div className="wa-landing-feature-tag">
+                  <i className="ri-shield-check-line" style={{ color: '#2563eb' }}></i> Encrypted Workspace
+                </div>
+              </div>
+
+              <div className="wa-landing-footer">
+                <i className="ri-lock-2-line" style={{ marginRight: '6px' }}></i>
+                Your personal and team messages are end-to-end encrypted
+              </div>
+            </div>
           </div>
         )}
       </div>

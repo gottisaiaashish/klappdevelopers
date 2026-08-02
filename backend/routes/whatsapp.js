@@ -200,16 +200,36 @@ router.post('/react', async (req, res) => {
 });
 
 // ---------------------------------------------------------------------------
-// POST /api/whatsapp/read  – mark thread as read (reset unread count)
+// POST /api/whatsapp/read  – mark thread as read (reset unread count & set message status to READ)
 // ---------------------------------------------------------------------------
 router.post('/read', async (req, res) => {
   try {
-    const targetPhone = formatPhone(req.body.phone);
+    const { phone, reader } = req.body;
+    const targetPhone = formatPhone(phone);
+    const readerRole = (reader && String(reader).toUpperCase().includes('MINNI')) ? 'MINNI' : 'AASHISH';
+
     if (isMongoUp()) {
-      await WhatsAppChatModel.updateOne({ phone: targetPhone }, { $set: { unreadCount: 0 } });
+      const chatDoc = await WhatsAppChatModel.findOne({ phone: targetPhone });
+      if (chatDoc) {
+        let modified = false;
+        chatDoc.unreadCount = 0;
+        if (Array.isArray(chatDoc.messages)) {
+          chatDoc.messages.forEach(msg => {
+            if (msg.sender !== readerRole && msg.status !== 'READ') {
+              msg.status = 'READ';
+              modified = true;
+            }
+          });
+        }
+        if (modified) {
+          chatDoc.markModified('messages');
+        }
+        await chatDoc.save();
+      }
     }
     return res.json({ success: true });
   } catch (err) {
+    console.error('[POST /read] Error:', err);
     return res.status(500).json({ success: false, error: err.message });
   }
 });

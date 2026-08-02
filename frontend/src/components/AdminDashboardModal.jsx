@@ -138,9 +138,12 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
         const isAashish = String(userRole).toUpperCase().includes('AASHISH');
         let count = 0;
         data.chats.forEach(c => {
-          const lastMsg = c.messages && c.messages.length > 0 ? c.messages[c.messages.length - 1] : null;
-          const isUnread = (c.unreadCount > 0) || (lastMsg && ((isAashish && lastMsg.sender === 'MINNI') || (!isAashish && lastMsg.sender === 'AASHISH')));
-          if (isUnread) count++;
+          if (Array.isArray(c.messages)) {
+            const unreadInChat = c.messages.filter(m =>
+              (isAashish ? m.sender === 'MINNI' : m.sender === 'AASHISH') && m.status !== 'READ'
+            ).length;
+            count += unreadInChat;
+          }
         });
         setMessengerUnreadCount(count);
       }
@@ -895,9 +898,16 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
         </div>
 
         <div className="sidebar-footer">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', color: '#18181b', fontWeight: '700' }}>
-            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22c55e' }}></span>
-            {userRole === 'AASHISH' ? 'Gotti Aashish' : 'Manashvini (Minni)'}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.82rem', color: '#18181b', fontWeight: '700', marginBottom: '8px' }}>
+            <img
+              src={userRole === 'AASHISH' ? '/profiles/ashish.png' : '/profiles/min.png'}
+              alt={userRole === 'AASHISH' ? 'Aashish' : 'Minni'}
+              style={{ width: '28px', height: '28px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #22c55e', flexShrink: 0 }}
+              onError={(e) => { e.target.style.display = 'none'; }}
+            />
+            <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              {userRole === 'AASHISH' ? 'Gotti Aashish' : 'Manashvini (Minni)'}
+            </span>
           </div>
           <button 
             onClick={onLogout} 
