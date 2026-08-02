@@ -1110,7 +1110,6 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
                 style={{ width: '120px', height: 'auto', marginBottom: '20px', objectFit: 'contain' }} 
               />
 
-              <h2 className="wa-landing-title">Klapp Messenger on Web</h2>
               <p className="wa-landing-subtitle">
                 Send and receive messages seamlessly across your team and client inquiries in real-time.
               </p>
