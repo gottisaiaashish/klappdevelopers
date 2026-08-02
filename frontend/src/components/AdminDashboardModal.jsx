@@ -252,6 +252,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
 
   // Selected Day Filter for Mon-Sat Weekly Matrix
   const [selectedContentDay, setSelectedContentDay] = useState('ALL');
+  const [contentWeekOffset, setContentWeekOffset] = useState(0);
 
   const handleToggleContentLike = (contentId, person) => {
     if (person === 'aashish' && userRole !== 'AASHISH') return;
@@ -1851,83 +1852,133 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
             <div>
               {/* TOP 6-DAY WEEKLY MATRIX (MON TO SAT) */}
               <div className="os-card" style={{ marginBottom: '20px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
-                  <div>
-                    <h3 style={{ fontSize: '1.15rem', fontWeight: '800', margin: 0 }}>Weekly Content Matrix</h3>
-                  </div>
-
-                  <button 
-                    onClick={() => setShowAddContentModal(!showAddContentModal)}
-                    className="btn-action-outline"
-                    style={{ background: '#ffffff', color: '#18181b', borderColor: '#c8c3b7', fontWeight: '700', boxShadow: '0 2px 6px rgba(0,0,0,0.04)' }}
-                  >
-                    <i className="ri-add-line" style={{ color: '#2563eb' }}></i> Add Content Post / Reel
-                  </button>
-                </div>
-
-                {/* 6-DAY MON-SAT WEEKLY GRID (STRICT ASIA/KOLKATA TIMEZONE) */}
+                {/* 6-DAY MON-SAT WEEKLY GRID (DYNAMIC LIVE DATES & WEEK NAVIGATION) */}
                 {(() => {
                   const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
                   
-                  // Strict Kolkata Date Calculation
+                  // Strict Kolkata Date Calculation with Offset
                   const nowKolkata = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
                   const currentDayIdx = nowKolkata.getDay(); // 0 = Sun, 1 = Mon ... 6 = Sat
 
-                  // Calculate Monday of current week in Kolkata time
+                  // Calculate Monday of week with contentWeekOffset
                   const distFromMon = currentDayIdx === 0 ? 6 : currentDayIdx - 1;
                   const mondayDate = new Date(nowKolkata);
-                  mondayDate.setDate(nowKolkata.getDate() - distFromMon);
+                  mondayDate.setDate(nowKolkata.getDate() - distFromMon + (contentWeekOffset * 7));
 
                   const weekDays = dayNames.map((dName, idx) => {
                     const dayDate = new Date(mondayDate);
                     dayDate.setDate(mondayDate.getDate() + idx);
 
                     const dateNum = dayDate.getDate();
+                    const monthStr = dayDate.toLocaleString('en-US', { month: 'short' });
                     const isToday = nowKolkata.toDateString() === dayDate.toDateString();
-                    const dayPosts = osData.contentPlanner.filter(c => 
-                      c.dayOfWeek === dName || 
-                      (c.date && new Date(new Date(c.date).toLocaleString('en-US', { timeZone: 'Asia/Kolkata' })).toLocaleDateString('en-US', { weekday: 'long' }) === dName)
-                    );
+
+                    const year = dayDate.getFullYear();
+                    const month = String(dayDate.getMonth() + 1).padStart(2, '0');
+                    const day = String(dayDate.getDate()).padStart(2, '0');
+                    const formattedDateStr = `${year}-${month}-${day}`;
+
+                    const dayPosts = osData.contentPlanner.filter(c => {
+                      if (c.date) {
+                        return String(c.date).split('T')[0] === formattedDateStr;
+                      }
+                      return c.dayOfWeek === dName;
+                    });
 
                     return {
                       dName,
                       dateNum,
+                      monthStr,
                       isToday,
-                      dayPosts
+                      dayPosts,
+                      formattedDateStr
                     };
                   });
 
-                  return (
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '10px' }}>
-                      {weekDays.map(({ dName, dateNum, isToday, dayPosts }) => {
-                        const isSelected = selectedContentDay === dName;
+                  const firstDayStr = `${weekDays[0].monthStr} ${weekDays[0].dateNum}`;
+                  const lastDayStr = `${weekDays[5].monthStr} ${weekDays[5].dateNum}`;
 
-                        return (
-                          <div 
-                            key={dName} 
-                            onClick={() => setSelectedContentDay(isSelected ? 'ALL' : dName)}
-                            style={{ 
-                              background: isSelected ? '#eff6ff' : (isToday ? '#faf8f5' : '#ffffff'),
-                              border: isSelected ? '2px solid #2563eb' : (isToday ? '2px solid #18181b' : '1px solid #c8c3b7'),
-                              borderRadius: '10px',
-                              padding: '12px 10px',
-                              textAlign: 'center',
-                              cursor: 'pointer',
-                              transition: 'all 0.15s ease'
-                            }}
+                  return (
+                    <div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <h3 style={{ fontSize: '1.15rem', fontWeight: '800', margin: 0 }}>Weekly Content Matrix</h3>
+                          <span style={{ fontSize: '0.8rem', fontWeight: '700', color: '#64748b', background: '#f1f5f9', padding: '3px 10px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+                            {firstDayStr} – {lastDayStr}
+                          </span>
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <button
+                            type="button"
+                            onClick={() => setContentWeekOffset(prev => prev - 1)}
+                            style={{ padding: '6px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#ffffff', fontSize: '0.78rem', fontWeight: '700', cursor: 'pointer', color: '#334155', transition: 'all 0.15s' }}
+                            title="Previous Week"
                           >
-                            <div style={{ fontSize: '0.72rem', fontWeight: '800', textTransform: 'uppercase', color: isSelected ? '#2563eb' : (isToday ? '#18181b' : '#71717a') }}>
-                              {dName.slice(0, 3)}
+                            ◀ Prev Week
+                          </button>
+
+                          {contentWeekOffset !== 0 && (
+                            <button
+                              type="button"
+                              onClick={() => setContentWeekOffset(0)}
+                              style={{ padding: '6px 12px', borderRadius: '8px', border: '1px solid #2563eb', background: '#eff6ff', color: '#2563eb', fontSize: '0.78rem', fontWeight: '700', cursor: 'pointer' }}
+                            >
+                              This Week 📍
+                            </button>
+                          )}
+
+                          <button
+                            type="button"
+                            onClick={() => setContentWeekOffset(prev => prev + 1)}
+                            style={{ padding: '6px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#ffffff', fontSize: '0.78rem', fontWeight: '700', cursor: 'pointer', color: '#334155', transition: 'all 0.15s' }}
+                            title="Next Week"
+                          >
+                            Next Week ▶
+                          </button>
+
+                          <button 
+                            type="button"
+                            onClick={() => setShowAddContentModal(!showAddContentModal)}
+                            className="btn-action-outline"
+                            style={{ background: '#ffffff', color: '#18181b', borderColor: '#c8c3b7', fontWeight: '700', boxShadow: '0 2px 6px rgba(0,0,0,0.04)' }}
+                          >
+                            <i className="ri-add-line" style={{ color: '#2563eb' }}></i> Add Content Post / Reel
+                          </button>
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '10px' }}>
+                        {weekDays.map(({ dName, dateNum, monthStr, isToday, dayPosts }) => {
+                          const isSelected = selectedContentDay === dName;
+
+                          return (
+                            <div 
+                              key={dName} 
+                              onClick={() => setSelectedContentDay(isSelected ? 'ALL' : dName)}
+                              style={{ 
+                                background: isSelected ? '#eff6ff' : (isToday ? '#faf8f5' : '#ffffff'),
+                                border: isSelected ? '2px solid #2563eb' : (isToday ? '2px solid #18181b' : '1px solid #c8c3b7'),
+                                borderRadius: '10px',
+                                padding: '12px 10px',
+                                textAlign: 'center',
+                                cursor: 'pointer',
+                                transition: 'all 0.15s ease'
+                              }}
+                            >
+                              <div style={{ fontSize: '0.72rem', fontWeight: '800', textTransform: 'uppercase', color: isSelected ? '#2563eb' : (isToday ? '#18181b' : '#71717a') }}>
+                                {dName.slice(0, 3)}
+                              </div>
+                              <div style={{ fontSize: '1.2rem', fontWeight: '800', color: '#18181b', margin: '2px 0' }}>
+                                {dateNum} <span style={{ fontSize: '0.65rem', color: '#64748b', fontWeight: '600' }}>{monthStr}</span>
+                              </div>
+                              <div style={{ fontSize: '0.68rem', fontWeight: '700', color: isToday ? '#166534' : '#71717a' }}>
+                                {isToday ? '📍 TODAY' : `${dayPosts.length} Idea${dayPosts.length !== 1 ? 's' : ''}`}
+                              </div>
                             </div>
-                            <div style={{ fontSize: '1.2rem', fontWeight: '800', color: '#18181b', margin: '2px 0' }}>
-                              {dateNum}
-                            </div>
-                            <div style={{ fontSize: '0.68rem', fontWeight: '700', color: isToday ? '#166534' : '#71717a' }}>
-                              {isToday ? '📍 TODAY' : `${dayPosts.length} Ideas`}
-                            </div>
-                          </div>
-                        );
-                      })}
+                          );
+                        })}
+                      </div>
                     </div>
                   );
                 })()}
