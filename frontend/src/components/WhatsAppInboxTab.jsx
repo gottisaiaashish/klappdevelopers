@@ -489,7 +489,7 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
           align-items: center;
           justify-content: center;
           background: #f8fafc;
-          border-bottom: 6px solid #16a34a;
+          border-bottom: 6px solid #25d366;
           padding: 40px;
           text-align: center;
         }
@@ -500,24 +500,44 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
           align-items: center;
         }
         .wa-landing-icon-bg {
-          width: 96px;
-          height: 96px;
+          width: 110px;
+          height: 110px;
           border-radius: 50%;
-          background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+          background: #d8f8e7;
           display: flex;
           align-items: center;
           justify-content: center;
           position: relative;
-          box-shadow: 0 10px 25px rgba(22, 163, 74, 0.15);
+          box-shadow: 0 12px 35px rgba(37, 211, 102, 0.18);
           margin-bottom: 24px;
         }
         .wa-landing-icon-badge {
           position: absolute;
-          bottom: 0px;
-          right: 0px;
-          font-size: 1.3rem;
-          background: #ffffff;
+          bottom: 2px;
+          right: 2px;
+          width: 34px;
+          height: 34px;
           border-radius: 50%;
+          background: #ffffff;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 1.1rem;
+          box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+        }
+        .wa-landing-title {
+          font-size: 1.75rem;
+          font-weight: 800;
+          color: #0f172a;
+          margin: 0 0 12px 0;
+          letter-spacing: -0.025em;
+        }
+        .wa-landing-subtitle {
+          font-size: 0.9rem;
+          color: #64748b;
+          line-height: 1.55;
+          margin: 0 0 28px 0;
+        }
           padding: 2px;
           box-shadow: 0 2px 6px rgba(0,0,0,0.12);
         }
@@ -860,14 +880,6 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
               className="wa-search-input"
             />
           </div>
-
-          <button
-            onClick={() => setShowNewChatModal(true)}
-            className="wa-add-contact-btn"
-            title="Add New Team Member / Contact"
-          >
-            +
-          </button>
         </div>
 
         <div style={{ flex: 1, overflowY: 'auto' }}>
@@ -1093,8 +1105,8 @@ export default function WhatsAppInboxTab({ currentUser = 'AASHISH' }) {
           <div className="wa-landing-screen">
             <div className="wa-landing-content">
               <div className="wa-landing-icon-bg">
-                <i className="ri-whatsapp-fill" style={{ fontSize: '3.5rem', color: '#16a34a' }}></i>
-                <span className="wa-landing-icon-badge">✨</span>
+                <i className="ri-whatsapp-fill" style={{ fontSize: '3.8rem', color: '#25d366' }}></i>
+                <div className="wa-landing-icon-badge">✨</div>
               </div>
 
               <h2 className="wa-landing-title">Klapp Messenger on Web</h2>
