@@ -175,7 +175,7 @@ router.get('/os-data', requireAdminAuth, async (req, res) => {
       }
       let needsSave = false;
       if (!Array.isArray(data.projects) || data.projects.length === 0) {
-        data.projects = defaultOSState.projects;
+        data.projects = [defaultNandakamProject];
         needsSave = true;
       }
       if (!Array.isArray(data.retainers) || data.retainers.length === 0) {
@@ -210,12 +210,29 @@ router.post('/os-data', requireAdminAuth, async (req, res) => {
     osData.updatedAt = new Date().toISOString();
 
     if (mongoose.connection.readyState === 1) {
+      const existing = await KlappOSData.findOne({ key: 'klapp_os_global_state' }).lean();
+      
+      const payload = { ...osData };
+
+      // Safeguard against accidental empty array overwrites
+      if (existing && Array.isArray(existing.projects) && existing.projects.length > 0) {
+        if (!Array.isArray(payload.projects) || payload.projects.length === 0) {
+          payload.projects = existing.projects;
+        }
+      }
+      if (existing && Array.isArray(existing.retainers) && existing.retainers.length > 0) {
+        if (!Array.isArray(payload.retainers) || payload.retainers.length === 0) {
+          payload.retainers = existing.retainers;
+        }
+      }
+
       const updatedDoc = await KlappOSData.findOneAndUpdate(
         { key: 'klapp_os_global_state' },
-        osData,
+        payload,
         { upsert: true, new: true, runValidators: false }
       ).lean();
-      return res.json({ success: true, message: 'KLAPP OS state synced successfully!', osData: updatedDoc || osData });
+
+      return res.json({ success: true, message: 'KLAPP OS state synced successfully!', osData: updatedDoc || payload });
     }
 
     return res.json({ success: true, message: 'KLAPP OS state synced successfully!', osData });
