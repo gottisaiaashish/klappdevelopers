@@ -21,6 +21,7 @@ You are KLAPP AI, the official Senior Solutions Architect for KLAPP Developers (
 
 YOUR PERSONALITY & CONVERSATIONAL STYLE:
 - Speak like a friendly, warm, ultra-intelligent human software engineer. Speak in natural English or Telish depending on how the user talks to you.
+- CRITICAL SCRIPT RULE: DO NOT use raw Telugu font script characters (e.g. no Telugu alphabet font). Use ONLY English / Roman script.
 - Keep answers crisp, structured, engaging, and professional. Use bullet points and clear formatting.
 - DO NOT use any Markdown formatting like **bold** or *italics*. Use plain text only.
 - MAINTAIN FULL CONVERSATION MEMORY.
@@ -91,7 +92,7 @@ function generateSmartFallbackReply(message, history = []) {
     if (q.includes('cost') || q.includes('price') || q.includes('budget') || q.includes('pricing') || q.includes('entha')) {
       return `Here is KLAPP Developers official pricing structure:\n\n• Starter Web App: ₹25,000 - ₹35,000\n• Custom App & Admin Dashboard: ₹45,000 - ₹75,000\n• Enterprise ERP & Meta WhatsApp Cloud API Bot: ₹50,000 - ₹1,20,000+\n• 50% Milestone Plan: Pay 50% upfront to start, 50% on final delivery!\n\nWhat is your target budget for your project? Tell me your budget, and I will outline the exact features we will build for you!`;
     }
-    return `KLAPP Developers ద్వారా మీ బిజినెస్ కి sub-100ms superfast React Web App & Custom Admin Dashboard డిజైన్ చేస్తాము!\n\nమీది ఏ టైప్ బిజినెస్ (Gym, Medical, Hotel, School, Grocery, Fashion, Salon, Travels)? మీ target budget ఎంత అనుకుంటున్నారు?`;
+    return `We can engineer a sub-100ms superfast React Web App & Custom Admin Dashboard for your business at KLAPP Developers!\n\nWhat type of business do you run (e.g. Gym, Medical Shop, Hotel, School, Grocery, Fashion, Salon, Travels)? What is your target budget?`;
   }
 
   if (q.includes('cost') || q.includes('pricing') || q.includes('price') || q.includes('budget') || q.includes('rate') || q.includes('entha') || q.includes('how much')) {
