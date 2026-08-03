@@ -17,7 +17,9 @@ const defaultOSState = {
     date: new Date().toISOString().split('T')[0],
     aashish: {
       attendance: false,
-      waterGoal: false,
+      waterMorning: false,
+      waterAfternoon: false,
+      waterEvening: false,
       gym: false,
       protein: false,
       coding: false,
@@ -28,7 +30,9 @@ const defaultOSState = {
     },
     minni: {
       attendance: false,
-      waterGoal: false,
+      waterMorning: false,
+      waterAfternoon: false,
+      waterEvening: false,
       instaPost1: false,
       instaPost2: false,
       storiesCompleted: false,

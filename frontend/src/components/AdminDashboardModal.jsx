@@ -663,8 +663,8 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
       }
     };
 
-    const aashishKeys = ['attendance', 'waterGoal', 'gym', 'protein', 'coding', 'dinner9pm', 'nightLeadCheck', 'sleep11pm'];
-    const minniKeys = ['attendance', 'waterGoal', 'instaPost1', 'instaPost2', 'storiesCompleted', 'scheduleNextDayPosts', 'coding', 'dinner9pm', 'sleep11pm'];
+    const aashishKeys = ['attendance', 'waterMorning', 'waterAfternoon', 'waterEvening', 'gym', 'protein', 'coding', 'dinner9pm', 'nightLeadCheck', 'sleep11pm'];
+    const minniKeys = ['attendance', 'waterMorning', 'waterAfternoon', 'waterEvening', 'instaPost1', 'instaPost2', 'storiesCompleted', 'scheduleNextDayPosts', 'coding', 'dinner9pm', 'sleep11pm'];
 
     const aashishDone = aashishKeys.filter(k => updatedDisciplineLogs.aashish[k]).length;
     const minniDone = minniKeys.filter(k => updatedDisciplineLogs.minni[k]).length;
@@ -2651,8 +2651,8 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                 const todayStr = getLocalDateStr();
                 const historyList = Array.isArray(osData.disciplineHistory) ? osData.disciplineHistory : [];
                 
-                const aashishKeys = ['attendance', 'waterGoal', 'gym', 'protein', 'coding', 'dinner9pm', 'nightLeadCheck', 'sleep11pm'];
-                const minniKeys = ['attendance', 'waterGoal', 'instaPost1', 'instaPost2', 'storiesCompleted', 'scheduleNextDayPosts', 'coding', 'dinner9pm', 'sleep11pm'];
+                const aashishKeys = ['attendance', 'waterMorning', 'waterAfternoon', 'waterEvening', 'gym', 'protein', 'coding', 'dinner9pm', 'nightLeadCheck', 'sleep11pm'];
+                const minniKeys = ['attendance', 'waterMorning', 'waterAfternoon', 'waterEvening', 'instaPost1', 'instaPost2', 'storiesCompleted', 'scheduleNextDayPosts', 'coding', 'dinner9pm', 'sleep11pm'];
 
                 const aashishDoneCount = aashishKeys.filter(k => osData.disciplineLogs?.aashish?.[k]).length;
                 const minniDoneCount = minniKeys.filter(k => osData.disciplineLogs?.minni?.[k]).length;
@@ -2721,12 +2721,12 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                       <div style={{ marginBottom: '16px' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.88rem', fontWeight: '800', marginBottom: '6px', alignItems: 'center' }}>
                           <span style={{ color: '#2563eb', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                            <img src="/profiles/ashish.png" alt="Aashish" style={{ width: '22px', height: '22px', borderRadius: '50%', objectFit: 'cover', border: '1.5px solid #2563eb' }} onError={(e) => { e.target.onerror = null; e.target.src = '/aashish.jpg'; }} />
-                            Aashish: {activeAashishPct}% ({isViewingToday ? aashishDoneCount : (pastHistoryRecord?.aashishCompleted || 0)}/8)
+                            <img src="/profiles/ashish.png" alt="Aashish" style={{ width: '24px', height: '24px', borderRadius: '50%', objectFit: 'cover' }} onError={(e) => { e.target.onerror = null; e.target.src = '/aashish.jpg'; }} />
+                            Aashish: {activeAashishPct}% ({isViewingToday ? aashishDoneCount : (pastHistoryRecord?.aashishCompleted || 0)}/10)
                           </span>
                           <span style={{ color: '#ec4899', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                            <img src="/profiles/min.png" alt="Minni" style={{ width: '22px', height: '22px', borderRadius: '50%', objectFit: 'cover', border: '1.5px solid #ec4899' }} />
-                            Minni: {activeMinniPct}% ({isViewingToday ? minniDoneCount : (pastHistoryRecord?.minniCompleted || 0)}/9)
+                            <img src="/profiles/min.png" alt="Minni" style={{ width: '24px', height: '24px', borderRadius: '50%', objectFit: 'cover' }} />
+                            Minni: {activeMinniPct}% ({isViewingToday ? minniDoneCount : (pastHistoryRecord?.minniCompleted || 0)}/11)
                           </span>
                         </div>
                         <div style={{ display: 'flex', height: '14px', borderRadius: '7px', overflow: 'hidden', background: '#e2e8f0' }}>
@@ -2830,7 +2830,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                             <img 
                               src="/profiles/ashish.png" 
                               alt="Aashish Profile" 
-                              style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #2563eb', boxShadow: '0 2px 6px rgba(0,0,0,0.12)' }}
+                              style={{ width: '38px', height: '38px', borderRadius: '50%', objectFit: 'cover' }}
                               onError={(e) => { e.target.onerror = null; e.target.src = '/aashish.jpg'; }}
                             />
                             <div>
@@ -2844,14 +2844,16 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                         </div>
 
                         {[
-                          ['attendance', '🌅 College Departure (9:00 AM)'],
-                          ['waterGoal', '💧 Daytime Water Goal (3L)'],
-                          ['gym', '🏋️‍♂️ Evening Gym Workout (4:00 PM)'],
+                          ['attendance', '🌅 College Departure'],
+                          ['waterMorning', '💧 Morning Water Intake (1L)'],
+                          ['waterAfternoon', '💧 Afternoon Water Intake (1L)'],
+                          ['waterEvening', '💧 Evening & Night Water Intake (1L)'],
+                          ['gym', '🏋️‍♂️ Evening Gym Workout'],
                           ['protein', '🥤 Post-Workout Protein Shake'],
-                          ['coding', '💻 Joint Coding Session (8:00 PM - 9:30 PM)'],
-                          ['dinner9pm', '🍲 Dinner Before 9:00 PM'],
-                          ['nightLeadCheck', '📞 Night Lead & Inquiry Check (10:30 PM)'],
-                          ['sleep11pm', '🌙 Sleep Before 11:00 PM']
+                          ['coding', '💻 Joint Coding Session'],
+                          ['dinner9pm', '🍲 Early Dinner (Before 9 PM)'],
+                          ['nightLeadCheck', '📞 Night Lead & Inquiry Check'],
+                          ['sleep11pm', '🌙 Timely Night Sleep']
                         ].map(([key, label]) => {
                           const done = activeAashishTasks[key];
                           return (
@@ -2877,7 +2879,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                             <img 
                               src="/profiles/min.png" 
                               alt="Minni Profile" 
-                              style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #ec4899', boxShadow: '0 2px 6px rgba(0,0,0,0.12)' }}
+                              style={{ width: '38px', height: '38px', borderRadius: '50%', objectFit: 'cover' }}
                             />
                             <div>
                               <h4 style={{ margin: 0, fontWeight: '800' }}>Manashvini (Minni) Daily Routine</h4>
@@ -2890,15 +2892,17 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                         </div>
 
                         {[
-                          ['attendance', '🌅 College Departure (9:00 AM)'],
-                          ['waterGoal', '💧 Daytime Water Goal (3L)'],
+                          ['attendance', '🌅 College Departure'],
+                          ['waterMorning', '💧 Morning Water Intake (1L)'],
+                          ['waterAfternoon', '💧 Afternoon Water Intake (1L)'],
+                          ['waterEvening', '💧 Evening & Night Water Intake (1L)'],
                           ['instaPost1', '📸 Today Instagram Post 1'],
                           ['instaPost2', '📸 Today Instagram Post 2'],
                           ['storiesCompleted', '📲 Stories Sequence Completed'],
-                          ['scheduleNextDayPosts', '📅 Generate & Schedule Tomorrow 2 Posts'],
-                          ['coding', '💻 Joint Coding Session (8:00 PM - 9:30 PM)'],
-                          ['dinner9pm', '🍲 Dinner Before 9:00 PM'],
-                          ['sleep11pm', '🌙 Sleep Before 11:00 PM']
+                          ['scheduleNextDayPosts', '📅 Schedule Tomorrow 2 Posts'],
+                          ['coding', '💻 Joint Coding Session'],
+                          ['dinner9pm', '🍲 Early Dinner (Before 9 PM)'],
+                          ['sleep11pm', '🌙 Timely Night Sleep']
                         ].map(([key, label]) => {
                           const done = activeMinniTasks[key];
                           return (
@@ -2915,7 +2919,6 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                             </div>
                           );
                         })}
-                      </div>
                     </div>
                   </div>
                 );
