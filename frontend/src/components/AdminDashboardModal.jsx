@@ -2691,19 +2691,19 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
 
                 return (
                   <div>
-                    {/* TOP COMPETITIVE BATTLE ARENA CARD */}
-                    <div className="os-card" style={{ marginBottom: '20px', background: 'linear-gradient(135deg, #ffffff 0%, #faf8f5 100%)', border: '1px solid #c8c3b7' }}>
+                    {/* TOP COMPETITIVE STREAK LEADERBOARD CARD */}
+                    <div className="os-card" style={{ marginBottom: '20px', background: '#ffffff', border: '1px solid #c8c3b7' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
                         <div>
-                          <h3 style={{ fontSize: '1.2rem', fontWeight: '800', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <span>⚔️</span> Founder vs Operations Battle Arena
+                          <h3 style={{ fontSize: '1.15rem', fontWeight: '800', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span>⚡</span> Daily Routine & Discipline Scorecard
                           </h3>
                           <div style={{ fontSize: '0.8rem', color: '#71717a', marginTop: '2px' }}>
-                            {isViewingToday ? `Live Battle for Today (${todayStr})` : `Historical Record for ${disciplineViewDate}`}
+                            {isViewingToday ? `Today's Overview (${todayStr})` : `Daily Record for ${disciplineViewDate}`}
                           </div>
                         </div>
 
-                        {/* LIVE BATTLE LEADERBOARD BADGES */}
+                        {/* LIVE LEADERBOARD BADGES */}
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                           <span style={{ background: '#eff6ff', color: '#1d4ed8', border: '1px solid #bfdbfe', padding: '4px 10px', borderRadius: '8px', fontSize: '0.78rem', fontWeight: '700' }}>
                             🔥 Aashish Streak: {aashishStreak} Days
@@ -2712,7 +2712,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                             🔥 Minni Streak: {minniStreak} Days
                           </span>
                           <span style={{ background: '#fef3c7', color: '#92400e', border: '1px solid #fde68a', padding: '4px 10px', borderRadius: '8px', fontSize: '0.78rem', fontWeight: '800' }}>
-                            🏆 Score: Aashish {aashishWins} - {minniWins} Minni
+                            🏆 Wins: Aashish {aashishWins} - {minniWins} Minni
                           </span>
                         </div>
                       </div>
@@ -2730,14 +2730,14 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                       </div>
 
                       {/* WINNER ANNOUNCEMENT BANNER */}
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#ffffff', padding: '10px 14px', borderRadius: '8px', border: '1px solid #e2e8f0', flexWrap: 'wrap', gap: '10px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#faf8f5', padding: '10px 14px', borderRadius: '8px', border: '1px solid #e4e4e7', flexWrap: 'wrap', gap: '10px' }}>
                         <div style={{ fontWeight: '700', fontSize: '0.85rem' }}>
                           {activeMinniPct > activeAashishPct ? (
-                            <span style={{ color: '#be185d' }}>👑 MINNI IS DOMINATING {isViewingToday ? 'TODAY' : `ON ${disciplineViewDate}`} (+{activeMinniPct - activeAashishPct}%)</span>
+                            <span style={{ color: '#be185d' }}>⭐ Minni leads today (+{activeMinniPct - activeAashishPct}%)</span>
                           ) : activeAashishPct > activeMinniPct ? (
-                            <span style={{ color: '#1d4ed8' }}>👑 AASHISH IS DOMINATING {isViewingToday ? 'TODAY' : `ON ${disciplineViewDate}`} (+{activeAashishPct - activeMinniPct}%)</span>
+                            <span style={{ color: '#1d4ed8' }}>⭐ Aashish leads today (+{activeAashishPct - activeMinniPct}%)</span>
                           ) : (
-                            <span style={{ color: '#15803d' }}>🤝 PERFECT EQUAL TIE ({activeAashishPct}%)</span>
+                            <span style={{ color: '#15803d' }}>🤝 Equal Completion Rate ({activeAashishPct}%)</span>
                           )}
                         </div>
                         <div style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: '600' }}>
@@ -2751,7 +2751,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                           <h4 style={{ fontSize: '0.98rem', fontWeight: '800', margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            <i className="ri-history-line" style={{ color: '#2563eb' }}></i> Saved History & Past Battle Records
+                            <i className="ri-history-line" style={{ color: '#2563eb' }}></i> Past Daily Records & Saved History
                           </h4>
                         </div>
 
