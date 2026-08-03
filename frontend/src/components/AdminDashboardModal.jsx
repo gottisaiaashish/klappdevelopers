@@ -3210,9 +3210,9 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                       </div>
 
                       <div className="os-card" style={{ marginBottom: 0, background: '#f0fdf4', border: '1px solid #bbf7d0' }}>
-                        <div style={{ fontSize: '0.76rem', fontWeight: '700', color: '#166534', textTransform: 'uppercase', marginBottom: '4px' }}>MONTHLY NET PROFIT</div>
+                        <div style={{ fontSize: '0.76rem', fontWeight: '700', color: '#166534', textTransform: 'uppercase', marginBottom: '4px' }}>TOTAL SAVINGS</div>
                         <div style={{ fontSize: '1.8rem', fontWeight: '800', color: '#15803d' }}>₹{netProfit.toLocaleString()}</div>
-                        <div style={{ fontSize: '0.74rem', color: '#166534', fontWeight: '600', marginTop: '4px' }}>Overall Month Savings</div>
+                        <div style={{ fontSize: '0.74rem', color: '#166534', fontWeight: '600', marginTop: '4px' }}>Overall Net Savings (Revenue - Expenses)</div>
                       </div>
                     </div>
 
