@@ -466,6 +466,13 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
     syncOSDataToBackend(updated);
   };
 
+  const handleDeleteProject = (projectId) => {
+    if (!window.confirm('Are you sure you want to delete this project?')) return;
+    const updatedProjects = (osData.projects || []).filter(p => p.id !== projectId);
+    const updated = { ...osData, projects: updatedProjects };
+    syncOSDataToBackend(updated);
+  };
+
   const handleUpdateProjectPayment = (projectId, newAdvance) => {
     const updatedProjects = (osData.projects || []).map(p => {
       if (p.id === projectId) {
@@ -3561,21 +3568,30 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                                     </td>
 
                                     <td style={{ padding: '12px', textAlign: 'right' }}>
-                                      <button 
-                                        onClick={() => handleFollowUpCall(prj.id)}
-                                        className="btn-action-outline"
-                                        style={{ 
-                                          background: prj.lastFollowedUpBy ? '#f0fdf4' : '#ffffff', 
-                                          color: prj.lastFollowedUpBy ? '#15803d' : '#2563eb', 
-                                          borderColor: prj.lastFollowedUpBy ? '#bbf7d0' : '#bfdbfe', 
-                                          fontSize: '0.76rem', 
-                                          padding: '5px 10px', 
-                                          fontWeight: '700' 
-                                        }}
-                                        title="Click to log follow up"
-                                      >
-                                        📞 {prj.lastFollowedUpBy ? `Followed up by ${prj.lastFollowedUpBy}` : 'Log Call'}
-                                      </button>
+                                      <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end', alignItems: 'center' }}>
+                                        <button 
+                                          onClick={() => handleFollowUpCall(prj.id)}
+                                          className="btn-action-outline"
+                                          style={{ 
+                                            background: prj.lastFollowedUpBy ? '#f0fdf4' : '#ffffff', 
+                                            color: prj.lastFollowedUpBy ? '#15803d' : '#2563eb', 
+                                            borderColor: prj.lastFollowedUpBy ? '#bbf7d0' : '#bfdbfe', 
+                                            fontSize: '0.76rem', 
+                                            padding: '5px 10px', 
+                                            fontWeight: '700' 
+                                          }}
+                                          title="Click to log follow up"
+                                        >
+                                          📞 {prj.lastFollowedUpBy ? `Followed up by ${prj.lastFollowedUpBy}` : 'Log Call'}
+                                        </button>
+                                        <button
+                                          onClick={() => handleDeleteProject(prj.id)}
+                                          style={{ background: 'transparent', border: 'none', color: '#a1a1aa', cursor: 'pointer', fontSize: '0.95rem', padding: '4px' }}
+                                          title="Delete project"
+                                        >
+                                          <i className="ri-delete-bin-line"></i>
+                                        </button>
+                                      </div>
                                     </td>
                                   </tr>
                                 );

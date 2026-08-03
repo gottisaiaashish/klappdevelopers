@@ -16,9 +16,9 @@ const defaultNandakamProject = {
   priority: 'HIGH',
   dueDate: '2026-08-28',
   budget: 25000,
-  advancePaid: 10000,
-  pendingAmount: 15000,
-  requirements: 'Agreed budget ₹25,000. Net revenue received ₹10,000. ₹3,000 monthly maintenance fee due on 28th of every month starting August 2026.',
+  advancePaid: 25000,
+  pendingAmount: 0,
+  requirements: 'Agreed budget ₹25,000. Project 100% completed. ₹3,000 monthly maintenance fee due on 28th of every month starting August 2026.',
   hasRetainer: true,
   monthlyFee: 3000,
   dueDay: 28,
@@ -177,6 +177,13 @@ router.get('/os-data', requireAdminAuth, async (req, res) => {
       if (!Array.isArray(data.projects) || data.projects.length === 0) {
         data.projects = [defaultNandakamProject];
         needsSave = true;
+      } else {
+        data.projects = data.projects.map(p => {
+          if (p.id === 'prj-nandakam-banquets') {
+            return { ...p, advancePaid: 25000, pendingAmount: 0 };
+          }
+          return p;
+        });
       }
       if (!Array.isArray(data.retainers) || data.retainers.length === 0) {
         data.retainers = defaultOSState.retainers;
