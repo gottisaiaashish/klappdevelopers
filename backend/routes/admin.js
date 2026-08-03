@@ -48,7 +48,21 @@ const defaultOSState = {
   sharedGoals: [],
   aashishPad: '',
   minniPad: '',
-  agencyNotes: []
+  agencyNotes: [],
+  retainers: [
+    {
+      id: 'ret-nandakam-banquets',
+      client: 'Nandakam Banquets',
+      projectTitle: 'Nandakam Banquets Monthly Maintenance',
+      monthlyFee: 3000,
+      dueDay: 28,
+      startMonth: '2026-08',
+      phone: '',
+      notes: 'Monthly website & digital maintenance fee. ₹3,000 due every 28th of every month starting August 2026.',
+      paidMonths: [],
+      payments: []
+    }
+  ]
 };
 
 function requireAdminAuth(req, res, next) {
@@ -138,6 +152,9 @@ router.get('/os-data', requireAdminAuth, async (req, res) => {
       let data = await KlappOSData.findOne({ key: 'klapp_os_global_state' }).lean();
       if (!data) {
         data = await KlappOSData.create(defaultOSState);
+      }
+      if (!data.retainers || data.retainers.length === 0) {
+        data.retainers = defaultOSState.retainers;
       }
       return res.json({ success: true, osData: data });
     }

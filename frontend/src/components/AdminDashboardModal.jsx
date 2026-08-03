@@ -514,6 +514,114 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
     syncOSDataToBackend(updated);
   };
 
+  // Monthly Retainers State & Handlers
+  const [showAddRetainerModal, setShowAddRetainerModal] = useState(false);
+  const [newRetainer, setNewRetainer] = useState({
+    client: '',
+    projectTitle: '',
+    monthlyFee: 3000,
+    dueDay: 28,
+    startMonth: getLocalDateStr().slice(0, 7),
+    phone: '',
+    notes: ''
+  });
+
+  const handleToggleRetainerPayment = (retainerId, targetMonth) => {
+    const defaultNandakam = {
+      id: 'ret-nandakam-banquets',
+      client: 'Nandakam Banquets',
+      projectTitle: 'Nandakam Banquets Monthly Maintenance',
+      monthlyFee: 3000,
+      dueDay: 28,
+      startMonth: '2026-08',
+      phone: '',
+      notes: 'Monthly website & digital maintenance fee. ₹3,000 due every 28th of every month starting August 2026.',
+      paidMonths: [],
+      payments: []
+    };
+
+    const currentRetainers = Array.isArray(osData.retainers) && osData.retainers.length > 0
+      ? osData.retainers
+      : [defaultNandakam];
+
+    const updatedRetainers = currentRetainers.map(ret => {
+      if (ret.id === retainerId) {
+        const paidMonths = Array.isArray(ret.paidMonths) ? [...ret.paidMonths] : [];
+        const payments = Array.isArray(ret.payments) ? [...ret.payments] : [];
+
+        const isCurrentlyPaid = paidMonths.includes(targetMonth);
+        let nextPaidMonths = [];
+        let nextPayments = [];
+
+        if (isCurrentlyPaid) {
+          nextPaidMonths = paidMonths.filter(m => m !== targetMonth);
+          nextPayments = payments.filter(p => p.month !== targetMonth);
+        } else {
+          nextPaidMonths = [...paidMonths, targetMonth];
+          nextPayments = [
+            ...payments,
+            {
+              month: targetMonth,
+              amount: ret.monthlyFee || 3000,
+              paidAt: new Date().toISOString(),
+              receivedBy: userRole
+            }
+          ];
+        }
+
+        return {
+          ...ret,
+          paidMonths: nextPaidMonths,
+          payments: nextPayments
+        };
+      }
+      return ret;
+    });
+
+    const updated = { ...osData, retainers: updatedRetainers };
+    syncOSDataToBackend(updated);
+  };
+
+  const handleCreateRetainer = (e) => {
+    e.preventDefault();
+    if (!newRetainer.client) return;
+
+    const item = {
+      id: `ret-${Date.now()}`,
+      client: newRetainer.client,
+      projectTitle: newRetainer.projectTitle || `${newRetainer.client} Monthly Maintenance`,
+      monthlyFee: Number(newRetainer.monthlyFee) || 3000,
+      dueDay: Number(newRetainer.dueDay) || 28,
+      startMonth: newRetainer.startMonth || getLocalDateStr().slice(0, 7),
+      phone: newRetainer.phone || '',
+      notes: newRetainer.notes || '',
+      paidMonths: [],
+      payments: []
+    };
+
+    const currentRetainers = Array.isArray(osData.retainers) ? osData.retainers : [];
+    const updated = { ...osData, retainers: [item, ...currentRetainers] };
+    syncOSDataToBackend(updated);
+
+    setNewRetainer({
+      client: '',
+      projectTitle: '',
+      monthlyFee: 3000,
+      dueDay: 28,
+      startMonth: getLocalDateStr().slice(0, 7),
+      phone: '',
+      notes: ''
+    });
+    setShowAddRetainerModal(false);
+  };
+
+  const handleDeleteRetainer = (retainerId) => {
+    if (!window.confirm('Are you sure you want to remove this monthly retainer?')) return;
+    const currentRetainers = Array.isArray(osData.retainers) ? osData.retainers : [];
+    const updated = { ...osData, retainers: currentRetainers.filter(r => r.id !== retainerId) };
+    syncOSDataToBackend(updated);
+  };
+
   // Scratchpad State
   const [scratchpadText, setScratchpadText] = useState(
     localStorage.getItem('klapp_admin_scratchpad') || ""
@@ -2932,9 +3040,36 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
             <div>
               {/* TOP FINANCIAL METRICS GRID */}
               {(() => {
-                const totalRevenue = (osData.projects || []).reduce((acc, p) => acc + (p.budget || 0), 0);
+                const projectRevenue = (osData.projects || []).reduce((acc, p) => acc + (p.budget || 0), 0);
+                const currentRetainersList = Array.isArray(osData.retainers) && osData.retainers.length > 0
+                  ? osData.retainers
+                  : [{
+                      id: 'ret-nandakam-banquets',
+                      client: 'Nandakam Banquets',
+                      projectTitle: 'Nandakam Banquets Monthly Maintenance',
+                      monthlyFee: 3000,
+                      dueDay: 28,
+                      startMonth: '2026-08',
+                      phone: '',
+                      notes: 'Monthly website & digital maintenance fee. ₹3,000 due every 28th of every month starting August 2026.',
+                      paidMonths: [],
+                      payments: []
+                    }];
+
+                const retainerRevenue = currentRetainersList.reduce((acc, r) => {
+                  const count = (r.paidMonths || []).length;
+                  return acc + (count * (r.monthlyFee || 0));
+                }, 0);
+
+                const totalRevenue = projectRevenue + retainerRevenue;
                 const totalExpenses = (osData.expenses || []).reduce((acc, e) => acc + (e.amount || 0), 0);
                 const netProfit = totalRevenue - totalExpenses;
+
+                const currentMonthStr = getLocalDateStr().slice(0, 7);
+                const pendingRetainersCurrentMonth = currentRetainersList.filter(r => !(r.paidMonths || []).includes(currentMonthStr));
+                const pendingRetainerDues = pendingRetainersCurrentMonth.reduce((acc, r) => acc + (r.monthlyFee || 0), 0);
+                const pendingProjectDues = (osData.projects || []).reduce((acc, p) => acc + (p.pendingAmount !== undefined ? p.pendingAmount : Math.max(0, (p.budget || 0) - (p.advancePaid || 0))), 0);
+                const totalPendingDues = pendingProjectDues + pendingRetainerDues;
 
                 return (
                   <div>
@@ -2942,6 +3077,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                       <div className="os-card" style={{ marginBottom: 0 }}>
                         <div style={{ fontSize: '0.76rem', fontWeight: '700', color: '#71717a', textTransform: 'uppercase', marginBottom: '4px' }}>GROSS REVENUE</div>
                         <div style={{ fontSize: '1.8rem', fontWeight: '800', color: '#166534' }}>₹{totalRevenue.toLocaleString()}</div>
+                        <div style={{ fontSize: '0.74rem', color: '#15803d', fontWeight: '600', marginTop: '4px' }}>Incl. Projects + Paid Retainers (₹{retainerRevenue.toLocaleString()})</div>
                       </div>
 
                       <div className="os-card" style={{ marginBottom: 0 }}>
@@ -2952,8 +3088,8 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
 
                       <div className="os-card" style={{ marginBottom: 0, background: '#fffbeb', border: '1px solid #fde68a' }}>
                         <div style={{ fontSize: '0.76rem', fontWeight: '700', color: '#b45309', textTransform: 'uppercase', marginBottom: '4px' }}>PENDING RECEIVABLES</div>
-                        <div style={{ fontSize: '1.8rem', fontWeight: '800', color: '#d97706' }}>₹{((osData.projects || []).reduce((acc, p) => acc + (p.pendingAmount !== undefined ? p.pendingAmount : Math.max(0, (p.budget || 0) - (p.advancePaid || 0))), 0)).toLocaleString()}</div>
-                        <div style={{ fontSize: '0.74rem', color: '#b45309', fontWeight: '600', marginTop: '4px' }}>Client Balance Due</div>
+                        <div style={{ fontSize: '1.8rem', fontWeight: '800', color: '#d97706' }}>₹{totalPendingDues.toLocaleString()}</div>
+                        <div style={{ fontSize: '0.74rem', color: '#b45309', fontWeight: '600', marginTop: '4px' }}>Projects Dues + Retainers Due</div>
                       </div>
 
                       <div className="os-card" style={{ marginBottom: 0, background: '#f0fdf4', border: '1px solid #bbf7d0' }}>
@@ -3026,6 +3162,154 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                           <i className="ri-add-line" style={{ color: '#16a34a' }}></i> Save Expense
                         </button>
                       </form>
+                    </div>
+
+                    {/* MONTHLY CLIENT RETAINERS & RECURRING MAINTENANCE SUBSCRIPTIONS */}
+                    <div className="os-card" style={{ marginBottom: '20px', background: '#ffffff', border: '1px solid #c8c3b7' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
+                        <div>
+                          <h4 style={{ fontSize: '1.05rem', fontWeight: '800', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <i className="ri-repeat-2-line" style={{ color: '#2563eb' }}></i>
+                            Monthly Retainers & Client Subscriptions
+                          </h4>
+                          <p style={{ fontSize: '0.78rem', color: '#71717a', margin: '2px 0 0 0' }}>
+                            Tracks monthly client maintenance fees (e.g. ₹3,000 due every 28th of every month starting August 2026).
+                          </p>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => setShowAddRetainerModal(!showAddRetainerModal)}
+                          className="btn-action-outline"
+                          style={{ background: '#ffffff', color: '#18181b', borderColor: '#c8c3b7', fontWeight: '700', fontSize: '0.78rem', padding: '6px 12px' }}
+                        >
+                          <i className="ri-add-line" style={{ color: '#2563eb', marginRight: '4px' }}></i> Add Retainer Client
+                        </button>
+                      </div>
+
+                      {/* ADD RETAINER FORM */}
+                      {showAddRetainerModal && (
+                        <div style={{ background: '#faf8f5', border: '1px solid #c8c3b7', borderRadius: '10px', padding: '14px', marginBottom: '16px' }}>
+                          <h5 style={{ fontSize: '0.88rem', fontWeight: '800', margin: '0 0 10px 0' }}>Add New Monthly Maintenance Retainer</h5>
+                          <form onSubmit={handleCreateRetainer}>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '10px', marginBottom: '10px' }}>
+                              <div>
+                                <label style={{ fontSize: '0.75rem', fontWeight: '700', display: 'block', marginBottom: '3px' }}>Client Name *</label>
+                                <input type="text" required placeholder="e.g. Nandakam Banquets" value={newRetainer.client} onChange={(e) => setNewRetainer({ ...newRetainer, client: e.target.value })} style={{ width: '100%', padding: '7px 10px', borderRadius: '6px', border: '1px solid #d4d4d8', fontSize: '0.8rem' }} />
+                              </div>
+                              <div>
+                                <label style={{ fontSize: '0.75rem', fontWeight: '700', display: 'block', marginBottom: '3px' }}>Monthly Fee (₹) *</label>
+                                <input type="number" required placeholder="3000" value={newRetainer.monthlyFee} onChange={(e) => setNewRetainer({ ...newRetainer, monthlyFee: e.target.value })} style={{ width: '100%', padding: '7px 10px', borderRadius: '6px', border: '1px solid #d4d4d8', fontSize: '0.8rem' }} />
+                              </div>
+                              <div>
+                                <label style={{ fontSize: '0.75rem', fontWeight: '700', display: 'block', marginBottom: '3px' }}>Due Day of Month *</label>
+                                <input type="number" min="1" max="31" required placeholder="28" value={newRetainer.dueDay} onChange={(e) => setNewRetainer({ ...newRetainer, dueDay: e.target.value })} style={{ width: '100%', padding: '7px 10px', borderRadius: '6px', border: '1px solid #d4d4d8', fontSize: '0.8rem' }} />
+                              </div>
+                              <div>
+                                <label style={{ fontSize: '0.75rem', fontWeight: '700', display: 'block', marginBottom: '3px' }}>Start Month *</label>
+                                <input type="month" required value={newRetainer.startMonth} onChange={(e) => setNewRetainer({ ...newRetainer, startMonth: e.target.value })} style={{ width: '100%', padding: '7px 10px', borderRadius: '6px', border: '1px solid #d4d4d8', fontSize: '0.8rem' }} />
+                              </div>
+                            </div>
+                            <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                              <button type="button" onClick={() => setShowAddRetainerModal(false)} className="btn-action-outline" style={{ background: '#fff', color: '#71717a', borderColor: '#d4d4d8', padding: '6px 12px', fontSize: '0.78rem' }}>Cancel</button>
+                              <button type="submit" className="btn-action-outline" style={{ background: '#fff', color: '#166534', borderColor: '#bbf7d0', fontWeight: '700', padding: '6px 14px', fontSize: '0.78rem' }}>Save Retainer</button>
+                            </div>
+                          </form>
+                        </div>
+                      )}
+
+                      {/* RETAINER CARDS / TABLE */}
+                      {(() => {
+                        const retainersList = Array.isArray(osData.retainers) && osData.retainers.length > 0
+                          ? osData.retainers
+                          : [{
+                              id: 'ret-nandakam-banquets',
+                              client: 'Nandakam Banquets',
+                              projectTitle: 'Nandakam Banquets Monthly Maintenance',
+                              monthlyFee: 3000,
+                              dueDay: 28,
+                              startMonth: '2026-08',
+                              phone: '',
+                              notes: 'Monthly website & digital maintenance fee. ₹3,000 due every 28th of every month starting August 2026.',
+                              paidMonths: [],
+                              payments: []
+                            }];
+
+                        const currentMonthStr = getLocalDateStr().slice(0, 7);
+                        const currentMonthName = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+                        return (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            {retainersList.map(ret => {
+                              const isPaidThisMonth = (ret.paidMonths || []).includes(currentMonthStr);
+                              const totalCollected = (ret.paidMonths || []).length * (ret.monthlyFee || 3000);
+
+                              return (
+                                <div key={ret.id} style={{ background: isPaidThisMonth ? '#f0fdf4' : '#fffbeb', border: isPaidThisMonth ? '1px solid #bbf7d0' : '1px solid #fde68a', borderRadius: '10px', padding: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+                                  <div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                                      <strong style={{ fontSize: '1rem', color: '#18181b' }}>{ret.client}</strong>
+                                      <span style={{ fontSize: '0.75rem', background: '#ffffff', color: '#2563eb', border: '1px solid #bfdbfe', padding: '2px 8px', borderRadius: '6px', fontWeight: '700' }}>
+                                        ₹{(ret.monthlyFee || 3000).toLocaleString()}/month
+                                      </span>
+                                      <span style={{ fontSize: '0.75rem', background: '#ffffff', color: '#71717a', border: '1px solid #cbd5e1', padding: '2px 8px', borderRadius: '6px', fontWeight: '600' }}>
+                                        📅 Due every {ret.dueDay || 28}th
+                                      </span>
+                                    </div>
+                                    <div style={{ fontSize: '0.78rem', color: '#52525b', marginTop: '4px' }}>
+                                      {ret.notes || `₹${ret.monthlyFee || 3000} due on ${ret.dueDay || 28}th of every month starting ${ret.startMonth || 'Aug 2026'}.`}
+                                    </div>
+                                    <div style={{ fontSize: '0.74rem', color: '#71717a', marginTop: '2px' }}>
+                                      Total Collected: <strong>₹{totalCollected.toLocaleString()}</strong> ({ret.paidMonths?.length || 0} months paid)
+                                    </div>
+                                  </div>
+
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                                    <div style={{ textAlign: 'right' }}>
+                                      {isPaidThisMonth ? (
+                                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: '#dcfce7', color: '#15803d', border: '1px solid #86efac', padding: '4px 10px', borderRadius: '6px', fontSize: '0.78rem', fontWeight: '800' }}>
+                                          ✅ PAID FOR {currentMonthName.toUpperCase()}
+                                        </span>
+                                      ) : (
+                                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: '#fef3c7', color: '#b45309', border: '1px solid #fde68a', padding: '4px 10px', borderRadius: '6px', fontSize: '0.78rem', fontWeight: '800' }}>
+                                          ⏳ PENDING DUE ({ret.dueDay || 28}th {new Date().toLocaleDateString('en-US', { month: 'short' })})
+                                        </span>
+                                      )}
+                                    </div>
+
+                                    <button
+                                      type="button"
+                                      onClick={() => handleToggleRetainerPayment(ret.id, currentMonthStr)}
+                                      className="btn-action-outline"
+                                      style={{
+                                        background: isPaidThisMonth ? '#ffffff' : '#166534',
+                                        color: isPaidThisMonth ? '#dc2626' : '#ffffff',
+                                        borderColor: isPaidThisMonth ? '#fca5a5' : '#15803d',
+                                        fontWeight: '800',
+                                        fontSize: '0.78rem',
+                                        padding: '7px 14px',
+                                        borderRadius: '8px',
+                                        cursor: 'pointer'
+                                      }}
+                                    >
+                                      {isPaidThisMonth ? 'Undo Payment' : `✅ Mark Paid for ${new Date().toLocaleDateString('en-US', { month: 'short' })} (₹${(ret.monthlyFee || 3000).toLocaleString()})`}
+                                    </button>
+
+                                    <button
+                                      type="button"
+                                      onClick={() => handleDeleteRetainer(ret.id)}
+                                      style={{ background: 'transparent', border: 'none', color: '#a1a1aa', cursor: 'pointer', fontSize: '0.9rem' }}
+                                      title="Delete retainer"
+                                    >
+                                      <i className="ri-delete-bin-line"></i>
+                                    </button>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        );
+                      })()}
                     </div>
 
                     {/* EXPENSES LOG TABLE */}

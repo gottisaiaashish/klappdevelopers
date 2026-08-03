@@ -100,7 +100,24 @@ const KlappOSSchema = new mongoose.Schema({
     isPinned: { type: Boolean, default: false },
     updatedAt: String
   }],
+  retainers: [{
+    id: String,
+    client: String,
+    projectTitle: String,
+    monthlyFee: Number,
+    dueDay: Number,
+    startMonth: String,
+    phone: String,
+    notes: String,
+    paidMonths: [String],
+    payments: [{
+      month: String,
+      amount: Number,
+      paidAt: String,
+      receivedBy: String
+    }]
+  }],
   updatedAt: { type: Date, default: Date.now }
-});
+}, { strict: false });
 
 module.exports = mongoose.model('KlappOSData', KlappOSSchema);
