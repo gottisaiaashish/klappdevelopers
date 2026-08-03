@@ -905,9 +905,9 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
               </span>
             </button>
 
-            <button className={`sidebar-nav-btn ${activeTab === 'ai_chats' ? 'active' : ''}`} onClick={() => setActiveTab('ai_chats')} style={{ borderColor: '#8b5cf6' }}>
-              <span><i className="ri-robot-line" style={{ marginRight: '8px', color: '#8b5cf6' }}></i> KLAPP AI Live Chats</span>
-              <span className="sidebar-badge" style={{ background: '#8b5cf6', color: '#fff', fontWeight: 'bold' }}>
+            <button className={`sidebar-nav-btn ${activeTab === 'ai_chats' ? 'active' : ''}`} onClick={() => setActiveTab('ai_chats')} style={{ borderColor: '#0891b2' }}>
+              <span><i className="ri-robot-line" style={{ marginRight: '8px', color: '#0891b2' }}></i> KLAPP AI Live Chats</span>
+              <span className="sidebar-badge" style={{ background: '#0891b2', color: '#fff', fontWeight: 'bold' }}>
                 {aiSessions.length}
               </span>
             </button>
@@ -1342,8 +1342,8 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px', marginBottom: '20px' }}>
                 <div className="os-card" style={{ marginBottom: 0 }}>
                   <div style={{ fontSize: '0.76rem', fontWeight: '700', color: '#71717a', textTransform: 'uppercase', marginBottom: '4px' }}>TOTAL AI CHATS</div>
-                  <div style={{ fontSize: '1.8rem', fontWeight: '800', color: '#8b5cf6' }}>{aiSessions.length}</div>
-                  <div style={{ fontSize: '0.76rem', color: '#6d28d9', fontWeight: '600', marginTop: '4px' }}>Live Visitors & Leads</div>
+                  <div style={{ fontSize: '1.8rem', fontWeight: '800', color: '#0891b2' }}>{aiSessions.length}</div>
+                  <div style={{ fontSize: '0.76rem', color: '#0e7490', fontWeight: '600', marginTop: '4px' }}>Live Visitors & Leads</div>
                 </div>
 
                 <div className="os-card" style={{ marginBottom: 0, background: '#f0fdf4', border: '1px solid #bbf7d0' }}>
@@ -1387,7 +1387,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                         fontWeight: '700',
                         border: '1px solid #c8c3b7',
                         cursor: 'pointer',
-                        background: aiStatusFilter === st ? '#8b5cf6' : '#ffffff',
+                        background: aiStatusFilter === st ? '#0891b2' : '#ffffff',
                         color: aiStatusFilter === st ? '#ffffff' : '#18181b'
                       }}
                     >
@@ -1427,7 +1427,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                   const lastMsg = msgCount > 0 ? s.messages[msgCount - 1] : null;
 
                   return (
-                    <div key={s.sessionId} className="os-card" style={{ borderLeft: isCaptured ? '4px solid #22c55e' : '4px solid #8b5cf6' }}>
+                    <div key={s.sessionId} className="os-card" style={{ borderLeft: isCaptured ? '4px solid #22c55e' : '4px solid #0891b2' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '14px', marginBottom: '12px' }}>
                         <div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
@@ -1468,7 +1468,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                         </div>
                         <div>
                           <span style={{ fontSize: '0.72rem', color: '#71717a', textTransform: 'uppercase', fontWeight: '700', display: 'block' }}>Target Budget</span>
-                          <span style={{ fontSize: '0.88rem', fontWeight: '700', color: '#6d28d9' }}>{s.budget || 'Not Stated'}</span>
+                          <span style={{ fontSize: '0.88rem', fontWeight: '700', color: '#0e7490' }}>{s.budget || 'Not Stated'}</span>
                         </div>
                         <div style={{ gridColumn: 'span 2' }}>
                           <span style={{ fontSize: '0.72rem', color: '#71717a', textTransform: 'uppercase', fontWeight: '700', display: 'block' }}>Latest Message</span>
@@ -1548,7 +1548,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                 <div style={{ padding: '18px 24px', borderBottom: '1px solid #c8c3b7', background: '#faf8f5', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
                     <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: '800', color: '#18181b', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <i className="ri-robot-line" style={{ color: '#8b5cf6' }}></i>
+                      <i className="ri-robot-line" style={{ color: '#0891b2' }}></i>
                       {selectedAiSession.clientName || 'AI Conversation Log'}
                     </h3>
                     <div style={{ fontSize: '0.8rem', color: '#71717a', marginTop: '2px' }}>
