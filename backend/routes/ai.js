@@ -71,6 +71,82 @@ function extractContactDetails(text, historyMessages = []) {
 }
 
 /**
+ * Smart contextual fallback reply engine when Gemini API is rate-limited or unavailable
+ */
+function generateSmartFallbackReply(message, history = []) {
+  const q = (message || '').toLowerCase();
+
+  const phoneMatch = q.match(/(?:\+?91[\-\s]?)?[6-9]\d{9}\b/);
+  const emailMatch = q.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+  if (phoneMatch || emailMatch) {
+    const contactInfo = phoneMatch ? phoneMatch[0] : emailMatch[0];
+    return `Thank you so much! 🚀 I have securely recorded your contact details (${contactInfo}) and project requirements. Our founder Gotti Aashish & the KLAPP Developers team will review your project details and reach out to you within 2 hours to discuss the next steps! You can also contact us directly on WhatsApp at +91 79890 33580.`;
+  }
+
+  if (q.includes('panichedhedhi') || q.includes('panichesthalenu') || q.includes('work aithaledhu') || q.includes('work avvatledu') || q.includes('problem') || q.includes('issue')) {
+    return `I am fully active and online now! 🚀 How can I help you today? Tell me what kind of business you run (e.g. gym, medical shop, school, hotel, salon, e-commerce) or what software/website features you need!`;
+  }
+
+  if (q.includes('kavali') || q.includes('kavalani') || q.includes('veynuko') || q.includes('website') || q.includes('app') || q.includes('software')) {
+    if (q.includes('cost') || q.includes('price') || q.includes('budget') || q.includes('pricing') || q.includes('entha')) {
+      return `Here is KLAPP Developers official pricing structure:\n\n• Starter Web App: ₹25,000 - ₹35,000\n• Custom App & Admin Dashboard: ₹45,000 - ₹75,000\n• Enterprise ERP & Meta WhatsApp Cloud API Bot: ₹50,000 - ₹1,20,000+\n• 50% Milestone Plan: Pay 50% upfront to start, 50% on final delivery!\n\nWhat is your target budget for your project? Tell me your budget, and I will outline the exact features we will build for you!`;
+    }
+    return `KLAPP Developers ద్వారా మీ బిజినెస్ కి sub-100ms superfast React Web App & Custom Admin Dashboard డిజైన్ చేస్తాము!\n\nమీది ఏ టైప్ బిజినెస్ (Gym, Medical, Hotel, School, Grocery, Fashion, Salon, Travels)? మీ target budget ఎంత అనుకుంటున్నారు?`;
+  }
+
+  if (q.includes('cost') || q.includes('pricing') || q.includes('price') || q.includes('budget') || q.includes('rate') || q.includes('entha') || q.includes('how much')) {
+    return `Here is KLAPP Developers official pricing structure:\n\n• Starter Web App: ₹25,000 - ₹35,000\n• Custom App & Admin Dashboard: ₹45,000 - ₹75,000\n• Enterprise ERP & Meta WhatsApp Cloud API Bot: ₹50,000 - ₹1,20,000+\n• 50% Milestone Plan: Pay 50% upfront to start, 50% on final delivery!\n\nWhat is your target budget for your project? Tell me your budget, and I will outline the exact features we will build for you!`;
+  }
+
+  if (q.includes('time') || q.includes('days') || q.includes('eppudu') || q.includes('when')) {
+    return `Our engineering delivery speed is ultra-fast:\n• Standard Web Apps: 3 to 5 business days\n• E-Commerce & Admin Portals: 7 to 10 business days\n\nShare your business requirements and WhatsApp phone number, and we can initiate your project today!`;
+  }
+
+  if (q.includes('gym') || q.includes('fitness') || q.includes('workout')) {
+    return `Awesome! For a Gym & Fitness Center, we build:\n• Member Attendance & Subscription Tracking (QR Scan / Biometric)\n• Automated WhatsApp Fee Renewal Alerts & Payment Gateway\n• Admin Member Dashboard & Revenue Analytics\n\nWhat is your target budget for this gym software setup?`;
+  }
+
+  if (q.includes('medical') || q.includes('pharmacy') || q.includes('medicine') || q.includes('balaji')) {
+    return `Awesome! For a Medical Shop & Pharmacy (like our case study 'Balaji Kishore Medical'):\n• Online Prescription Upload & Customer Order Funnel\n• Live Stock, Expiry Date & Batch No. Inventory Tracking\n• GST Invoicing & WhatsApp Receipt Dispatch\n\nWhat is your target budget for your medical shop software?`;
+  }
+
+  if (q.includes('school') || q.includes('college') || q.includes('chanakya')) {
+    return `For Educational Institutions (like our case study 'Chanakya High School'):\n• Online Student Admissions & Fee Payment Gateway\n• Automated WhatsApp Parent Notifications (Attendance, Notices & Fees)\n• Student ID & Report Card Management\n\nWhat is your target budget for your school portal?`;
+  }
+
+  if (q.includes('hotel') || q.includes('resort') || q.includes('nandhakam')) {
+    return `For Hotels & Hospitality (like our case study 'Nandhakam Luxury Stays'):\n• Direct Booking Engine (Save 20-30% OTA commissions!)\n• Instant Razorpay/UPI Payments & WhatsApp Booking Vouchers\n• Seasonal Tariff & Room Availability Admin Dashboard\n\nWhat is your target budget for your hotel booking engine?`;
+  }
+
+  if (q.includes('fashion') || q.includes('boutique') || q.includes('admyra')) {
+    return `For Fashion & Clothing Stores (like our case study 'Admyra'):\n• Editorial Showcase with Sub-100ms Load Speed\n• Razorpay Payment Gateway + Cash on Delivery (COD)\n• Automated Order Tracking & WhatsApp Status Updates\n\nWhat is your target budget for your fashion brand?`;
+  }
+
+  if (q.includes('salon') || q.includes('spa') || q.includes('parlour')) {
+    return `For Salons & Spas:\n• Online Appointment Booking Calendar & Staff Slot Management\n• Instant WhatsApp Appointment Reminders & Customer CRM\n\nWhat is your target budget for your salon setup?`;
+  }
+
+  if (q.includes('restaurant') || q.includes('food') || q.includes('cafe')) {
+    return `For Restaurants & Food Businesses:\n• Digital QR Menu & Direct Online Ordering (Zero Commission!)\n• Kitchen Order Ticket (KOT) Dispatch & WhatsApp Invoices\n\nWhat is your target budget for your restaurant ordering system?`;
+  }
+
+  if (q.includes('real estate') || q.includes('property') || q.includes('builder')) {
+    return `For Real Estate Companies:\n• Property Listings & 360 Floor Plan Showcase\n• Automated WhatsApp Lead Capture & Brochure Dispatch\n\nWhat is your target budget for your real estate portal?`;
+  }
+
+  if (q.includes('aashish') || q.includes('founder') || q.includes('gotti') || q.includes('who built')) {
+    return `Gotti Aashish is the Founder & Lead Digital Architect at KLAPP Developers! He is an 18-year-old software engineer with 4+ years of hands-on experience. Direct WhatsApp: +91 79890 33580.`;
+  }
+
+  if (q.includes('hi') || q.includes('hello') || q.includes('hey') || q.includes('namaste') || q.includes('start')) {
+    return `Hey there! Welcome to KLAPP Developers. I'm KLAPP AI, your Senior Solutions Architect. We build high-performance custom web applications, admin dashboards, and Meta WhatsApp bots. What kind of business do you run?`;
+  }
+
+  return `Thanks for reaching out! We build 360° custom digital solutions (Web Apps, Admin Portals, Meta WhatsApp API Bots, and Google/Meta Ads). Tell me what business you run and what your target budget is, and I'll outline the exact technical setup for you!`;
+}
+
+
+/**
  * @route   POST /api/ai/chat
  * @desc    Secure proxy endpoint for Gemini AI Chat & Live Session Sync
  * @access  Public
@@ -95,38 +171,40 @@ router.post('/chat', async (req, res) => {
     let reply = null;
 
     if (apiKey) {
-      try {
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            system_instruction: { parts: [{ text: GEMINI_SYSTEM_INSTRUCTION }] },
-            contents: [
-              ...formattedHistory,
-              { role: 'user', parts: [{ text: message }] }
-            ],
-            generationConfig: {
-              temperature: 0.7,
-              maxOutputTokens: 800
-            }
-          })
-        });
+      const candidateModels = ['gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-2.5-flash-lite', 'gemini-1.5-flash-latest'];
+      for (const m of candidateModels) {
+        try {
+          const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${apiKey}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              system_instruction: { parts: [{ text: GEMINI_SYSTEM_INSTRUCTION }] },
+              contents: [
+                ...formattedHistory,
+                { role: 'user', parts: [{ text: message }] }
+              ],
+              generationConfig: {
+                temperature: 0.7,
+                maxOutputTokens: 800
+              }
+            })
+          });
 
-        if (response.ok) {
-          const data = await response.json();
-          if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts[0]) {
-            reply = data.candidates[0].content.parts[0].text.replace(/\*\*/g, '').replace(/\*/g, '');
+          if (response.ok) {
+            const data = await response.json();
+            if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts[0]) {
+              reply = data.candidates[0].content.parts[0].text.replace(/\*\*/g, '').replace(/\*/g, '');
+              break;
+            }
           }
-        } else {
-          console.warn('Gemini API Warning:', response.statusText);
+        } catch (err) {
+          console.warn(`Gemini model ${m} fetch failed:`, err.message);
         }
-      } catch (err) {
-        console.warn('Gemini fetch failed, using fallback notice:', err.message);
       }
     }
 
     if (!reply) {
-      reply = "Hello! Thanks for reaching out to KLAPP AI. What kind of business do you run and what custom digital solution are you looking to build?";
+      reply = generateSmartFallbackReply(message, history);
     }
 
     // Build message thread array for session storage

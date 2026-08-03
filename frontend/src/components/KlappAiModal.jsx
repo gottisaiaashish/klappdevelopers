@@ -228,41 +228,45 @@ export default function KlappAiModal({ isOpen, onClose, initialPrompt = '' }) {
     return null;
   };
 
-  // Real Google Gemini 1.5 Flash API Caller (Direct Client Fallback)
+  // Real Google Gemini API Caller (Direct Client Fallback)
   const fetchGeminiReply = async (userQuery, conversationHistory) => {
+    if (!GEMINI_API_KEY) return null;
+
     try {
       const formattedHistory = conversationHistory.map(m => ({
         role: m.sender === 'user' ? 'user' : 'model',
         parts: [{ text: m.text }]
       }));
 
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=${GEMINI_API_KEY}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          system_instruction: {
-            parts: [{ text: GEMINI_SYSTEM_INSTRUCTION }]
-          },
-          contents: [
-            ...formattedHistory,
-            { role: 'user', parts: [{ text: userQuery }] }
-          ],
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 800
+      const candidateModels = ['gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-2.5-flash-lite', 'gemini-1.5-flash-latest'];
+      for (const m of candidateModels) {
+        try {
+          const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${GEMINI_API_KEY}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              system_instruction: {
+                parts: [{ text: GEMINI_SYSTEM_INSTRUCTION }]
+              },
+              contents: [
+                ...formattedHistory,
+                { role: 'user', parts: [{ text: userQuery }] }
+              ],
+              generationConfig: {
+                temperature: 0.7,
+                maxOutputTokens: 800
+              }
+            })
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts[0]) {
+              let text = data.candidates[0].content.parts[0].text;
+              return text.replace(/\*\*/g, '').replace(/\*/g, '');
+            }
           }
-        })
-      });
-
-      if (!response.ok) {
-        console.warn('Gemini API Warning:', response.statusText);
-        return null;
-      }
-
-      const data = await response.json();
-      if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts[0]) {
-        let text = data.candidates[0].content.parts[0].text;
-        return text.replace(/\*\*/g, '').replace(/\*/g, '');
+        } catch (e) {}
       }
       return null;
     } catch (err) {
