@@ -290,6 +290,13 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
     syncOSDataToBackend(updated);
   };
 
+  const handleDeleteContent = (contentId) => {
+    if (!window.confirm('Are you sure you want to delete this content post idea?')) return;
+    const updatedPlanner = (osData.contentPlanner || []).filter(item => item.id !== contentId);
+    const updated = { ...osData, contentPlanner: updatedPlanner };
+    syncOSDataToBackend(updated);
+  };
+
   // Minni & Aashish Confirmed Project Creation State
   const [showAddProjectModal, setShowAddProjectModal] = useState(false);
   const [projectStatusFilter, setProjectStatusFilter] = useState('ALL');
@@ -2228,6 +2235,15 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                           <span style={{ fontSize: '0.8rem', fontWeight: '700', color: '#64748b', background: '#f1f5f9', padding: '3px 10px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
                             {firstDayStr} – {lastDayStr}
                           </span>
+                          {contentWeekOffset === 0 ? (
+                            <span style={{ fontSize: '0.78rem', fontWeight: '800', color: '#166534', background: '#dcfce7', padding: '3px 10px', borderRadius: '6px', border: '1px solid #86efac' }}>
+                              📍 This Week
+                            </span>
+                          ) : (
+                            <span style={{ fontSize: '0.78rem', fontWeight: '700', color: '#854d0e', background: '#fef9c3', padding: '3px 10px', borderRadius: '6px', border: '1px solid #fef08a' }}>
+                              🗓️ {contentWeekOffset > 0 ? `+${contentWeekOffset} Wk Ahead` : `${contentWeekOffset} Wk Ago`}
+                            </span>
+                          )}
                         </div>
 
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -2245,8 +2261,9 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                               type="button"
                               onClick={() => setContentWeekOffset(0)}
                               style={{ padding: '6px 12px', borderRadius: '8px', border: '1px solid #2563eb', background: '#eff6ff', color: '#2563eb', fontSize: '0.78rem', fontWeight: '700', cursor: 'pointer' }}
+                              title="Reset back to current week"
                             >
-                              This Week 📍
+                              ↩ Jump to Current Week
                             </button>
                           )}
 
@@ -2351,127 +2368,181 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                 )}
               </div>
 
-              {/* CONTENT POST FEED WITH DUAL LIKES & PUBLISH CLOSING BUTTON */}
+              {/* CONTENT POST FEED WITH DUAL LIKES, DELETE & PUBLISH CLOSING BUTTON */}
               <div className="os-card">
-                <h4 style={{ fontSize: '1.05rem', fontWeight: '800', marginBottom: '14px' }}>
-                  {selectedContentDay === 'ALL' ? 'All Weekly Content Ideas' : `${selectedContentDay} Content Pipeline`}
-                </h4>
-
                 {(() => {
-                  const filtered = osData.contentPlanner.filter(cnt => {
-                    if (selectedContentDay === 'ALL') return true;
-                    const dName = cnt.dayOfWeek || (cnt.date && new Date(cnt.date).toLocaleDateString('en-US', { weekday: 'long' }));
-                    return dName === selectedContentDay;
+                  // Calculate active matrix week's dates
+                  const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                  const nowKolkata = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+                  const currentDayIdx = nowKolkata.getDay();
+                  const distFromMon = currentDayIdx === 0 ? 6 : currentDayIdx - 1;
+                  const mondayDate = new Date(nowKolkata);
+                  mondayDate.setDate(nowKolkata.getDate() - distFromMon + (contentWeekOffset * 7));
+
+                  const weekDays = dayNames.map((dName, idx) => {
+                    const dayDate = new Date(mondayDate);
+                    dayDate.setDate(mondayDate.getDate() + idx);
+                    const year = dayDate.getFullYear();
+                    const month = String(dayDate.getMonth() + 1).padStart(2, '0');
+                    const day = String(dayDate.getDate()).padStart(2, '0');
+                    return {
+                      dName,
+                      formattedDateStr: `${year}-${month}-${day}`
+                    };
                   });
 
-                  if (filtered.length === 0) {
-                    return (
-                      <div style={{ textAlign: 'center', padding: '24px', color: '#71717a', fontSize: '0.88rem' }}>
-                        No content scheduled for {selectedContentDay}. Add a new post idea above!
-                      </div>
-                    );
-                  }
+                  const activeWeekDates = weekDays.map(w => w.formattedDateStr);
+                  const selectedDayObj = weekDays.find(w => w.dName === selectedContentDay);
 
-                  return filtered.map(cnt => {
-                    const isBothLiked = cnt.aashishLiked && cnt.minniLiked;
-                    const isPublished = cnt.status === 'PUBLISHED';
-
-                    return (
-                      <div 
-                        key={cnt.id} 
-                        style={{ 
-                          padding: '18px', 
-                          background: isPublished ? '#f0fdf4' : (isBothLiked ? '#f0f9ff' : '#faf8f5'), 
-                          border: isPublished ? '1px solid #bbf7d0' : (isBothLiked ? '1px solid #bae6fd' : '1px solid #c8c3b7'), 
-                          borderRadius: '12px', 
-                          marginBottom: '14px' 
-                        }}
-                      >
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', flexWrap: 'wrap', gap: '10px' }}>
-                          <div style={{ fontWeight: '800', fontSize: '1.05rem', color: '#18181b' }}>
-                            {cnt.title}
-                          </div>
-
-                          {/* MUTUAL APPROVAL BADGE */}
-                          <div>
-                            {isPublished ? (
-                              <span style={{ background: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0', padding: '4px 10px', borderRadius: '6px', fontSize: '0.76rem', fontWeight: '700' }}>
-                                ✓ Published
-                              </span>
-                            ) : isBothLiked ? (
-                              <span style={{ background: '#eff6ff', color: '#1d4ed8', border: '1px solid #bfdbfe', padding: '4px 10px', borderRadius: '6px', fontSize: '0.76rem', fontWeight: '700' }}>
-                                ✓ Ready To Post (2/2)
-                              </span>
-                            ) : (
-                              <span style={{ background: '#fffbeb', color: '#b45309', border: '1px solid #fde68a', padding: '4px 10px', borderRadius: '6px', fontSize: '0.76rem', fontWeight: '700' }}>
-                                ⏳ Pending Approvals ({cnt.aashishLiked ? 1 : 0} + {cnt.minniLiked ? 1 : 0}/2)
-                              </span>
-                            )}
-                          </div>
-                        </div>
-
-                        <p style={{ fontSize: '0.88rem', color: '#3f3f46', margin: '0 0 14px 0', lineHeight: '1.5' }}>"{cnt.notes}"</p>
-
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', paddingTop: '12px', borderTop: '1px solid #c8c3b7' }}>
-                          <div style={{ fontSize: '0.78rem', color: '#71717a' }}>
-                            Platform: <strong>{cnt.platform}</strong> • Author: <strong>{cnt.author}</strong> • Scheduled: <strong>{cnt.dayOfWeek || 'Weekly'} ({cnt.date || 'TBD'})</strong>
-                          </div>
-
-                          {/* DUAL LIKE / APPROVAL BUTTONS (ONLY OWN USER CAN TOGGLE OWN APPROVAL) */}
-                          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
-                            <button 
-                              onClick={() => userRole === 'AASHISH' && handleToggleContentLike(cnt.id, 'aashish')}
-                              disabled={userRole !== 'AASHISH'}
-                              className="btn-action-outline"
-                              style={{ 
-                                background: cnt.aashishLiked ? '#dbeafe' : '#ffffff', 
-                                color: cnt.aashishLiked ? '#1e40af' : '#71717a', 
-                                borderColor: cnt.aashishLiked ? '#93c5fd' : '#c8c3b7',
-                                fontSize: '0.78rem',
-                                padding: '5px 10px',
-                                fontWeight: '700',
-                                opacity: userRole === 'AASHISH' ? 1 : 0.75,
-                                cursor: userRole === 'AASHISH' ? 'pointer' : 'not-allowed'
-                              }}
-                              title={userRole === 'AASHISH' ? 'Click to toggle Aashish approval' : 'Aashish approval status'}
-                            >
-                              👍 Aashish {cnt.aashishLiked ? 'Approved ✅' : 'Approve'}
-                            </button>
-
-                            <button 
-                              onClick={() => userRole === 'MINNI' && handleToggleContentLike(cnt.id, 'minni')}
-                              disabled={userRole !== 'MINNI'}
-                              className="btn-action-outline"
-                              style={{ 
-                                background: cnt.minniLiked ? '#fce7f3' : '#ffffff', 
-                                color: cnt.minniLiked ? '#be185d' : '#71717a', 
-                                borderColor: cnt.minniLiked ? '#fbcfe8' : '#c8c3b7',
-                                fontSize: '0.78rem',
-                                padding: '5px 10px',
-                                fontWeight: '700',
-                                opacity: userRole === 'MINNI' ? 1 : 0.75,
-                                cursor: userRole === 'MINNI' ? 'pointer' : 'not-allowed'
-                              }}
-                              title={userRole === 'MINNI' ? 'Click to toggle Minni approval' : 'Minni approval status'}
-                            >
-                              👍 Minni {cnt.minniLiked ? 'Approved ✅' : 'Approve'}
-                            </button>
-
-                            {/* MINNI FINAL PUBLISH & CLOSE BUTTON (ONLY SHOWN WHEN BOTH APPROVED) */}
-                            {userRole === 'MINNI' && !isPublished && isBothLiked && (
-                              <button 
-                                onClick={() => handlePublishContent(cnt.id)}
-                                className="btn-action-outline"
-                                style={{ background: '#ffffff', color: '#166534', borderColor: '#bbf7d0', fontSize: '0.78rem', padding: '5px 12px', fontWeight: '700' }}
-                              >
-                                🚀 Published
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    );
+                  const filtered = (osData.contentPlanner || []).filter(cnt => {
+                    const cntDateStr = cnt.date ? String(cnt.date).split('T')[0] : '';
+                    if (selectedContentDay === 'ALL') {
+                      if (cntDateStr) {
+                        return activeWeekDates.includes(cntDateStr);
+                      }
+                      return true;
+                    } else {
+                      if (cntDateStr) {
+                        return selectedDayObj ? cntDateStr === selectedDayObj.formattedDateStr : false;
+                      }
+                      return cnt.dayOfWeek === selectedContentDay;
+                    }
                   });
+
+                  return (
+                    <div>
+                      <h4 style={{ fontSize: '1.05rem', fontWeight: '800', marginBottom: '14px' }}>
+                        {selectedContentDay === 'ALL' 
+                          ? `All Content Ideas (${weekDays[0].formattedDateStr} to ${weekDays[5].formattedDateStr})` 
+                          : `${selectedContentDay} Content Pipeline (${selectedDayObj ? selectedDayObj.formattedDateStr : ''})`}
+                      </h4>
+
+                      {filtered.length === 0 ? (
+                        <div style={{ textAlign: 'center', padding: '24px', color: '#71717a', fontSize: '0.88rem' }}>
+                          No content scheduled for {selectedContentDay === 'ALL' ? 'this week' : selectedContentDay}. Add a new post idea above!
+                        </div>
+                      ) : (
+                        filtered.map(cnt => {
+                          const isBothLiked = cnt.aashishLiked && cnt.minniLiked;
+                          const isPublished = cnt.status === 'PUBLISHED';
+
+                          return (
+                            <div 
+                              key={cnt.id} 
+                              style={{ 
+                                padding: '18px', 
+                                background: isPublished ? '#f0fdf4' : (isBothLiked ? '#f0f9ff' : '#faf8f5'), 
+                                border: isPublished ? '1px solid #bbf7d0' : (isBothLiked ? '1px solid #bae6fd' : '1px solid #c8c3b7'), 
+                                borderRadius: '12px', 
+                                marginBottom: '14px' 
+                              }}
+                            >
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', flexWrap: 'wrap', gap: '10px' }}>
+                                <div style={{ fontWeight: '800', fontSize: '1.05rem', color: '#18181b' }}>
+                                  {cnt.title}
+                                </div>
+
+                                {/* MUTUAL APPROVAL BADGE */}
+                                <div>
+                                  {isPublished ? (
+                                    <span style={{ background: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0', padding: '4px 10px', borderRadius: '6px', fontSize: '0.76rem', fontWeight: '700' }}>
+                                      ✓ Published
+                                    </span>
+                                  ) : isBothLiked ? (
+                                    <span style={{ background: '#eff6ff', color: '#1d4ed8', border: '1px solid #bfdbfe', padding: '4px 10px', borderRadius: '6px', fontSize: '0.76rem', fontWeight: '700' }}>
+                                      ✓ Ready To Post (2/2)
+                                    </span>
+                                  ) : (
+                                    <span style={{ background: '#fffbeb', color: '#b45309', border: '1px solid #fde68a', padding: '4px 10px', borderRadius: '6px', fontSize: '0.76rem', fontWeight: '700' }}>
+                                      ⏳ Pending Approvals ({cnt.aashishLiked ? 1 : 0} + {cnt.minniLiked ? 1 : 0}/2)
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+
+                              <p style={{ fontSize: '0.88rem', color: '#3f3f46', margin: '0 0 14px 0', lineHeight: '1.5' }}>"{cnt.notes}"</p>
+
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', paddingTop: '12px', borderTop: '1px solid #c8c3b7' }}>
+                                <div style={{ fontSize: '0.78rem', color: '#71717a' }}>
+                                  Platform: <strong>{cnt.platform}</strong> • Author: <strong>{cnt.author}</strong> • Scheduled: <strong>{cnt.dayOfWeek || 'Weekly'} ({cnt.date || 'TBD'})</strong>
+                                </div>
+
+                                {/* DUAL LIKE / APPROVAL BUTTONS & DELETE BUTTON */}
+                                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                                  <button 
+                                    onClick={() => userRole === 'AASHISH' && handleToggleContentLike(cnt.id, 'aashish')}
+                                    disabled={userRole !== 'AASHISH'}
+                                    className="btn-action-outline"
+                                    style={{ 
+                                      background: cnt.aashishLiked ? '#dbeafe' : '#ffffff', 
+                                      color: cnt.aashishLiked ? '#1e40af' : '#71717a', 
+                                      borderColor: cnt.aashishLiked ? '#93c5fd' : '#c8c3b7',
+                                      fontSize: '0.78rem',
+                                      padding: '5px 10px',
+                                      fontWeight: '700',
+                                      opacity: userRole === 'AASHISH' ? 1 : 0.75,
+                                      cursor: userRole === 'AASHISH' ? 'pointer' : 'not-allowed'
+                                    }}
+                                    title={userRole === 'AASHISH' ? 'Click to toggle Aashish approval' : 'Aashish approval status'}
+                                  >
+                                    👍 Aashish {cnt.aashishLiked ? 'Approved ✅' : 'Approve'}
+                                  </button>
+
+                                  <button 
+                                    onClick={() => userRole === 'MINNI' && handleToggleContentLike(cnt.id, 'minni')}
+                                    disabled={userRole !== 'MINNI'}
+                                    className="btn-action-outline"
+                                    style={{ 
+                                      background: cnt.minniLiked ? '#fce7f3' : '#ffffff', 
+                                      color: cnt.minniLiked ? '#be185d' : '#71717a', 
+                                      borderColor: cnt.minniLiked ? '#fbcfe8' : '#c8c3b7',
+                                      fontSize: '0.78rem',
+                                      padding: '5px 10px',
+                                      fontWeight: '700',
+                                      opacity: userRole === 'MINNI' ? 1 : 0.75,
+                                      cursor: userRole === 'MINNI' ? 'pointer' : 'not-allowed'
+                                    }}
+                                    title={userRole === 'MINNI' ? 'Click to toggle Minni approval' : 'Minni approval status'}
+                                  >
+                                    👍 Minni {cnt.minniLiked ? 'Approved ✅' : 'Approve'}
+                                  </button>
+
+                                  {/* MINNI FINAL PUBLISH & CLOSE BUTTON */}
+                                  {userRole === 'MINNI' && !isPublished && isBothLiked && (
+                                    <button 
+                                      onClick={() => handlePublishContent(cnt.id)}
+                                      className="btn-action-outline"
+                                      style={{ background: '#ffffff', color: '#166534', borderColor: '#bbf7d0', fontSize: '0.78rem', padding: '5px 12px', fontWeight: '700' }}
+                                    >
+                                      🚀 Published
+                                    </button>
+                                  )}
+
+                                  {/* DELETE CONTENT POST BUTTON */}
+                                  <button
+                                    onClick={() => handleDeleteContent(cnt.id)}
+                                    className="btn-action-outline"
+                                    style={{
+                                      background: '#ffffff',
+                                      color: '#dc2626',
+                                      borderColor: '#fca5a5',
+                                      fontSize: '0.78rem',
+                                      padding: '5px 10px',
+                                      fontWeight: '700',
+                                      cursor: 'pointer'
+                                    }}
+                                    title="Delete content post idea"
+                                  >
+                                    🗑️ Delete
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+                  );
                 })()}
               </div>
             </div>
