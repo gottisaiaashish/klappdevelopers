@@ -317,7 +317,11 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
     service: 'Website Development',
     dueDate: getLocalDateStr(new Date(Date.now() + 14 * 86400000)),
     budget: '',
-    advancePaid: ''
+    advancePaid: '',
+    hasRetainer: false,
+    monthlyFee: 3000,
+    dueDay: 28,
+    retainerStartMonth: getLocalDateStr().slice(0, 7)
   });
 
   const [expandedProjectIds, setExpandedProjectIds] = useState({});
@@ -332,11 +336,12 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
     const budgetVal = parseFloat(newProject.budget) || 0;
     const advanceVal = parseFloat(newProject.advancePaid) || 0;
     const pendingVal = Math.max(0, budgetVal - advanceVal);
+    const projId = 'PRJ-' + Date.now();
 
     const prj = {
-      id: 'PRJ-' + Date.now(),
+      id: projId,
       name: newProject.name.trim(),
-      client: newProject.client.trim() || 'Client',
+      client: newProject.client.trim() || newProject.name.trim(),
       phone: newProject.phone.trim() || '+91 98765 43210',
       requirements: newProject.requirements.trim() || 'Standard Project Scope',
       service: newProject.service,
@@ -347,6 +352,11 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
       advancePaid: advanceVal,
       pendingAmount: pendingVal,
       owner: userRole === 'MINNI' ? 'Minni' : 'Aashish',
+      hasRetainer: !!newProject.hasRetainer,
+      monthlyFee: Number(newProject.monthlyFee) || 3000,
+      dueDay: Number(newProject.dueDay) || 28,
+      retainerStartMonth: newProject.retainerStartMonth || getLocalDateStr().slice(0, 7),
+      retainerPaidMonths: [],
       lastFollowedUpBy: '',
       lastFollowedUpAt: ''
     };
@@ -358,19 +368,53 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
       time: '11:59 PM',
       client: prj.client,
       attendees: 'Aashish & Minni',
-      type: 'Project Milestone Deadline',
-      date: prj.dueDate,
+      type: 'Deadline',
+      category: 'Deadline',
       link: '#'
     };
+
+    let updatedRetainers = Array.isArray(osData.retainers) ? [...osData.retainers] : [];
+
+    if (newProject.hasRetainer) {
+      const retainerItem = {
+        id: `ret-${Date.now()}`,
+        projectId: projId,
+        client: prj.client,
+        projectTitle: `${prj.name} Monthly Maintenance`,
+        monthlyFee: Number(newProject.monthlyFee) || 3000,
+        dueDay: Number(newProject.dueDay) || 28,
+        startMonth: newProject.retainerStartMonth || getLocalDateStr().slice(0, 7),
+        phone: prj.phone,
+        notes: `Monthly maintenance fee for ${prj.name}. ₹${newProject.monthlyFee || 3000} due on ${newProject.dueDay || 28}th of every month starting ${newProject.retainerStartMonth || 'this month'}.`,
+        paidMonths: [],
+        payments: []
+      };
+      updatedRetainers = [retainerItem, ...updatedRetainers];
+    }
 
     const updated = {
       ...osData,
       projects: [prj, ...(osData.projects || [])],
-      meetings: [deadlineMeeting, ...(osData.meetings || [])]
+      meetings: [deadlineMeeting, ...(osData.meetings || [])],
+      retainers: updatedRetainers
     };
 
     syncOSDataToBackend(updated);
-    setNewProject({ name: '', client: '', phone: '', requirements: '', service: 'Website Development', dueDate: getLocalDateStr(new Date(Date.now() + 14 * 86400000)), budget: '', advancePaid: '' });
+
+    setNewProject({
+      name: '',
+      client: '',
+      phone: '',
+      requirements: '',
+      service: 'Website Development',
+      dueDate: getLocalDateStr(new Date(Date.now() + 14 * 86400000)),
+      budget: '',
+      advancePaid: '',
+      hasRetainer: false,
+      monthlyFee: 3000,
+      dueDay: 28,
+      retainerStartMonth: getLocalDateStr().slice(0, 7)
+    });
     setShowAddProjectModal(false);
   };
 
@@ -1903,12 +1947,69 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                         <textarea rows={3} placeholder="" value={newProject.requirements} onChange={(e) => setNewProject({ ...newProject, requirements: e.target.value })} style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1px solid #d4d4d8', background: '#fff', fontSize: '0.85rem', fontFamily: 'inherit' }}></textarea>
                       </div>
 
+                      {/* MONTHLY RETAINER / MAINTENANCE SUBSCRIPTION SETTINGS */}
+                      <div style={{ background: '#faf8f5', border: '1px solid #c8c3b7', borderRadius: '10px', padding: '14px', marginBottom: '16px' }}>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontWeight: '800', fontSize: '0.86rem', color: '#18181b' }}>
+                          <input 
+                            type="checkbox" 
+                            checked={newProject.hasRetainer} 
+                            onChange={(e) => setNewProject({ ...newProject, hasRetainer: e.target.checked })} 
+                            style={{ width: '17px', height: '17px', cursor: 'pointer' }}
+                          />
+                          <span>🔄 Enable Monthly Maintenance Fee / Retainer Subscription for this Client</span>
+                        </label>
+
+                        {newProject.hasRetainer && (
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '12px', marginTop: '12px', background: '#ffffff', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1' }}>
+                            <div>
+                              <label style={{ fontSize: '0.75rem', fontWeight: '700', color: '#334155', display: 'block', marginBottom: '4px' }}>Monthly Retainer Fee (₹) *</label>
+                              <input 
+                                type="number" 
+                                required={newProject.hasRetainer}
+                                placeholder="3000" 
+                                value={newProject.monthlyFee} 
+                                onChange={(e) => setNewProject({ ...newProject, monthlyFee: e.target.value })} 
+                                style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.82rem', fontWeight: '600' }} 
+                              />
+                            </div>
+
+                            <div>
+                              <label style={{ fontSize: '0.75rem', fontWeight: '700', color: '#334155', display: 'block', marginBottom: '4px' }}>Payment Due Day of Month *</label>
+                              <input 
+                                type="number" 
+                                min="1" 
+                                max="31" 
+                                required={newProject.hasRetainer}
+                                placeholder="28" 
+                                value={newProject.dueDay} 
+                                onChange={(e) => setNewProject({ ...newProject, dueDay: e.target.value })} 
+                                style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.82rem', fontWeight: '600' }} 
+                              />
+                              <div style={{ fontSize: '0.7rem', color: '#71717a', marginTop: '2px' }}>e.g. 28 = Due on 28th of every month</div>
+                            </div>
+
+                            <div>
+                              <label style={{ fontSize: '0.75rem', fontWeight: '700', color: '#334155', display: 'block', marginBottom: '4px' }}>Retainer Start Month *</label>
+                              <select 
+                                value={newProject.retainerStartMonth} 
+                                onChange={(e) => setNewProject({ ...newProject, retainerStartMonth: e.target.value })} 
+                                style={{ width: '100%', padding: '8px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '0.82rem', fontWeight: '700', background: '#fff' }}
+                              >
+                                <option value={getLocalDateStr().slice(0, 7)}>📍 This Month ({getLocalDateStr().slice(0, 7)})</option>
+                                <option value={new Date(new Date().setMonth(new Date().getMonth() + 1)).toISOString().slice(0, 7)}>⏩ Next Month</option>
+                                <option value={new Date(new Date().setMonth(new Date().getMonth() + 2)).toISOString().slice(0, 7)}>⏩ Next Next Month</option>
+                              </select>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
                       <div style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'flex-end' }}>
                         <button type="button" onClick={() => setShowAddProjectModal(false)} className="btn-action-outline" style={{ background: '#ffffff', color: '#71717a', borderColor: '#d4d4d8', padding: '8px 16px', borderRadius: '8px', fontWeight: '600', fontSize: '0.82rem' }}>
                           Cancel
                         </button>
                         <button type="submit" className="btn-action-outline" style={{ background: '#ffffff', color: '#166534', borderColor: '#bbf7d0', padding: '8px 20px', borderRadius: '8px', fontWeight: '700', fontSize: '0.82rem' }}>
-                          Save Project & Feed to Calendar
+                          Save Project & Retainer Settings
                         </button>
                       </div>
                     </form>
@@ -1947,8 +2048,15 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                           }}
                         >
                           <div>
-                            <div style={{ fontWeight: '800', fontSize: '1.05rem', color: '#18181b' }}>
-                              {prj.name}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                              <div style={{ fontWeight: '800', fontSize: '1.05rem', color: '#18181b' }}>
+                                {prj.name}
+                              </div>
+                              {prj.hasRetainer && (
+                                <span style={{ fontSize: '0.75rem', background: '#eff6ff', color: '#1d4ed8', border: '1px solid #bfdbfe', padding: '2px 8px', borderRadius: '6px', fontWeight: '700' }}>
+                                  🔄 ₹{(prj.monthlyFee || 3000).toLocaleString()}/mo (Due {prj.dueDay || 28}th)
+                                </span>
+                              )}
                             </div>
                           </div>
 
@@ -2027,6 +2135,15 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                                 <span style={{ fontSize: '0.74rem', color: '#64748b', fontWeight: '600', display: 'block' }}>👤 Order Created By</span>
                                 <strong style={{ fontSize: '0.88rem', color: '#0f172a' }}>{prj.owner || 'Aashish'}</strong>
                               </div>
+
+                              {prj.hasRetainer && (
+                                <div>
+                                  <span style={{ fontSize: '0.74rem', color: '#2563eb', fontWeight: '700', display: 'block' }}>🔄 Monthly Maintenance</span>
+                                  <strong style={{ fontSize: '0.88rem', color: '#1d4ed8' }}>
+                                    ₹{(prj.monthlyFee || 3000).toLocaleString()}/mo (Due {prj.dueDay || 28}th)
+                                  </strong>
+                                </div>
+                              )}
                             </div>
 
                             {/* FULL DELIVERABLES SCOPE */}

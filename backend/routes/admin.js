@@ -6,10 +6,30 @@ const KlappOSData = require('../models/KlappOSData');
 
 const ADMIN_SECRET_KEY = process.env.ADMIN_SECRET_KEY || 'klapp_admin_secret_2026';
 
+const defaultNandakamProject = {
+  id: 'prj-nandakam-banquets',
+  name: 'Nandakam Banquets Website & Digital Suite',
+  client: 'Nandakam Banquets',
+  phone: '+91 98765 43210',
+  service: 'Full Website & Digital Maintenance',
+  status: 'COMPLETED',
+  priority: 'HIGH',
+  dueDate: '2026-08-28',
+  budget: 25000,
+  advancePaid: 10000,
+  pendingAmount: 15000,
+  requirements: 'Agreed budget ₹25,000. Net revenue received ₹10,000. ₹3,000 monthly maintenance fee due on 28th of every month starting August 2026.',
+  hasRetainer: true,
+  monthlyFee: 3000,
+  dueDay: 28,
+  retainerStartMonth: '2026-08',
+  retainerPaidMonths: []
+};
+
 // Default initial state fallback if database is fresh
 const defaultOSState = {
   key: 'klapp_os_global_state',
-  projects: [],
+  projects: [defaultNandakamProject],
   meetings: [],
   contentPlanner: [],
   tasks: [],
