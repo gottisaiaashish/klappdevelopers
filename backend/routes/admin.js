@@ -173,8 +173,21 @@ router.get('/os-data', requireAdminAuth, async (req, res) => {
       if (!data) {
         data = await KlappOSData.create(defaultOSState);
       }
-      if (!data.retainers || data.retainers.length === 0) {
+      let needsSave = false;
+      if (!Array.isArray(data.projects) || data.projects.length === 0) {
+        data.projects = defaultOSState.projects;
+        needsSave = true;
+      }
+      if (!Array.isArray(data.retainers) || data.retainers.length === 0) {
         data.retainers = defaultOSState.retainers;
+        needsSave = true;
+      }
+      if (needsSave) {
+        await KlappOSData.findOneAndUpdate(
+          { key: 'klapp_os_global_state' },
+          { projects: data.projects, retainers: data.retainers },
+          { upsert: true }
+        );
       }
       return res.json({ success: true, osData: data });
     }
@@ -197,17 +210,18 @@ router.post('/os-data', requireAdminAuth, async (req, res) => {
     osData.updatedAt = new Date().toISOString();
 
     if (mongoose.connection.readyState === 1) {
-      await KlappOSData.findOneAndUpdate(
+      const updatedDoc = await KlappOSData.findOneAndUpdate(
         { key: 'klapp_os_global_state' },
         osData,
-        { upsert: true, new: true }
-      );
+        { upsert: true, new: true, runValidators: false }
+      ).lean();
+      return res.json({ success: true, message: 'KLAPP OS state synced successfully!', osData: updatedDoc || osData });
     }
 
     return res.json({ success: true, message: 'KLAPP OS state synced successfully!', osData });
   } catch (err) {
     console.error('Error updating OS data:', err);
-    return res.status(500).json({ success: false, error: 'Failed to sync OS data' });
+    return res.status(500).json({ success: false, error: 'Failed to sync OS data: ' + err.message });
   }
 });
 
