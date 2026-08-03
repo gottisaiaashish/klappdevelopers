@@ -39,6 +39,7 @@ const defaultOSState = {
       mood: '✨ Creative Surge'
     }
   },
+  disciplineHistory: [],
   expenses: [],
   sharedGoals: [],
   aashishPad: '',

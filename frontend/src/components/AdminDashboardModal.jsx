@@ -650,16 +650,60 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
     } catch (err) {}
   };
 
+  const [disciplineViewDate, setDisciplineViewDate] = useState(getLocalDateStr());
+
   const handleToggleDisciplineItem = (person, key) => {
+    const todayStr = getLocalDateStr();
+    const updatedDisciplineLogs = {
+      ...osData.disciplineLogs,
+      date: todayStr,
+      [person]: {
+        ...osData.disciplineLogs[person],
+        [key]: !osData.disciplineLogs[person][key]
+      }
+    };
+
+    const aashishKeys = ['attendance', 'waterGoal', 'gym', 'protein', 'coding', 'dinner9pm', 'nightLeadCheck', 'sleep11pm'];
+    const minniKeys = ['attendance', 'waterGoal', 'instaPost1', 'instaPost2', 'storiesCompleted', 'scheduleNextDayPosts', 'coding', 'dinner9pm', 'sleep11pm'];
+
+    const aashishDone = aashishKeys.filter(k => updatedDisciplineLogs.aashish[k]).length;
+    const minniDone = minniKeys.filter(k => updatedDisciplineLogs.minni[k]).length;
+
+    const aashishPct = Math.round((aashishDone / aashishKeys.length) * 100);
+    const minniPct = Math.round((minniDone / minniKeys.length) * 100);
+
+    let winner = 'TIE';
+    if (aashishPct > minniPct) winner = 'AASHISH';
+    if (minniPct > aashishPct) winner = 'MINNI';
+
+    const historyEntry = {
+      date: todayStr,
+      aashishScore: aashishPct,
+      minniScore: minniPct,
+      aashishCompleted: aashishDone,
+      aashishTotal: aashishKeys.length,
+      minniCompleted: minniDone,
+      minniTotal: minniKeys.length,
+      winner,
+      aashishMood: updatedDisciplineLogs.aashish?.mood || '⚡ High Energy',
+      minniMood: updatedDisciplineLogs.minni?.mood || '✨ Creative Surge',
+      aashishTasks: { ...updatedDisciplineLogs.aashish },
+      minniTasks: { ...updatedDisciplineLogs.minni }
+    };
+
+    const existingHistory = Array.isArray(osData.disciplineHistory) ? osData.disciplineHistory : [];
+    const idx = existingHistory.findIndex(h => h.date === todayStr);
+    let updatedHistory = [...existingHistory];
+    if (idx >= 0) {
+      updatedHistory[idx] = historyEntry;
+    } else {
+      updatedHistory.unshift(historyEntry);
+    }
+
     const updated = {
       ...osData,
-      disciplineLogs: {
-        ...osData.disciplineLogs,
-        [person]: {
-          ...osData.disciplineLogs[person],
-          [key]: !osData.disciplineLogs[person][key]
-        }
-      }
+      disciplineLogs: updatedDisciplineLogs,
+      disciplineHistory: updatedHistory
     };
     syncOSDataToBackend(updated);
   };
@@ -2603,81 +2647,264 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
           {/* TAB 5: PERSONAL DISCIPLINE & COMPETITIVE STREAKS */}
           {activeTab === 'discipline' && (
             <div>
-              <div className="discipline-grid">
-                {/* AASHISH DISCIPLINE CARD */}
-                <div className="os-card">
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', paddingBottom: '10px', borderBottom: '1px solid #c8c3b7' }}>
-                    <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#2563eb', color: '#fff', fontWeight: '800', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>A</div>
-                    <div>
-                      <h4 style={{ margin: 0, fontWeight: '800' }}>Aashish Daily Routine</h4>
-                      <div style={{ fontSize: '0.75rem', color: '#71717a' }}>Status: {osData.disciplineLogs.aashish.mood}</div>
+              {(() => {
+                const todayStr = getLocalDateStr();
+                const historyList = Array.isArray(osData.disciplineHistory) ? osData.disciplineHistory : [];
+                
+                const aashishKeys = ['attendance', 'waterGoal', 'gym', 'protein', 'coding', 'dinner9pm', 'nightLeadCheck', 'sleep11pm'];
+                const minniKeys = ['attendance', 'waterGoal', 'instaPost1', 'instaPost2', 'storiesCompleted', 'scheduleNextDayPosts', 'coding', 'dinner9pm', 'sleep11pm'];
+
+                const aashishDoneCount = aashishKeys.filter(k => osData.disciplineLogs?.aashish?.[k]).length;
+                const minniDoneCount = minniKeys.filter(k => osData.disciplineLogs?.minni?.[k]).length;
+
+                const aashishPct = Math.round((aashishDoneCount / aashishKeys.length) * 100);
+                const minniPct = Math.round((minniDoneCount / minniKeys.length) * 100);
+
+                const isViewingToday = disciplineViewDate === todayStr;
+                const pastHistoryRecord = historyList.find(h => h.date === disciplineViewDate);
+
+                const aashishWins = historyList.filter(h => h.winner === 'AASHISH').length;
+                const minniWins = historyList.filter(h => h.winner === 'MINNI').length;
+
+                let aashishStreak = 0;
+                let minniStreak = 0;
+
+                for (let i = 0; i < historyList.length; i++) {
+                  if (historyList[i].aashishScore === 100) aashishStreak++;
+                  else break;
+                }
+                for (let i = 0; i < historyList.length; i++) {
+                  if (historyList[i].minniScore === 100) minniStreak++;
+                  else break;
+                }
+
+                const activeAashishTasks = isViewingToday 
+                  ? (osData.disciplineLogs?.aashish || {}) 
+                  : (pastHistoryRecord?.aashishTasks || {});
+                
+                const activeMinniTasks = isViewingToday 
+                  ? (osData.disciplineLogs?.minni || {}) 
+                  : (pastHistoryRecord?.minniTasks || {});
+
+                const activeAashishPct = isViewingToday ? aashishPct : (pastHistoryRecord?.aashishScore || 0);
+                const activeMinniPct = isViewingToday ? minniPct : (pastHistoryRecord?.minniScore || 0);
+
+                return (
+                  <div>
+                    {/* TOP COMPETITIVE BATTLE ARENA CARD */}
+                    <div className="os-card" style={{ marginBottom: '20px', background: 'linear-gradient(135deg, #ffffff 0%, #faf8f5 100%)', border: '1px solid #c8c3b7' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>
+                        <div>
+                          <h3 style={{ fontSize: '1.2rem', fontWeight: '800', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span>⚔️</span> Founder vs Operations Battle Arena
+                          </h3>
+                          <div style={{ fontSize: '0.8rem', color: '#71717a', marginTop: '2px' }}>
+                            {isViewingToday ? `Live Battle for Today (${todayStr})` : `Historical Record for ${disciplineViewDate}`}
+                          </div>
+                        </div>
+
+                        {/* LIVE BATTLE LEADERBOARD BADGES */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                          <span style={{ background: '#eff6ff', color: '#1d4ed8', border: '1px solid #bfdbfe', padding: '4px 10px', borderRadius: '8px', fontSize: '0.78rem', fontWeight: '700' }}>
+                            🔥 Aashish Streak: {aashishStreak} Days
+                          </span>
+                          <span style={{ background: '#fce7f3', color: '#be185d', border: '1px solid #fbcfe8', padding: '4px 10px', borderRadius: '8px', fontSize: '0.78rem', fontWeight: '700' }}>
+                            🔥 Minni Streak: {minniStreak} Days
+                          </span>
+                          <span style={{ background: '#fef3c7', color: '#92400e', border: '1px solid #fde68a', padding: '4px 10px', borderRadius: '8px', fontSize: '0.78rem', fontWeight: '800' }}>
+                            🏆 Score: Aashish {aashishWins} - {minniWins} Minni
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* REAL-TIME COMPARISON PROGRESS BAR */}
+                      <div style={{ marginBottom: '16px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.88rem', fontWeight: '800', marginBottom: '6px' }}>
+                          <span style={{ color: '#2563eb' }}>🟦 Aashish: {activeAashishPct}% ({isViewingToday ? aashishDoneCount : (pastHistoryRecord?.aashishCompleted || 0)}/8)</span>
+                          <span style={{ color: '#ec4899' }}>🟨 Minni: {activeMinniPct}% ({isViewingToday ? minniDoneCount : (pastHistoryRecord?.minniCompleted || 0)}/9)</span>
+                        </div>
+                        <div style={{ display: 'flex', height: '14px', borderRadius: '7px', overflow: 'hidden', background: '#e2e8f0' }}>
+                          <div style={{ width: `${(activeAashishPct / (activeAashishPct + activeMinniPct || 1)) * 100}%`, background: '#2563eb', transition: 'width 0.4s ease' }} title={`Aashish ${activeAashishPct}%`}></div>
+                          <div style={{ width: `${(activeMinniPct / (activeAashishPct + activeMinniPct || 1)) * 100}%`, background: '#ec4899', transition: 'width 0.4s ease' }} title={`Minni ${activeMinniPct}%`}></div>
+                        </div>
+                      </div>
+
+                      {/* WINNER ANNOUNCEMENT BANNER */}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#ffffff', padding: '10px 14px', borderRadius: '8px', border: '1px solid #e2e8f0', flexWrap: 'wrap', gap: '10px' }}>
+                        <div style={{ fontWeight: '700', fontSize: '0.85rem' }}>
+                          {activeMinniPct > activeAashishPct ? (
+                            <span style={{ color: '#be185d' }}>👑 MINNI IS DOMINATING {isViewingToday ? 'TODAY' : `ON ${disciplineViewDate}`} (+{activeMinniPct - activeAashishPct}%)</span>
+                          ) : activeAashishPct > activeMinniPct ? (
+                            <span style={{ color: '#1d4ed8' }}>👑 AASHISH IS DOMINATING {isViewingToday ? 'TODAY' : `ON ${disciplineViewDate}`} (+{activeAashishPct - activeMinniPct}%)</span>
+                          ) : (
+                            <span style={{ color: '#15803d' }}>🤝 PERFECT EQUAL TIE ({activeAashishPct}%)</span>
+                          )}
+                        </div>
+                        <div style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: '600' }}>
+                          {isViewingToday ? '⚡ Live Habits Checklist (Click rows to complete)' : '📜 Historical Read-only View'}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* HISTORY RECORDS ARCHIVE & DATE NAVIGATOR */}
+                    <div className="os-card" style={{ marginBottom: '20px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <h4 style={{ fontSize: '0.98rem', fontWeight: '800', margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <i className="ri-history-line" style={{ color: '#2563eb' }}></i> Saved History & Past Battle Records
+                          </h4>
+                        </div>
+
+                        {/* DATE SELECTION PILLS & DATE PICKER */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                          <button
+                            type="button"
+                            onClick={() => setDisciplineViewDate(todayStr)}
+                            style={{
+                              padding: '5px 12px',
+                              borderRadius: '8px',
+                              border: disciplineViewDate === todayStr ? '2px solid #2563eb' : '1px solid #cbd5e1',
+                              background: disciplineViewDate === todayStr ? '#eff6ff' : '#ffffff',
+                              color: disciplineViewDate === todayStr ? '#2563eb' : '#475569',
+                              fontSize: '0.78rem',
+                              fontWeight: '700',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            📍 Today ({todayStr.slice(5)})
+                          </button>
+
+                          {historyList.slice(0, 5).map(h => {
+                            const isSelected = disciplineViewDate === h.date;
+                            if (h.date === todayStr) return null;
+                            return (
+                              <button
+                                key={h.date}
+                                type="button"
+                                onClick={() => setDisciplineViewDate(h.date)}
+                                style={{
+                                  padding: '5px 12px',
+                                  borderRadius: '8px',
+                                  border: isSelected ? '2px solid #2563eb' : '1px solid #cbd5e1',
+                                  background: isSelected ? '#eff6ff' : '#ffffff',
+                                  color: isSelected ? '#2563eb' : '#475569',
+                                  fontSize: '0.78rem',
+                                  fontWeight: '700',
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                {h.winner === 'MINNI' ? '👑 M' : (h.winner === 'AASHISH' ? '👑 A' : '🤝')} {h.date.slice(5)}
+                              </button>
+                            );
+                          })}
+
+                          <input
+                            type="date"
+                            value={disciplineViewDate}
+                            onChange={(e) => e.target.value && setDisciplineViewDate(e.target.value)}
+                            style={{
+                              padding: '4px 8px',
+                              borderRadius: '8px',
+                              border: '1px solid #cbd5e1',
+                              fontSize: '0.78rem',
+                              fontWeight: '600',
+                              color: '#334155'
+                            }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* DUAL CHECKLIST CARDS */}
+                    <div className="discipline-grid">
+                      {/* AASHISH DISCIPLINE CARD */}
+                      <div className="os-card">
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', paddingBottom: '10px', borderBottom: '1px solid #c8c3b7' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#2563eb', color: '#fff', fontWeight: '800', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>A</div>
+                            <div>
+                              <h4 style={{ margin: 0, fontWeight: '800' }}>Aashish Daily Routine</h4>
+                              <div style={{ fontSize: '0.75rem', color: '#71717a' }}>Status: {osData.disciplineLogs?.aashish?.mood || '⚡ High Energy'}</div>
+                            </div>
+                          </div>
+                          <span style={{ fontSize: '0.85rem', fontWeight: '800', color: '#2563eb' }}>
+                            {activeAashishPct}%
+                          </span>
+                        </div>
+
+                        {[
+                          ['attendance', '🌅 College Departure (9:00 AM)'],
+                          ['waterGoal', '💧 Daytime Water Goal (3L)'],
+                          ['gym', '🏋️‍♂️ Evening Gym Workout (4:00 PM)'],
+                          ['protein', '🥤 Post-Workout Protein Shake'],
+                          ['coding', '💻 Joint Coding Session (8:00 PM - 9:30 PM)'],
+                          ['dinner9pm', '🍲 Dinner Before 9:00 PM'],
+                          ['nightLeadCheck', '📞 Night Lead & Inquiry Check (10:30 PM)'],
+                          ['sleep11pm', '🌙 Sleep Before 11:00 PM']
+                        ].map(([key, label]) => {
+                          const done = activeAashishTasks[key];
+                          return (
+                            <div 
+                              key={key} 
+                              className="habit-row"
+                              onClick={() => isViewingToday && userRole === 'AASHISH' && handleToggleDisciplineItem('aashish', key)}
+                              style={{ cursor: isViewingToday && userRole === 'AASHISH' ? 'pointer' : 'default' }}
+                            >
+                              <span style={{ fontSize: '0.88rem', fontWeight: '600' }}>{label}</span>
+                              <span className={done ? 'state-badge-done' : 'state-badge-pending'}>
+                                {done ? '✅ DONE' : '⏳ PENDING'}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {/* MINNI DISCIPLINE CARD */}
+                      <div className="os-card">
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', paddingBottom: '10px', borderBottom: '1px solid #c8c3b7' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#ec4899', color: '#fff', fontWeight: '800', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>M</div>
+                            <div>
+                              <h4 style={{ margin: 0, fontWeight: '800' }}>Manashvini (Minni) Daily Routine</h4>
+                              <div style={{ fontSize: '0.75rem', color: '#71717a' }}>Status: {osData.disciplineLogs?.minni?.mood || '✨ Creative Surge'}</div>
+                            </div>
+                          </div>
+                          <span style={{ fontSize: '0.85rem', fontWeight: '800', color: '#ec4899' }}>
+                            {activeMinniPct}%
+                          </span>
+                        </div>
+
+                        {[
+                          ['attendance', '🌅 College Departure (9:00 AM)'],
+                          ['waterGoal', '💧 Daytime Water Goal (3L)'],
+                          ['instaPost1', '📸 Today Instagram Post 1'],
+                          ['instaPost2', '📸 Today Instagram Post 2'],
+                          ['storiesCompleted', '📲 Stories Sequence Completed'],
+                          ['scheduleNextDayPosts', '📅 Generate & Schedule Tomorrow 2 Posts'],
+                          ['coding', '💻 Joint Coding Session (8:00 PM - 9:30 PM)'],
+                          ['dinner9pm', '🍲 Dinner Before 9:00 PM'],
+                          ['sleep11pm', '🌙 Sleep Before 11:00 PM']
+                        ].map(([key, label]) => {
+                          const done = activeMinniTasks[key];
+                          return (
+                            <div 
+                              key={key} 
+                              className="habit-row"
+                              onClick={() => isViewingToday && userRole === 'MINNI' && handleToggleDisciplineItem('minni', key)}
+                              style={{ cursor: isViewingToday && userRole === 'MINNI' ? 'pointer' : 'default' }}
+                            >
+                              <span style={{ fontSize: '0.88rem', fontWeight: '600' }}>{label}</span>
+                              <span className={done ? 'state-badge-done' : 'state-badge-pending'}>
+                                {done ? '✅ DONE' : '⏳ PENDING'}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
                   </div>
-
-                  {[
-                    ['attendance', '🌅 College Departure (9:00 AM)'],
-                    ['waterGoal', '💧 Daytime Water Goal (3L)'],
-                    ['gym', '🏋️‍♂️ Evening Gym Workout (4:00 PM)'],
-                    ['protein', '🥤 Post-Workout Protein Shake'],
-                    ['coding', '💻 Joint Coding Session (8:00 PM - 9:30 PM)'],
-                    ['dinner9pm', '🍲 Dinner Before 9:00 PM'],
-                    ['nightLeadCheck', '📞 Night Lead & Inquiry Check (10:30 PM)'],
-                    ['sleep11pm', '🌙 Sleep Before 11:00 PM']
-                  ].map(([key, label]) => {
-                    const done = osData.disciplineLogs.aashish[key];
-                    return (
-                      <div 
-                        key={key} 
-                        className="habit-row"
-                        onClick={() => userRole === 'AASHISH' && handleToggleDisciplineItem('aashish', key)}
-                      >
-                        <span style={{ fontSize: '0.88rem', fontWeight: '600' }}>{label}</span>
-                        <span className={done ? 'state-badge-done' : 'state-badge-pending'}>
-                          {done ? '✅ DONE' : '⏳ PENDING'}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* MINNI DISCIPLINE CARD */}
-                <div className="os-card">
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', paddingBottom: '10px', borderBottom: '1px solid #c8c3b7' }}>
-                    <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#ec4899', color: '#fff', fontWeight: '800', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>M</div>
-                    <div>
-                      <h4 style={{ margin: 0, fontWeight: '800' }}>Manashvini (Minni) Daily Routine</h4>
-                      <div style={{ fontSize: '0.75rem', color: '#71717a' }}>Status: {osData.disciplineLogs.minni.mood}</div>
-                    </div>
-                  </div>
-
-                  {[
-                    ['attendance', '🌅 College Departure (9:00 AM)'],
-                    ['waterGoal', '💧 Daytime Water Goal (3L)'],
-                    ['instaPost1', '📸 Today Instagram Post 1'],
-                    ['instaPost2', '📸 Today Instagram Post 2'],
-                    ['storiesCompleted', '📲 Stories Sequence Completed'],
-                    ['scheduleNextDayPosts', '📅 Generate & Schedule Tomorrow 2 Posts'],
-                    ['coding', '💻 Joint Coding Session (8:00 PM - 9:30 PM)'],
-                    ['dinner9pm', '🍲 Dinner Before 9:00 PM'],
-                    ['sleep11pm', '🌙 Sleep Before 11:00 PM']
-                  ].map(([key, label]) => {
-                    const done = osData.disciplineLogs.minni[key];
-                    return (
-                      <div 
-                        key={key} 
-                        className="habit-row"
-                        onClick={() => userRole === 'MINNI' && handleToggleDisciplineItem('minni', key)}
-                      >
-                        <span style={{ fontSize: '0.88rem', fontWeight: '600' }}>{label}</span>
-                        <span className={done ? 'state-badge-done' : 'state-badge-pending'}>
-                          {done ? '✅ DONE' : '⏳ PENDING'}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
+                );
+              })()}
             </div>
           )}
 
