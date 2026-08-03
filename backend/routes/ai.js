@@ -135,15 +135,26 @@ function generateSmartFallbackReply(message, history = []) {
     return `For Real Estate Companies:\n• Property Listings & 360 Floor Plan Showcase\n• Automated WhatsApp Lead Capture & Brochure Dispatch\n\nWhat is your target budget for your real estate portal?`;
   }
 
+  if (q === 'nothing' || q === 'no' || q === 'nope' || q === 'just looking' || q === 'testing' || q === 'check') {
+    return `No problem at all! Whenever you are ready to engineer a custom Web App, E-Commerce Storefront, or Meta WhatsApp Automation for your business, I'm here 24/7. Would you like to check our pricing tiers or see our client case studies?`;
+  }
+
+  if (q === 'ok' || q === 'okay' || q === 'sure' || q === 'fine' || q === 'cool' || q === 'super' || q === 'hmmm' || q === 'ha' || q === 'k') {
+    return `Awesome! Tell me what business you run (e.g. gym, medical shop, school, hotel, salon, grocery, travel) or what your target budget is, and I'll outline the exact custom software setup for you!`;
+  }
+
   if (q.includes('aashish') || q.includes('founder') || q.includes('gotti') || q.includes('who built')) {
     return `Gotti Aashish is the Founder & Lead Digital Architect at KLAPP Developers! He is an 18-year-old software engineer with 4+ years of hands-on experience. Direct WhatsApp: +91 79890 33580.`;
   }
 
   if (q.includes('hi') || q.includes('hello') || q.includes('hey') || q.includes('namaste') || q.includes('start')) {
+    if (Array.isArray(history) && history.length > 0) {
+      return `Hello again! How can I assist you with your project today? Tell me what business you run or what custom software features you are looking for!`;
+    }
     return `Hey there! Welcome to KLAPP Developers. I'm KLAPP AI, your Senior Solutions Architect. We build high-performance custom web applications, admin dashboards, and Meta WhatsApp bots. What kind of business do you run?`;
   }
 
-  return `Thanks for reaching out! We build 360° custom digital solutions (Web Apps, Admin Portals, Meta WhatsApp API Bots, and Google/Meta Ads). Tell me what business you run and what your target budget is, and I'll outline the exact technical setup for you!`;
+  return `I'm here to help you design the perfect digital system for your business! We engineer custom React Web Apps, Admin Dashboards, Razorpay Gateways, and Meta WhatsApp Cloud API Bots. What solution or pricing details would you like to explore?`;
 }
 
 

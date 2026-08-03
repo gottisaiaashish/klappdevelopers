@@ -447,15 +447,30 @@ We build custom Gemini 1.5 & GPT-4o agents, vector database engines, and automat
 What is your budget for AI automation? Tell me your target budget, and I'll outline what we can build for you!`;
     }
 
+    if (q === 'nothing' || q === 'no' || q === 'nope' || q === 'just looking' || q === 'testing' || q === 'check') {
+      return `No problem at all! Whenever you are ready to engineer a custom Web App, E-Commerce Storefront, or Meta WhatsApp Automation for your business, I'm here 24/7. Would you like to check our pricing tiers or see our client case studies?`;
+    }
+
+    if (q === 'ok' || q === 'okay' || q === 'sure' || q === 'fine' || q === 'cool' || q === 'super' || q === 'hmmm' || q === 'ha' || q === 'k') {
+      return `Awesome! Tell me what business you run (e.g. gym, medical shop, school, hotel, salon, grocery, travel) or what your target budget is, and I'll outline the exact custom software setup for you!`;
+    }
+
     if (q.includes('aashish') || q.includes('founder') || q.includes('nani') || q.includes('gotti')) {
       return CONSULTANT_KNOWLEDGE_BASE.founder;
+    }
+
+    if (q.includes('hi') || q.includes('hello') || q.includes('hey') || q.includes('namaste') || q.includes('start')) {
+      if (messages.length > 0) {
+        return `Hello again! How can I assist you with your project today? Tell me what business you run or what custom software features you are looking for!`;
+      }
+      return CONSULTANT_KNOWLEDGE_BASE.greeting;
     }
 
     if (q.includes('about') || q.includes('service') || q.includes('solution') || q.includes('klapp')) {
       return CONSULTANT_KNOWLEDGE_BASE.about;
     }
 
-    return CONSULTANT_KNOWLEDGE_BASE.default;
+    return `I'm here to help you design the perfect digital system for your business! We engineer custom React Web Apps, Admin Dashboards, Razorpay Gateways, and Meta WhatsApp Cloud API Bots. What solution or pricing details would you like to explore?`;
   };
 
   const processQuery = async (userQuery) => {
