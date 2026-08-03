@@ -2919,6 +2919,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                             </div>
                           );
                         })}
+                      </div>
                     </div>
                   </div>
                 );
