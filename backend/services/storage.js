@@ -2,9 +2,11 @@ const fs = require('fs');
 const path = require('path');
 const mongoose = require('mongoose');
 const Inquiry = require('../models/Inquiry');
+const AiSession = require('../models/AiSession');
 
 const DATA_DIR = path.join(__dirname, '..', 'data');
 const FILE_PATH = path.join(DATA_DIR, 'inquiries.json');
+const AI_SESSIONS_FILE_PATH = path.join(DATA_DIR, 'ai_sessions.json');
 
 function ensureStorage() {
   if (!fs.existsSync(DATA_DIR)) {
@@ -12,6 +14,9 @@ function ensureStorage() {
   }
   if (!fs.existsSync(FILE_PATH)) {
     fs.writeFileSync(FILE_PATH, JSON.stringify([], null, 2), 'utf-8');
+  }
+  if (!fs.existsSync(AI_SESSIONS_FILE_PATH)) {
+    fs.writeFileSync(AI_SESSIONS_FILE_PATH, JSON.stringify([], null, 2), 'utf-8');
   }
 }
 
@@ -117,9 +122,128 @@ async function updateInquiryStatus(id, status) {
   return null;
 }
 
+// ---------------------------------------------------------------------------
+// AI Session Storage Helpers (Hybrid MongoDB + Local JSON File)
+// ---------------------------------------------------------------------------
+
+async function getAllAiSessions() {
+  ensureStorage();
+  if (mongoose.connection.readyState === 1) {
+    try {
+      const docs = await AiSession.find().sort({ updatedAt: -1 }).lean();
+      if (docs && docs.length >= 0) return docs;
+    } catch (err) {
+      console.warn('MongoDB fetch AI Sessions fallback to local file:', err.message);
+    }
+  }
+
+  try {
+    const raw = fs.readFileSync(AI_SESSIONS_FILE_PATH, 'utf-8');
+    const sessions = JSON.parse(raw || '[]');
+    sessions.sort((a, b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt));
+    return sessions;
+  } catch (err) {
+    console.error('Error reading AI sessions storage:', err);
+    return [];
+  }
+}
+
+async function saveOrUpdateAiSession(sessionData) {
+  ensureStorage();
+  const sessionId = sessionData.sessionId;
+  const nowIso = new Date().toISOString();
+
+  // Try MongoDB upsert first
+  if (mongoose.connection.readyState === 1) {
+    try {
+      await AiSession.findOneAndUpdate(
+        { sessionId },
+        {
+          $set: {
+            clientName: sessionData.clientName || 'Anonymous Visitor',
+            contact: sessionData.contact || '',
+            businessType: sessionData.businessType || 'Unspecified Business',
+            budget: sessionData.budget || 'Not Stated',
+            status: sessionData.status || 'ACTIVE',
+            messages: sessionData.messages || [],
+            inquiryId: sessionData.inquiryId || null,
+            updatedAt: new Date()
+          },
+          $setOnInsert: {
+            createdAt: new Date()
+          }
+        },
+        { upsert: true, new: true }
+      );
+    } catch (err) {
+      console.warn('Error saving AI Session to MongoDB:', err.message);
+    }
+  }
+
+  // Local JSON fallback storage
+  try {
+    let sessions = [];
+    try {
+      const raw = fs.readFileSync(AI_SESSIONS_FILE_PATH, 'utf-8');
+      sessions = JSON.parse(raw || '[]');
+    } catch (e) {}
+
+    const index = sessions.findIndex(s => s.sessionId === sessionId);
+    const updatedRecord = {
+      sessionId,
+      clientName: sessionData.clientName || (index >= 0 ? sessions[index].clientName : 'Anonymous Visitor'),
+      contact: sessionData.contact || (index >= 0 ? sessions[index].contact : ''),
+      businessType: sessionData.businessType || (index >= 0 ? sessions[index].businessType : 'Unspecified Business'),
+      budget: sessionData.budget || (index >= 0 ? sessions[index].budget : 'Not Stated'),
+      status: sessionData.status || (index >= 0 ? sessions[index].status : 'ACTIVE'),
+      messages: sessionData.messages || (index >= 0 ? sessions[index].messages : []),
+      inquiryId: sessionData.inquiryId || (index >= 0 ? sessions[index].inquiryId : null),
+      createdAt: index >= 0 ? sessions[index].createdAt : nowIso,
+      updatedAt: nowIso
+    };
+
+    if (index >= 0) {
+      sessions[index] = updatedRecord;
+    } else {
+      sessions.unshift(updatedRecord);
+    }
+
+    fs.writeFileSync(AI_SESSIONS_FILE_PATH, JSON.stringify(sessions, null, 2), 'utf-8');
+    return updatedRecord;
+  } catch (err) {
+    console.error('Error saving AI Session to local file:', err);
+    return null;
+  }
+}
+
+async function deleteAiSession(sessionId) {
+  ensureStorage();
+  if (mongoose.connection.readyState === 1) {
+    try {
+      await AiSession.deleteOne({ sessionId });
+    } catch (err) {}
+  }
+
+  try {
+    let sessions = [];
+    try {
+      const raw = fs.readFileSync(AI_SESSIONS_FILE_PATH, 'utf-8');
+      sessions = JSON.parse(raw || '[]');
+    } catch (e) {}
+    sessions = sessions.filter(s => s.sessionId !== sessionId);
+    fs.writeFileSync(AI_SESSIONS_FILE_PATH, JSON.stringify(sessions, null, 2), 'utf-8');
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
+
 module.exports = {
   getAllInquiries,
   saveInquiry,
   deleteInquiry,
-  updateInquiryStatus
+  updateInquiryStatus,
+  getAllAiSessions,
+  saveOrUpdateAiSession,
+  deleteAiSession
 };

@@ -15,8 +15,12 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
     sessionStorage.getItem('klapp_admin_avatar') || 'AASHISH'
   );
 
-  const [activeTab, setActiveTab] = useState('overview'); // 'overview', 'inquiries', 'projects', 'calendar', 'content', 'revenue', 'discipline', 'competition', 'reminders', 'addLead', 'notes'
+  const [activeTab, setActiveTab] = useState('overview'); // 'overview', 'inquiries', 'ai_chats', 'projects', 'calendar', 'content', 'revenue', 'discipline', 'competition', 'reminders', 'addLead', 'notes'
   const [inquiries, setInquiries] = useState([]);
+  const [aiSessions, setAiSessions] = useState([]);
+  const [selectedAiSession, setSelectedAiSession] = useState(null);
+  const [aiSearchTerm, setAiSearchTerm] = useState('');
+  const [aiStatusFilter, setAiStatusFilter] = useState('ALL');
   const [metrics, setMetrics] = useState({ total: 0, newLeads: 0, contacted: 0, closed: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -556,11 +560,44 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
     });
   };
 
+  const fetchAiSessions = async () => {
+    const token = sessionStorage.getItem('klapp_admin_token') || 'klapp_admin_token_04160416';
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/ai/sessions?token=${token}`, {
+        headers: { 'x-admin-token': token }
+      });
+      const data = await res.json();
+      if (res.ok && data.success && Array.isArray(data.sessions)) {
+        setAiSessions(data.sessions);
+      }
+    } catch (err) {
+      console.warn('Backend AI sessions fetch warning:', err);
+    }
+  };
+
+  const handleDeleteAiSession = async (sessionId) => {
+    if (!window.confirm('Are you sure you want to delete this AI Chat Log?')) return;
+    setAiSessions(prev => prev.filter(s => s.sessionId !== sessionId));
+    if (selectedAiSession && selectedAiSession.sessionId === sessionId) {
+      setSelectedAiSession(null);
+    }
+    const token = sessionStorage.getItem('klapp_admin_token') || 'klapp_admin_token_04160416';
+    try {
+      await fetch(`${API_BASE_URL}/api/ai/session/${sessionId}?token=${token}`, {
+        method: 'DELETE',
+        headers: { 'x-admin-token': token }
+      });
+    } catch (err) {}
+  };
+
   useEffect(() => {
     if (isOpen) {
       const currentAvatar = sessionStorage.getItem('klapp_admin_avatar') || 'AASHISH';
       setUserRole(currentAvatar);
       fetchInquiries();
+      fetchAiSessions();
+      const interval = setInterval(fetchAiSessions, 4000);
+      return () => clearInterval(interval);
     }
   }, [isOpen]);
 
@@ -865,6 +902,13 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
               <span><i className="ri-chat-smile-2-fill" style={{ marginRight: '8px', color: '#2563eb' }}></i> Klapp Messenger</span>
               <span className="sidebar-badge" style={{ background: messengerUnreadCount > 0 ? '#16a34a' : '#2563eb', color: '#fff', fontWeight: 'bold' }}>
                 {messengerUnreadCount}
+              </span>
+            </button>
+
+            <button className={`sidebar-nav-btn ${activeTab === 'ai_chats' ? 'active' : ''}`} onClick={() => setActiveTab('ai_chats')} style={{ borderColor: '#8b5cf6' }}>
+              <span><i className="ri-robot-line" style={{ marginRight: '8px', color: '#8b5cf6' }}></i> KLAPP AI Live Chats</span>
+              <span className="sidebar-badge" style={{ background: '#8b5cf6', color: '#fff', fontWeight: 'bold' }}>
+                {aiSessions.length}
               </span>
             </button>
 
@@ -1288,6 +1332,284 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                   </div>
                 ))
               )}
+            </div>
+          )}
+
+          {/* TAB: KLAPP AI LIVE CHATS & LEADS */}
+          {activeTab === 'ai_chats' && (
+            <div>
+              {/* TOP METRICS GRID */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px', marginBottom: '20px' }}>
+                <div className="os-card" style={{ marginBottom: 0 }}>
+                  <div style={{ fontSize: '0.76rem', fontWeight: '700', color: '#71717a', textTransform: 'uppercase', marginBottom: '4px' }}>TOTAL AI CHATS</div>
+                  <div style={{ fontSize: '1.8rem', fontWeight: '800', color: '#8b5cf6' }}>{aiSessions.length}</div>
+                  <div style={{ fontSize: '0.76rem', color: '#6d28d9', fontWeight: '600', marginTop: '4px' }}>Live Visitors & Leads</div>
+                </div>
+
+                <div className="os-card" style={{ marginBottom: 0, background: '#f0fdf4', border: '1px solid #bbf7d0' }}>
+                  <div style={{ fontSize: '0.76rem', fontWeight: '700', color: '#166534', textTransform: 'uppercase', marginBottom: '4px' }}>CAPTURED CONTACT LEADS</div>
+                  <div style={{ fontSize: '1.8rem', fontWeight: '800', color: '#15803d' }}>
+                    {aiSessions.filter(s => s.status === 'LEAD_CAPTURED' || s.contact).length}
+                  </div>
+                  <div style={{ fontSize: '0.76rem', color: '#15803d', fontWeight: '600', marginTop: '4px' }}>Phone / Email Extracted</div>
+                </div>
+
+                <div className="os-card" style={{ marginBottom: 0 }}>
+                  <div style={{ fontSize: '0.76rem', fontWeight: '700', color: '#71717a', textTransform: 'uppercase', marginBottom: '4px' }}>ACTIVE VISITORS</div>
+                  <div style={{ fontSize: '1.8rem', fontWeight: '800', color: '#18181b' }}>
+                    {aiSessions.filter(s => s.status === 'ACTIVE').length}
+                  </div>
+                  <div style={{ fontSize: '0.76rem', color: '#71717a', fontWeight: '600', marginTop: '4px' }}>Exploring Solutions</div>
+                </div>
+              </div>
+
+              {/* SEARCH & FILTERS BAR */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '14px', marginBottom: '20px' }}>
+                <div style={{ flex: 1, minWidth: '280px' }}>
+                  <input
+                    type="text"
+                    placeholder="Search AI sessions by visitor name, phone, business, budget..."
+                    value={aiSearchTerm}
+                    onChange={(e) => setAiSearchTerm(e.target.value)}
+                    style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1px solid #c8c3b7', outline: 'none', background: '#fff', fontSize: '0.88rem' }}
+                  />
+                </div>
+
+                <div style={{ display: 'flex', gap: '6px' }}>
+                  {['ALL', 'LEAD_CAPTURED', 'ACTIVE'].map(st => (
+                    <button
+                      key={st}
+                      onClick={() => setAiStatusFilter(st)}
+                      style={{
+                        padding: '6px 12px',
+                        borderRadius: '8px',
+                        fontSize: '0.78rem',
+                        fontWeight: '700',
+                        border: '1px solid #c8c3b7',
+                        cursor: 'pointer',
+                        background: aiStatusFilter === st ? '#8b5cf6' : '#ffffff',
+                        color: aiStatusFilter === st ? '#ffffff' : '#18181b'
+                      }}
+                    >
+                      {st === 'LEAD_CAPTURED' ? '🎯 LEAD CAPTURED' : st}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* AI CHAT SESSIONS LIST */}
+              {(() => {
+                const filtered = aiSessions.filter(s => {
+                  const query = aiSearchTerm.toLowerCase();
+                  const matchesSearch =
+                    (s.clientName || '').toLowerCase().includes(query) ||
+                    (s.contact || '').toLowerCase().includes(query) ||
+                    (s.businessType || '').toLowerCase().includes(query) ||
+                    (s.budget || '').toLowerCase().includes(query) ||
+                    (s.sessionId || '').toLowerCase().includes(query);
+
+                  const matchesStatus = aiStatusFilter === 'ALL' || s.status === aiStatusFilter;
+                  return matchesSearch && matchesStatus;
+                });
+
+                if (filtered.length === 0) {
+                  return (
+                    <div className="os-card" style={{ textAlign: 'center', padding: '40px' }}>
+                      <i className="ri-robot-line" style={{ fontSize: '2.5rem', color: '#a1a1aa' }}></i>
+                      <p style={{ fontWeight: '600', color: '#71717a', marginTop: '10px' }}>No live AI chat sessions found matching your criteria.</p>
+                    </div>
+                  );
+                }
+
+                return filtered.map(s => {
+                  const isCaptured = s.status === 'LEAD_CAPTURED' || Boolean(s.contact);
+                  const msgCount = Array.isArray(s.messages) ? s.messages.length : 0;
+                  const lastMsg = msgCount > 0 ? s.messages[msgCount - 1] : null;
+
+                  return (
+                    <div key={s.sessionId} className="os-card" style={{ borderLeft: isCaptured ? '4px solid #22c55e' : '4px solid #8b5cf6' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '14px', marginBottom: '12px' }}>
+                        <div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' }}>
+                            <h4 style={{ fontSize: '1.15rem', fontWeight: '800', margin: 0, color: '#18181b' }}>
+                              {s.clientName || 'Anonymous Visitor'}
+                            </h4>
+                            <span className={`badge-status ${isCaptured ? 'status-NEW' : 'status-IN_PROGRESS'}`}>
+                              {isCaptured ? '🎯 LEAD CAPTURED' : 'VISITOR SESSION'}
+                            </span>
+                          </div>
+
+                          {s.contact ? (
+                            <div style={{ fontSize: '0.88rem', color: '#15803d', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <i className="ri-phone-fill"></i> {s.contact}
+                            </div>
+                          ) : (
+                            <div style={{ fontSize: '0.82rem', color: '#71717a' }}>
+                              Session ID: <span style={{ fontFamily: 'monospace' }}>{s.sessionId}</span>
+                            </div>
+                          )}
+                        </div>
+
+                        <div style={{ textAlign: 'right' }}>
+                          <div style={{ fontSize: '0.78rem', color: '#71717a', background: '#eae6dd', padding: '4px 10px', borderRadius: '6px', border: '1px solid #c8c3b7', display: 'inline-block' }}>
+                            {new Date(s.updatedAt || s.createdAt).toLocaleString()}
+                          </div>
+                          <div style={{ fontSize: '0.76rem', color: '#71717a', marginTop: '4px' }}>
+                            {msgCount} messages exchanged
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* SUMMARY SPECS ROW */}
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px', background: '#faf8f5', borderRadius: '10px', padding: '12px 14px', marginBottom: '14px', border: '1px solid #c8c3b7' }}>
+                        <div>
+                          <span style={{ fontSize: '0.72rem', color: '#71717a', textTransform: 'uppercase', fontWeight: '700', display: 'block' }}>Business Type</span>
+                          <span style={{ fontSize: '0.88rem', fontWeight: '700', color: '#18181b' }}>{s.businessType || 'Unspecified'}</span>
+                        </div>
+                        <div>
+                          <span style={{ fontSize: '0.72rem', color: '#71717a', textTransform: 'uppercase', fontWeight: '700', display: 'block' }}>Target Budget</span>
+                          <span style={{ fontSize: '0.88rem', fontWeight: '700', color: '#6d28d9' }}>{s.budget || 'Not Stated'}</span>
+                        </div>
+                        <div style={{ gridColumn: 'span 2' }}>
+                          <span style={{ fontSize: '0.72rem', color: '#71717a', textTransform: 'uppercase', fontWeight: '700', display: 'block' }}>Latest Message</span>
+                          <span style={{ fontSize: '0.84rem', color: '#3f3f46', fontStyle: 'italic' }}>
+                            "{lastMsg ? (lastMsg.text.length > 100 ? lastMsg.text.slice(0, 100) + '...' : lastMsg.text) : 'Session started'}"
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* ACTION BUTTONS */}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', paddingTop: '10px', borderTop: '1px solid #e4e4e7' }}>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <button
+                            onClick={() => setSelectedAiSession(s)}
+                            className="btn-action-outline"
+                            style={{ background: '#18181b', color: '#fff', borderColor: '#18181b', fontWeight: '700' }}
+                          >
+                            <i className="ri-chat-history-line"></i> View Full Chat Transcript ({msgCount})
+                          </button>
+
+                          {s.contact && (
+                            <a
+                              href={`https://wa.me/${s.contact.replace(/[^0-9]/g, '')}?text=Hi!%20KLAPP%20Developers%20here.`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="btn-action-outline"
+                              style={{ background: '#f0fdf4', color: '#166534', borderColor: '#bbf7d0' }}
+                            >
+                              <i className="ri-whatsapp-fill" style={{ color: '#22c55e' }}></i> WhatsApp Lead
+                            </a>
+                          )}
+                        </div>
+
+                        <button
+                          onClick={() => handleDeleteAiSession(s.sessionId)}
+                          style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '0.85rem' }}
+                          title="Delete Session Log"
+                        >
+                          <i className="ri-delete-bin-line"></i> Delete Log
+                        </button>
+                      </div>
+                    </div>
+                  );
+                });
+              })()}
+            </div>
+          )}
+
+          {/* FULL CHAT TRANSCRIPT MODAL DRAWER */}
+          {selectedAiSession && (
+            <div style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              width: '100vw',
+              height: '100vh',
+              zIndex: 999999,
+              background: 'rgba(0,0,0,0.5)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '20px'
+            }}>
+              <div style={{
+                background: '#ffffff',
+                width: '100%',
+                maxWidth: '750px',
+                maxHeight: '90vh',
+                borderRadius: '16px',
+                border: '1px solid #c8c3b7',
+                display: 'flex',
+                flexDirection: 'column',
+                overflow: 'hidden',
+                boxShadow: '0 20px 40px rgba(0,0,0,0.2)'
+              }}>
+                {/* MODAL HEADER */}
+                <div style={{ padding: '18px 24px', borderBottom: '1px solid #c8c3b7', background: '#faf8f5', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: '800', color: '#18181b', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <i className="ri-robot-line" style={{ color: '#8b5cf6' }}></i>
+                      {selectedAiSession.clientName || 'AI Conversation Log'}
+                    </h3>
+                    <div style={{ fontSize: '0.8rem', color: '#71717a', marginTop: '2px' }}>
+                      {selectedAiSession.contact ? `Contact: ${selectedAiSession.contact}` : `Session ID: ${selectedAiSession.sessionId}`}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setSelectedAiSession(null)}
+                    style={{ background: '#eae6dd', border: '1px solid #c8c3b7', borderRadius: '50%', width: '32px', height: '32px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  >
+                    <i className="ri-close-line"></i>
+                  </button>
+                </div>
+
+                {/* MODAL BODY TRANSCRIPT MESSAGES */}
+                <div style={{ flex: 1, overflowY: 'auto', padding: '20px', background: '#f4f1ea', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {Array.isArray(selectedAiSession.messages) && selectedAiSession.messages.length > 0 ? (
+                    selectedAiSession.messages.map((m, idx) => {
+                      const isUser = m.sender === 'user';
+                      return (
+                        <div
+                          key={m.id || idx}
+                          style={{
+                            alignSelf: isUser ? 'flex-end' : 'flex-start',
+                            maxWidth: '82%',
+                            background: isUser ? '#18181b' : '#ffffff',
+                            color: isUser ? '#ffffff' : '#18181b',
+                            border: isUser ? 'none' : '1px solid #c8c3b7',
+                            padding: '12px 16px',
+                            borderRadius: isUser ? '16px 16px 2px 16px' : '16px 16px 16px 2px',
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+                          }}
+                        >
+                          <div style={{ fontSize: '0.7rem', opacity: 0.7, marginBottom: '4px', fontWeight: '700', textTransform: 'uppercase' }}>
+                            {isUser ? 'Visitor' : 'KLAPP AI'} • {m.time || ''}
+                          </div>
+                          <div style={{ fontSize: '0.9rem', lineHeight: '1.5', whiteSpace: 'pre-wrap' }}>
+                            {m.text}
+                          </div>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div style={{ textAlign: 'center', padding: '30px', color: '#71717a' }}>No message transcript recorded for this session.</div>
+                  )}
+                </div>
+
+                {/* MODAL FOOTER */}
+                <div style={{ padding: '14px 24px', borderTop: '1px solid #c8c3b7', background: '#faf8f5', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '0.78rem', color: '#71717a' }}>
+                    Captured Budget: <strong>{selectedAiSession.budget || 'Not Stated'}</strong>
+                  </span>
+                  <button
+                    onClick={() => setSelectedAiSession(null)}
+                    className="btn-action-outline"
+                    style={{ background: '#18181b', color: '#fff', borderColor: '#18181b' }}
+                  >
+                    Close Transcript
+                  </button>
+                </div>
+              </div>
             </div>
           )}
 

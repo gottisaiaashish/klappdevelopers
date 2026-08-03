@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { API_BASE_URL } from '../config/api';
 
 /**
  * KLAPP AI - Official AI Solutions Consultant Knowledge Engine
  * Dual-Engine Architecture:
- * 1. Primary Engine: 100% Real Google Gemini 1.5 Flash AI Brain (via Google AI Studio Key)
+ * 1. Primary Engine: Backend API Sync & Gemini LLM Proxy Engine
  * 2. Fallback Engine: Smart Local Memory Engine
  */
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
@@ -24,6 +25,12 @@ COMPANY PORTFOLIO & CASE STUDIES:
 - Balaji Kishore Medical (Pharma inventory & prescription portal)
 - Amanvi AI (Autonomous AI customer service platform)
 - Seek (Job search & candidate matching portal)
+
+CRITICAL LEAD CAPTURE & CONVERSATION RULES:
+1. ALWAYS warmly ask for the user's Name and WhatsApp Phone Number (or Email) during the conversation (especially after understanding their business type or explaining budget/pricing tiers).
+2. DO NOT reveal internal team members' names (like Manashvini). Refer ONLY to "our team", "KLAPP Developers team", or "Founder Gotti Aashish & our engineering team".
+3. When the user provides their contact details (or asks to connect), give a warm, high-converting reassurance closing line:
+   "Thank you so much! 🚀 I have securely recorded our complete conversation and your project requirements. Our team will review your project details and reach out to you within 2 hours to discuss the next steps! You can also contact us directly on WhatsApp at +91 79890 33580."
 
 SALES FUNNEL & PRICING RULES:
 1. NEVER DUMP PRICES UPFRONT when a user names a business! First explain the custom features you can build for their business, mention relevant case studies, and ASK THE CLIENT FOR THEIR TARGET BUDGET.
@@ -180,6 +187,7 @@ export default function KlappAiModal({ isOpen, onClose, initialPrompt = '' }) {
   const [messages, setMessages] = useState([]);
   const [isThinking, setIsThinking] = useState(false);
   const [inputVal, setInputVal] = useState('');
+  const [sessionId, setSessionId] = useState('');
   
   // Smart Conversation Context Memory
   const [activeContext, setActiveContext] = useState(null);
@@ -191,31 +199,36 @@ export default function KlappAiModal({ isOpen, onClose, initialPrompt = '' }) {
   const chatEndRef = useRef(null);
 
   useEffect(() => {
-    const currentFullText = AI_ROTATING_PROMPTS[promptIndex];
-    let typingSpeed = isDeleting ? 30 : 65;
-
-    if (!isDeleting && placeholderText === currentFullText) {
-      typingSpeed = 1800; // Pause at end of phrase
-    } else if (isDeleting && placeholderText === '') {
-      setIsDeleting(false);
-      setPromptIndex((prev) => (prev + 1) % AI_ROTATING_PROMPTS.length);
-      typingSpeed = 300; // Pause before typing next phrase
+    if (isOpen && !sessionId) {
+      setSessionId('AISESSION-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7));
     }
+  }, [isOpen, sessionId]);
 
-    const timer = setTimeout(() => {
-      if (!isDeleting && placeholderText !== currentFullText) {
-        setPlaceholderText(currentFullText.slice(0, placeholderText.length + 1));
-      } else if (isDeleting && placeholderText !== '') {
-        setPlaceholderText(currentFullText.slice(0, placeholderText.length - 1));
-      } else if (!isDeleting && placeholderText === currentFullText) {
-        setIsDeleting(true);
+  // Backend API Chat Caller with Live Session Sync & Lead Extraction
+  const fetchBackendAiReply = async (userQuery, conversationHistory, activeSessionId) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/ai/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: userQuery,
+          history: conversationHistory,
+          sessionId: activeSessionId
+        })
+      });
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.reply) {
+          return data.reply;
+        }
       }
-    }, typingSpeed);
+    } catch (err) {
+      console.warn('Backend AI Chat Proxy warning:', err.message);
+    }
+    return null;
+  };
 
-    return () => clearTimeout(timer);
-  }, [placeholderText, isDeleting, promptIndex]);
-
-  // Real Google Gemini 1.5 Flash API Caller
+  // Real Google Gemini 1.5 Flash API Caller (Direct Client Fallback)
   const fetchGeminiReply = async (userQuery, conversationHistory) => {
     try {
       const formattedHistory = conversationHistory.map(m => ({
@@ -454,10 +467,21 @@ What is your budget for AI automation? Tell me your target budget, and I'll outl
     setMessages((prev) => [...prev, userMsg]);
     setIsThinking(true);
 
-    // 1. Fetch Real Gemini AI Reply asynchronously
-    let fullReplyText = await fetchGeminiReply(userQuery, currentHistory);
+    let activeSessionId = sessionId;
+    if (!activeSessionId) {
+      activeSessionId = 'AISESSION-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7);
+      setSessionId(activeSessionId);
+    }
 
-    // 2. Fallback to Smart Local Engine if Gemini call returned null
+    // 1. Fetch Backend API Reply (handles Gemini + live session sync + lead extraction)
+    let fullReplyText = await fetchBackendAiReply(userQuery, currentHistory, activeSessionId);
+
+    // 2. Direct Gemini Fallback if backend API call was null
+    if (!fullReplyText) {
+      fullReplyText = await fetchGeminiReply(userQuery, currentHistory);
+    }
+
+    // 3. Fallback to Smart Local Engine if Gemini call returned null
     if (!fullReplyText) {
       fullReplyText = getLocalReply(userQuery);
     }
@@ -531,6 +555,7 @@ What is your budget for AI automation? Tell me your target budget, and I'll outl
     setMessages([]);
     setActiveContext(null);
     setInputVal('');
+    setSessionId('AISESSION-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7));
   };
 
   if (!isOpen) return null;
