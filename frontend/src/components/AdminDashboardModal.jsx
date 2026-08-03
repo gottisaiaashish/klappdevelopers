@@ -254,8 +254,17 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
     setShowAddContentModal(false);
   };
 
-  // Selected Day Filter for Mon-Sat Weekly Matrix
-  const [selectedContentDay, setSelectedContentDay] = useState('ALL');
+  // Helper: Get today's day name (Mon-Sat) in Kolkata timezone
+  const getTodayDayName = () => {
+    const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const nowKolkata = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+    const idx = nowKolkata.getDay();
+    if (idx === 0) return 'Monday';
+    return dayNames[idx - 1] || 'Monday';
+  };
+
+  // Selected Day Filter for Mon-Sat Weekly Matrix (Defaults to TODAY's day)
+  const [selectedContentDay, setSelectedContentDay] = useState(getTodayDayName());
   const [contentWeekOffset, setContentWeekOffset] = useState(0);
 
   const handleToggleContentLike = (contentId, person) => {
@@ -2294,7 +2303,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                           return (
                             <div 
                               key={dName} 
-                              onClick={() => setSelectedContentDay(isSelected ? 'ALL' : dName)}
+                              onClick={() => setSelectedContentDay(dName)}
                               style={{ 
                                 background: isSelected ? '#eff6ff' : (isToday ? '#faf8f5' : '#ffffff'),
                                 border: isSelected ? '2px solid #2563eb' : (isToday ? '2px solid #18181b' : '1px solid #c8c3b7'),
@@ -2411,11 +2420,54 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
 
                   return (
                     <div>
-                      <h4 style={{ fontSize: '1.05rem', fontWeight: '800', marginBottom: '14px' }}>
-                        {selectedContentDay === 'ALL' 
-                          ? `All Content Ideas (${weekDays[0].formattedDateStr} to ${weekDays[5].formattedDateStr})` 
-                          : `${selectedContentDay} Content Pipeline (${selectedDayObj ? selectedDayObj.formattedDateStr : ''})`}
-                      </h4>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', marginBottom: '14px' }}>
+                        <h4 style={{ fontSize: '1.05rem', fontWeight: '800', margin: 0 }}>
+                          {selectedContentDay === 'ALL' 
+                            ? `All Content Ideas (${weekDays[0].formattedDateStr} to ${weekDays[5].formattedDateStr})` 
+                            : `${selectedContentDay} Content Pipeline (${selectedDayObj ? selectedDayObj.formattedDateStr : ''})`}
+                        </h4>
+
+                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                          {weekDays.map(w => {
+                            const isSel = selectedContentDay === w.dName;
+                            return (
+                              <button
+                                key={w.dName}
+                                type="button"
+                                onClick={() => setSelectedContentDay(w.dName)}
+                                style={{
+                                  padding: '4px 10px',
+                                  borderRadius: '6px',
+                                  fontSize: '0.75rem',
+                                  fontWeight: '700',
+                                  cursor: 'pointer',
+                                  border: isSel ? '1px solid #2563eb' : '1px solid #cbd5e1',
+                                  background: isSel ? '#eff6ff' : '#ffffff',
+                                  color: isSel ? '#2563eb' : '#64748b'
+                                }}
+                              >
+                                {w.dName.slice(0, 3)}
+                              </button>
+                            );
+                          })}
+                          <button
+                            type="button"
+                            onClick={() => setSelectedContentDay('ALL')}
+                            style={{
+                              padding: '4px 10px',
+                              borderRadius: '6px',
+                              fontSize: '0.75rem',
+                              fontWeight: '700',
+                              cursor: 'pointer',
+                              border: selectedContentDay === 'ALL' ? '1px solid #0f172a' : '1px solid #cbd5e1',
+                              background: selectedContentDay === 'ALL' ? '#f1f5f9' : '#ffffff',
+                              color: selectedContentDay === 'ALL' ? '#0f172a' : '#64748b'
+                            }}
+                          >
+                            View All Week
+                          </button>
+                        </div>
+                      </div>
 
                       {filtered.length === 0 ? (
                         <div style={{ textAlign: 'center', padding: '24px', color: '#71717a', fontSize: '0.88rem' }}>
