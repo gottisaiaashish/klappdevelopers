@@ -2719,9 +2719,15 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
 
                       {/* REAL-TIME COMPARISON PROGRESS BAR */}
                       <div style={{ marginBottom: '16px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.88rem', fontWeight: '800', marginBottom: '6px' }}>
-                          <span style={{ color: '#2563eb' }}>🟦 Aashish: {activeAashishPct}% ({isViewingToday ? aashishDoneCount : (pastHistoryRecord?.aashishCompleted || 0)}/8)</span>
-                          <span style={{ color: '#ec4899' }}>🟨 Minni: {activeMinniPct}% ({isViewingToday ? minniDoneCount : (pastHistoryRecord?.minniCompleted || 0)}/9)</span>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.88rem', fontWeight: '800', marginBottom: '6px', alignItems: 'center' }}>
+                          <span style={{ color: '#2563eb', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                            <img src="/profiles/ashish.png" alt="Aashish" style={{ width: '22px', height: '22px', borderRadius: '50%', objectFit: 'cover', border: '1.5px solid #2563eb' }} onError={(e) => { e.target.onerror = null; e.target.src = '/aashish.jpg'; }} />
+                            Aashish: {activeAashishPct}% ({isViewingToday ? aashishDoneCount : (pastHistoryRecord?.aashishCompleted || 0)}/8)
+                          </span>
+                          <span style={{ color: '#ec4899', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                            <img src="/profiles/min.png" alt="Minni" style={{ width: '22px', height: '22px', borderRadius: '50%', objectFit: 'cover', border: '1.5px solid #ec4899' }} />
+                            Minni: {activeMinniPct}% ({isViewingToday ? minniDoneCount : (pastHistoryRecord?.minniCompleted || 0)}/9)
+                          </span>
                         </div>
                         <div style={{ display: 'flex', height: '14px', borderRadius: '7px', overflow: 'hidden', background: '#e2e8f0' }}>
                           <div style={{ width: `${(activeAashishPct / (activeAashishPct + activeMinniPct || 1)) * 100}%`, background: '#2563eb', transition: 'width 0.4s ease' }} title={`Aashish ${activeAashishPct}%`}></div>
@@ -2821,7 +2827,12 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                       <div className="os-card">
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', paddingBottom: '10px', borderBottom: '1px solid #c8c3b7' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#2563eb', color: '#fff', fontWeight: '800', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>A</div>
+                            <img 
+                              src="/profiles/ashish.png" 
+                              alt="Aashish Profile" 
+                              style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #2563eb', boxShadow: '0 2px 6px rgba(0,0,0,0.12)' }}
+                              onError={(e) => { e.target.onerror = null; e.target.src = '/aashish.jpg'; }}
+                            />
                             <div>
                               <h4 style={{ margin: 0, fontWeight: '800' }}>Aashish Daily Routine</h4>
                               <div style={{ fontSize: '0.75rem', color: '#71717a' }}>Status: {osData.disciplineLogs?.aashish?.mood || '⚡ High Energy'}</div>
@@ -2863,7 +2874,11 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                       <div className="os-card">
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', paddingBottom: '10px', borderBottom: '1px solid #c8c3b7' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#ec4899', color: '#fff', fontWeight: '800', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>M</div>
+                            <img 
+                              src="/profiles/min.png" 
+                              alt="Minni Profile" 
+                              style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #ec4899', boxShadow: '0 2px 6px rgba(0,0,0,0.12)' }}
+                            />
                             <div>
                               <h4 style={{ margin: 0, fontWeight: '800' }}>Manashvini (Minni) Daily Routine</h4>
                               <div style={{ fontSize: '0.75rem', color: '#71717a' }}>Status: {osData.disciplineLogs?.minni?.mood || '✨ Creative Surge'}</div>
