@@ -206,8 +206,12 @@ router.post('/chat', async (req, res) => {
             const data = await response.json();
             if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts[0]) {
               reply = data.candidates[0].content.parts[0].text.replace(/\*\*/g, '').replace(/\*/g, '');
+              console.log(`[Gemini LLM Success]: Responded using model ${m}`);
               break;
             }
+          } else {
+            const errData = await response.json().catch(() => ({}));
+            console.warn(`[Gemini LLM Error ${response.status} on model ${m}]:`, errData.error?.message || response.statusText);
           }
         } catch (err) {
           console.warn(`Gemini model ${m} fetch failed:`, err.message);

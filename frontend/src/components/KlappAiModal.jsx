@@ -266,6 +266,9 @@ export default function KlappAiModal({ isOpen, onClose, initialPrompt = '' }) {
               let text = data.candidates[0].content.parts[0].text;
               return text.replace(/\*\*/g, '').replace(/\*/g, '');
             }
+          } else {
+            const errData = await response.json().catch(() => ({}));
+            console.warn(`[Client Gemini Error ${response.status} on model ${m}]:`, errData.error?.message || response.statusText);
           }
         } catch (e) {}
       }
