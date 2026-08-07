@@ -162,6 +162,72 @@ router.get('/inquiries', requireAdminAuth, async (req, res) => {
   });
 });
 
+function getTodayDateStr() {
+  return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+}
+
+function processDisciplineDateRollover(data) {
+  const todayStr = getTodayDateStr();
+  if (!data.disciplineLogs) {
+    data.disciplineLogs = {
+      date: todayStr,
+      aashish: { attendance: false, waterMorning: false, waterAfternoon: false, waterEvening: false, gym: false, protein: false, coding: false, dinner9pm: false, nightLeadCheck: false, sleep11pm: false, mood: '⚡ High Energy' },
+      minni: { attendance: false, waterMorning: false, waterAfternoon: false, waterEvening: false, instaPost1: false, instaPost2: false, storiesCompleted: false, scheduleNextDayPosts: false, coding: false, dinner9pm: false, sleep11pm: false, mood: '✨ Creative Surge' }
+    };
+    return true;
+  }
+
+  const logDate = data.disciplineLogs.date;
+
+  if (logDate && logDate !== todayStr) {
+    const aashishKeys = ['attendance', 'waterMorning', 'waterAfternoon', 'waterEvening', 'gym', 'protein', 'coding', 'dinner9pm', 'nightLeadCheck', 'sleep11pm'];
+    const minniKeys = ['attendance', 'waterMorning', 'waterAfternoon', 'waterEvening', 'instaPost1', 'instaPost2', 'storiesCompleted', 'scheduleNextDayPosts', 'coding', 'dinner9pm', 'sleep11pm'];
+
+    const aashishDone = aashishKeys.filter(k => data.disciplineLogs.aashish?.[k]).length;
+    const minniDone = minniKeys.filter(k => data.disciplineLogs.minni?.[k]).length;
+    const aashishPct = Math.round((aashishDone / aashishKeys.length) * 100);
+    const minniPct = Math.round((minniDone / minniKeys.length) * 100);
+
+    let winner = 'TIE';
+    if (aashishPct > minniPct) winner = 'AASHISH';
+    if (minniPct > aashishPct) winner = 'MINNI';
+
+    if (!Array.isArray(data.disciplineHistory)) {
+      data.disciplineHistory = [];
+    }
+
+    const existingIdx = data.disciplineHistory.findIndex(h => h.date === logDate);
+    const historyEntry = {
+      date: logDate,
+      aashishScore: aashishPct,
+      minniScore: minniPct,
+      aashishCompleted: aashishDone,
+      aashishTotal: aashishKeys.length,
+      minniCompleted: minniDone,
+      minniTotal: minniKeys.length,
+      winner,
+      aashishMood: data.disciplineLogs.aashish?.mood || '⚡ High Energy',
+      minniMood: data.disciplineLogs.minni?.mood || '✨ Creative Surge',
+      aashishTasks: { ...data.disciplineLogs.aashish },
+      minniTasks: { ...data.disciplineLogs.minni }
+    };
+
+    if (existingIdx >= 0) {
+      data.disciplineHistory[existingIdx] = historyEntry;
+    } else {
+      data.disciplineHistory.unshift(historyEntry);
+    }
+
+    data.disciplineLogs = {
+      date: todayStr,
+      aashish: { attendance: false, waterMorning: false, waterAfternoon: false, waterEvening: false, gym: false, protein: false, coding: false, dinner9pm: false, nightLeadCheck: false, sleep11pm: false, mood: data.disciplineLogs.aashish?.mood || '⚡ High Energy' },
+      minni: { attendance: false, waterMorning: false, waterAfternoon: false, waterEvening: false, instaPost1: false, instaPost2: false, storiesCompleted: false, scheduleNextDayPosts: false, coding: false, dinner9pm: false, sleep11pm: false, mood: data.disciplineLogs.minni?.mood || '✨ Creative Surge' }
+    };
+    return true;
+  }
+  return false;
+}
+
 /**
  * @route   GET /api/admin/os-data
  * @desc    Fetch real-time KLAPP OS state (Projects, Meetings, Content, Tasks, Discipline)
@@ -189,18 +255,26 @@ router.get('/os-data', requireAdminAuth, async (req, res) => {
         data.retainers = defaultOSState.retainers;
         needsSave = true;
       }
-      if (needsSave) {
+      const rolloverHappened = processDisciplineDateRollover(data);
+      if (needsSave || rolloverHappened) {
         await KlappOSData.findOneAndUpdate(
           { key: 'klapp_os_global_state' },
-          { projects: data.projects, retainers: data.retainers },
+          { 
+            projects: data.projects, 
+            retainers: data.retainers,
+            disciplineLogs: data.disciplineLogs,
+            disciplineHistory: data.disciplineHistory 
+          },
           { upsert: true }
         );
       }
       return res.json({ success: true, osData: data });
     }
+    processDisciplineDateRollover(defaultOSState);
     return res.json({ success: true, osData: defaultOSState });
   } catch (err) {
     console.error('Error fetching OS data:', err);
+    processDisciplineDateRollover(defaultOSState);
     return res.json({ success: true, osData: defaultOSState });
   }
 });

@@ -700,7 +700,18 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
       });
       const osDataRes = await osRes.json();
       if (osRes.ok && osDataRes.success && osDataRes.osData) {
-        setOsData(osDataRes.osData);
+        let currentOSData = osDataRes.osData;
+        const todayStr = getLocalDateStr();
+        if (currentOSData.disciplineLogs?.date && currentOSData.disciplineLogs.date !== todayStr) {
+          currentOSData.disciplineLogs = {
+            date: todayStr,
+            aashish: { attendance: false, waterMorning: false, waterAfternoon: false, waterEvening: false, gym: false, protein: false, coding: false, dinner9pm: false, nightLeadCheck: false, sleep11pm: false, mood: currentOSData.disciplineLogs?.aashish?.mood || '⚡ High Energy' },
+            minni: { attendance: false, waterMorning: false, waterAfternoon: false, waterEvening: false, instaPost1: false, instaPost2: false, storiesCompleted: false, scheduleNextDayPosts: false, coding: false, dinner9pm: false, sleep11pm: false, mood: currentOSData.disciplineLogs?.minni?.mood || '✨ Creative Surge' }
+          };
+          syncOSDataToBackend(currentOSData);
+        } else {
+          setOsData(currentOSData);
+        }
       }
     } catch (err) {
       console.warn('Backend fetch fallback:', err);
@@ -863,6 +874,46 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
       ...osData,
       disciplineLogs: updatedDisciplineLogs,
       disciplineHistory: updatedHistory
+    };
+    syncOSDataToBackend(updated);
+  };
+
+  const handleResetDisciplineToday = () => {
+    const todayStr = getLocalDateStr();
+    const updatedDisciplineLogs = {
+      date: todayStr,
+      aashish: {
+        attendance: false,
+        waterMorning: false,
+        waterAfternoon: false,
+        waterEvening: false,
+        gym: false,
+        protein: false,
+        coding: false,
+        dinner9pm: false,
+        nightLeadCheck: false,
+        sleep11pm: false,
+        mood: osData.disciplineLogs?.aashish?.mood || '⚡ High Energy'
+      },
+      minni: {
+        attendance: false,
+        waterMorning: false,
+        waterAfternoon: false,
+        waterEvening: false,
+        instaPost1: false,
+        instaPost2: false,
+        storiesCompleted: false,
+        scheduleNextDayPosts: false,
+        coding: false,
+        dinner9pm: false,
+        sleep11pm: false,
+        mood: osData.disciplineLogs?.minni?.mood || '✨ Creative Surge'
+      }
+    };
+
+    const updated = {
+      ...osData,
+      disciplineLogs: updatedDisciplineLogs
     };
     syncOSDataToBackend(updated);
   };
@@ -2935,7 +2986,7 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                           </div>
                         </div>
 
-                        {/* LIVE LEADERBOARD BADGES */}
+                        {/* LIVE LEADERBOARD BADGES & RESET BUTTON */}
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                           <span style={{ background: '#eff6ff', color: '#1d4ed8', border: '1px solid #bfdbfe', padding: '4px 10px', borderRadius: '8px', fontSize: '0.78rem', fontWeight: '700' }}>
                             🔥 Aashish Streak: {aashishStreak} Days
@@ -2946,6 +2997,28 @@ export default function AdminDashboardModal({ isOpen, onClose, onLogout }) {
                           <span style={{ background: '#fef3c7', color: '#92400e', border: '1px solid #fde68a', padding: '4px 10px', borderRadius: '8px', fontSize: '0.78rem', fontWeight: '800' }}>
                             🏆 Wins: Aashish {aashishWins} - {minniWins} Minni
                           </span>
+                          {isViewingToday && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (window.confirm("Are you sure you want to reset today's checklist to PENDING?")) {
+                                  handleResetDisciplineToday();
+                                }
+                              }}
+                              style={{
+                                background: '#f1f5f9',
+                                color: '#475569',
+                                border: '1px solid #cbd5e1',
+                                padding: '4px 10px',
+                                borderRadius: '8px',
+                                fontSize: '0.78rem',
+                                fontWeight: '700',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              🔄 Reset Today
+                            </button>
+                          )}
                         </div>
                       </div>
 
